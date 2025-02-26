@@ -3,7 +3,7 @@ import Image from "next/image"
 
 import { useEffect, useRef } from "react"
 
-import { useInterval } from "@marimo/hooks/useInterval"
+import { useInterval } from "@marimo/hooks/use-interval"
 
 import { getTrashImage } from "@marimo/public/utils/level-image"
 

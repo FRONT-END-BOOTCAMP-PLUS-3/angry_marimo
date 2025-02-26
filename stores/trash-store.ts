@@ -1,34 +1,24 @@
-import { create, StateCreator } from "zustand"
 import { State } from "./use-store"
+import { StateCreator } from "zustand"
+import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto"
 
-export type TTrashItem = {
-  id: number
-  level: number
-  url: string
-  x: number
-  y: number
-}
-
-export interface TrashStore {
-  trashItems: TTrashItem[]
+export interface TTrashSlice {
+  trashItems: ITrashDto[]
   idCounter: number
 
-  addTrashItems: (items: Omit<TTrashItem, "id">[]) => void
+  addTrashItems: (items: Omit<ITrashDto, "id">[]) => void
   removeTrashItem: (id: number) => void
   clearAllTrash: () => void
-  updateTrashItem: (
-    id: number,
-    updates: Partial<Omit<TTrashItem, "id">>,
-  ) => void
-  getTrashById: (id: number) => TTrashItem | undefined
-  getTrashByLevel: (level: number) => TTrashItem[]
+  updateTrashItem: (id: number, updates: Partial<Omit<ITrashDto, "id">>) => void
+  getTrashById: (id: number) => ITrashDto | undefined
+  getTrashByLevel: (level: number) => ITrashDto[]
 }
 
 export const useTrashStore: StateCreator<
   Partial<State>,
   [],
   [],
-  TrashStore
+  TTrashSlice
 > = (set, get) => ({
   trashItems: [],
   idCounter: 0,
@@ -61,7 +51,7 @@ export const useTrashStore: StateCreator<
   updateTrashItem: (id, updates) => {
     set((state) => ({
       trashItems: (state.trashItems || []).map((item) =>
-        item.id === id ? { ...item, ...updates } : item
+        item.id === id ? { ...item, ...updates } : item,
       ),
     }))
   },
@@ -75,7 +65,7 @@ export const useTrashStore: StateCreator<
   },
 })
 
-export const selectAllTrash = (state: TrashStore) => state.trashItems
-export const selectTrashCount = (state: TrashStore) => state.trashItems.length
-export const selectTrashByLevel = (level: number) => (state: TrashStore) =>
+export const selectAllTrash = (state: TTrashSlice) => state.trashItems
+export const selectTrashCount = (state: TTrashSlice) => state.trashItems.length
+export const selectTrashByLevel = (level: number) => (state: TTrashSlice) =>
   state.trashItems.filter((item) => item.level === level)
