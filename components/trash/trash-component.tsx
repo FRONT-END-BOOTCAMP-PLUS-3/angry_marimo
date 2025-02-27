@@ -21,6 +21,7 @@ export default function TrashComponent() {
   const { trashItems, addTrashItems } = useStore()
 
   useEffect(() => {
+    const headerHeight = 200
     worker.current = new Worker(
       new URL("/public/workers/trash-worker", import.meta.url),
       { type: "module" },
@@ -41,7 +42,7 @@ export default function TrashComponent() {
           url: getTrashImage(level), // level에 따른 이미지 URL 추가
           rect: {
             x: point.x * 100, // 0-100% 위치값으로 변환
-            y: point.y * 100,
+            y: point.y * 100 - (headerHeight / window.innerHeight) * 100,
           },
           type: "trash",
         }
@@ -53,6 +54,7 @@ export default function TrashComponent() {
       const marimoId = 123 // 예제 마리모 ID
 
       const convertTrashToObject = async () => {
+        console.log(trashItem)
         await useCase.execute(trashItems, marimoId)
       }
 
