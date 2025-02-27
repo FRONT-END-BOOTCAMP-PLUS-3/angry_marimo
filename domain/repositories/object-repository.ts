@@ -4,33 +4,28 @@ import type { Object as ObjectItem } from "@prisma/client"
 import { InputJsonValue } from "@prisma/client/runtime/client"
 
 export interface ObjectRepository {
-  findAllObject(
-    id: number,
-    marimoId: number,
-    type: string,
-    react: InputJsonValue,
-    isActive: boolean,
-    createAt: Date,
-    updateAt: Date,
-  ): Promise<ObjectItem[] | null>
-
   create(
     id: number,
     marimoId: number,
     type: string,
     react: InputJsonValue,
     isActive: boolean,
-    createAt: Date,
-    updateAt: Date,
+    createdAt: Date,
+    updatedAt: Date,
+    url: string,
+    level: number,
   ): Promise<ObjectItem | null>
 
   update(
     id: number,
     isActive: boolean,
     updateAt: Date,
+    // level: number,
   ): Promise<ObjectItem | null>
 
   findById(id: number): Promise<ObjectItem | null>
 
   findAllByMarimoId(marimoId: number): Promise<ObjectItem[] | null>
+
+  deleteObject(id: number): Promise<void>
 }

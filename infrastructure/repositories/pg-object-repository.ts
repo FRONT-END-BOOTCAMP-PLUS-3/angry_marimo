@@ -5,24 +5,7 @@ import { Object as ObjectItem, PrismaClient } from "@prisma/client"
 
 export class PgObjectRepository implements ObjectRepository {
   constructor(private prisma: PrismaClient) {}
-  async findAllObject(
-    id: number,
-    marimoId: number,
-    type: string,
-    rect: InputJsonValue,
-    isActive: boolean,
-    createdAt: Date,
-    updatedAt: Date,
-  ): Promise<ObjectItem[] | null> {
-    try {
-      const findObject = await this.prisma.object.findMany({
-        data: { id, marimoId, type, rect, isActive, createdAt, updatedAt },
-      })
-      return findObject || null
-    } catch (error) {
-      throw new Error("Method not implemented.")
-    }
-  }
+
   async create(
     id: number,
     marimoId: number,
@@ -31,16 +14,29 @@ export class PgObjectRepository implements ObjectRepository {
     isActive: boolean,
     createdAt: Date,
     updatedAt: Date,
+    url: string,
+    level: number,
   ): Promise<ObjectItem | null> {
     try {
       const newObject = await this.prisma.object.create({
-        data: { id, marimoId, type, rect, isActive, createdAt, updatedAt },
+        data: {
+          id,
+          marimoId,
+          type,
+          rect,
+          isActive,
+          createdAt,
+          updatedAt,
+          level,
+          url,
+        },
       })
       return newObject || null
     } catch (error) {
       throw new Error(`PgObjectRepository.create.error =========> \n ${error}`)
     }
   }
+
   async update(
     id: number,
     isActive: boolean,
@@ -56,6 +52,7 @@ export class PgObjectRepository implements ObjectRepository {
       throw new Error(`PgObjectRepository.update.error =========> \n ${error}`)
     }
   }
+
   async findById(id: number): Promise<ObjectItem | null> {
     try {
       const findById = await this.prisma.object.findUnique({
@@ -76,6 +73,18 @@ export class PgObjectRepository implements ObjectRepository {
     } catch (error) {
       throw new Error(
         `PgObjectRepository.findAllByMarimoId.error =========> \n ${error}`,
+      )
+    }
+  }
+
+  async deleteObject(id: number): Promise<void> {
+    try {
+      await this.prisma.object.delete({
+        where: { id },
+      })
+    } catch (error) {
+      throw new Error(
+        `PgObjectRepository.deleteById.error =========> \n ${error}`,
       )
     }
   }
