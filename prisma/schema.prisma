@@ -40,6 +40,8 @@ model Marimo {
 model Object {
   id        Int      @id @default(autoincrement())
   marimoId  Int
+  level     Int
+  url       String
   type      String
   rect      Json
   isActive  Boolean
