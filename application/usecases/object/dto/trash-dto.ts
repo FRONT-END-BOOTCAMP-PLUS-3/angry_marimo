@@ -6,4 +6,5 @@ export interface ITrashDto {
     x: number
     y: number
   }
+  type: string // "trash"| "feed"| "object" 형식이다.
 }
