@@ -10,6 +10,7 @@ import { getTrashImage } from "@marimo/public/utils/level-image"
 import styles from "@marimo/components/trash/trash.module.css"
 
 import { useStore } from "@marimo/stores/use-store"
+import { TrashToObjectUseCase } from "@marimo/application/usecases/object/trash-object-usecase"
 
 export default function TrashComponent() {
   const { trashItem, trashImage } = styles
@@ -35,15 +36,27 @@ export default function TrashComponent() {
       const newTrashItems = event.data.points.map((point) => {
         const level = Math.floor(Math.random() * 3) // 0-2 사이의 레벨 생성
         return {
-          id: idCounter.current++,
+          // id: idCounter.current++,
           level,
           url: getTrashImage(level), // level에 따른 이미지 URL 추가
-          x: point.x * 100, // 0-100% 위치값으로 변환
-          y: point.y * 100,
+          rect: {
+            x: point.x * 100, // 0-100% 위치값으로 변환
+            y: point.y * 100,
+          },
+          type: "trash",
         }
       })
 
       addTrashItems(newTrashItems)
+
+      const useCase = new TrashToObjectUseCase()
+      const marimoId = 123 // 예제 마리모 ID
+
+      const convertTrashToObject = async () => {
+        await useCase.execute(trashItems, marimoId)
+      }
+
+      convertTrashToObject()
       console.log("trash", newTrashItems)
     }
 
@@ -68,8 +81,8 @@ export default function TrashComponent() {
             key={item.id}
             className={trashItem}
             style={{
-              left: `${item.x}%`,
-              top: `${item.y}%`,
+              left: `${item.rect.x}%`,
+              top: `${item.rect.y}%`,
               transition: "all 0.3s ease-in-out",
             }}
           >

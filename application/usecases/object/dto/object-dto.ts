@@ -1,6 +1,6 @@
 import { InputJsonValue } from "@prisma/client/runtime/client"
 
-export interface ObjectDto {
+export interface IObjectDto {
   id: number
   level: number
   url: string
