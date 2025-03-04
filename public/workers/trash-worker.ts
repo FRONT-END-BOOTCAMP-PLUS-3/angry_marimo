@@ -7,22 +7,9 @@ self.addEventListener("message", (event: MessageEvent<number>) => {
     return
   }
 
-  const startTime = performance.now()
-
-  // 20초 이상 연산 시 타임아웃 처리
-  const timeout = setTimeout(() => {
-    console.warn(`[Worker] 연산 시간 초과 (20초), 작업 종료`)
-    postMessage({ error: "연산 시간이 초과되었습니다." })
-    self.close()
-  }, 20000)
-
   try {
     const points = randomLocation(event.data)
     const piValue = containerInside(points)
-
-    clearTimeout(timeout) // 타임아웃 방지
-
-    const endTime = performance.now()
 
     postMessage({ points, piValue })
   } catch (error) {
