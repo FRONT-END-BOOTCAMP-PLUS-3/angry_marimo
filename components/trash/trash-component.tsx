@@ -10,6 +10,7 @@ import { getTrashImage } from "@marimo/public/utils/level-image"
 import styles from "@marimo/components/trash/trash.module.css"
 
 import { useStore } from "@marimo/stores/use-store"
+import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto"
 
 export default function TrashComponent() {
   const { trashItem, trashImage } = styles
@@ -20,7 +21,7 @@ export default function TrashComponent() {
   const { trashItems, addTrashItems } = useStore()
 
   useEffect(() => {
-    const headerHeight = 200 // 임의값 수정
+    const headerHeight = 100 // 임의값 수정
     worker.current = new Worker(
       new URL("/public/workers/trash-worker", import.meta.url),
       { type: "module" },
@@ -33,7 +34,7 @@ export default function TrashComponent() {
       }>,
     ) => {
       // 각 포인트마다 쓰레기 아이템 생성
-      const newTrashItems = event.data.points.map((point) => {
+      const newTrashItems: ITrashDto[] = event.data.points.map((point) => {
         const level = Math.floor(Math.random() * 3) // 0-2 사이의 레벨 생성
         return {
           id: idCounter.current++,
@@ -48,9 +49,10 @@ export default function TrashComponent() {
       })
       // client zustand 에 값 저장해줌
       addTrashItems(newTrashItems)
+      // 여기서는 item 확인 가능함.
       console.log("trashItem!!!!!", newTrashItems)
       // 잘담김
-      const marimoId = 123 // 예제 마리모 ID
+      const marimoId = 12 // 예제 마리모 ID
       console.log("marimoID!!!!", marimoId)
 
       try {
@@ -61,12 +63,16 @@ export default function TrashComponent() {
           },
           body: JSON.stringify({
             marimoId: marimoId,
-            trashData: trashItems,
+            trashData: newTrashItems,
           }),
         })
+        // 이부분에서 안담김
+        console.log("trashData", trashItems)
 
         if (!response.ok) {
-          throw new Error(`Failed to send data for marimoId: ${marimoId}`)
+          throw new Error(
+            `마리모 아이디 보내는데 에러납니다아다다다다다: ${marimoId}`,
+          )
         }
         console.log("📤 모든 객체 API 전송 완료")
       } catch (error) {
@@ -80,7 +86,7 @@ export default function TrashComponent() {
   }, [])
 
   useInterval(() => {
-    worker.current?.postMessage(1) // 한 번에 1개의 포인트 생성
+    worker.current?.postMessage(1)
   }, 20000)
 
   return (

@@ -5,42 +5,51 @@ import { PgObjectRepository } from "@marimo/infrastructure/repositories/pg-objec
 import { PrismaClient } from "@prisma/client"
 import { TrashToObjectUseCase } from "@marimo/application/usecases/object/trash-object-usecase"
 
+const prisma = new PrismaClient()
+
 export async function GET() {
   const response = NextResponse.json({ message: "쓰레기를 생성합니다." })
   response.ok
 }
 
 export async function POST(request: NextRequest) {
-  const { marimoId, trashData } = await request.json()
-  console.log("trashData ------->", trashData)
-
-  const usecase = new TrashToObjectUseCase(
-    new PgObjectRepository(new PrismaClient()),
-  )
-
   try {
-    // 200 response.Ok
-    const trash = await usecase.execute(trashData, marimoId)
-
-    if (!trash) {
-      console.log("Marimo not found.")
+    if (request.headers.get("content-type") !== "application/json") {
       return NextResponse.json(
-        { message: "Marimo not found." },
-        { status: 404 },
+        { error: "Invalid Content-Type" },
+        { status: 400 },
       )
     }
 
-    console.log("Marimo found:", trash)
-    return NextResponse.json({ trash })
-  } catch (error) {
-    console.error("❌ Error in POST request:", error)
+    const body = await request.text()
+    if (!body) {
+      return NextResponse.json({ error: "Empty request body" }, { status: 400 })
+    }
 
-    return NextResponse.json(
-      {
-        message: "에러났다요-----------POST 요청에서 에러임~>",
-        error: error,
-      },
-      { status: 500 },
-    )
+    const { marimoId, trashData } = JSON.parse(body)
+    console.log("marimoId 랑 trashData 확인용 -------> ", marimoId, trashData)
+
+    if (!marimoId || !Array.isArray(trashData)) {
+      return NextResponse.json(
+        { error: "Invalid data format" },
+        { status: 400 },
+      )
+    }
+
+    // UseCase 실행
+    const usecase = new TrashToObjectUseCase(new PgObjectRepository(prisma))
+    const resultData = await usecase.execute(trashData, marimoId)
+
+    console.log("🔄 변환된 데이터:", resultData)
+    if (Array.isArray(resultData)) {
+      await prisma.object.createMany({ data: resultData })
+    } else {
+      await prisma.object.create({ data: resultData })
+    }
+
+    return NextResponse.json({ success: true }, { status: 200 })
+  } catch (error) {
+    console.error("❌ JSON parsing error:", error)
+    return NextResponse.json({ error: "Invalid JSON format" }, { status: 400 })
   }
 }

@@ -9,47 +9,64 @@ export class TrashToObjectUseCase {
     this.objectRepository = objectRepository
   }
 
-  async execute(trashData: ITrashDto, marimoId: number): Promise<IObjectDto> {
+  async execute(
+    trashData: ITrashDto[],
+    marimoId: number,
+  ): Promise<Omit<IObjectDto, "id">[]> {
     try {
       console.log("📌 trashData 확인:", JSON.stringify(trashData, null, 2))
       console.log("📌 marimoId 확인:", marimoId)
 
-      if (!trashData || !marimoId) {
-        throw new Error("Invalid input: trashData or marimoId is missing.")
+      if (!trashData || !Array.isArray(trashData) || trashData.length === 0) {
+        throw new Error("Invalid input: trashData must be a non-empty array.")
+      }
+      if (!marimoId) {
+        throw new Error("Invalid input: marimoId is missing.")
       }
 
-      const trashObject = await this.objectRepository.create(
-        marimoId,
-        trashData.type,
-        {
-          x: trashData.rect.x,
-          y: trashData.rect.y,
-        } as InputJsonValue,
-        true,
-        trashData.url,
-        trashData.level,
+      // 🔥 모든 trashData를 한꺼번에 DB에 저장
+      const createdObjects = await Promise.all(
+        trashData.map(async (trashItem) => {
+          return this.objectRepository.create(
+            marimoId,
+            trashItem.type,
+            {
+              x: trashItem.rect.x,
+              y: trashItem.rect.y,
+            } as InputJsonValue,
+            true,
+            trashItem.url,
+            trashItem.level,
+          )
+        }),
       )
 
-      console.log("✅ 생성된 trashObject:", trashObject)
+      console.log("✅ 생성된 trashObjects:", createdObjects)
 
-      if (!trashObject) {
-        throw new Error("Failed to create object from trash data")
+      if (!createdObjects || createdObjects.length === 0) {
+        throw new Error("Failed to create objects from trash data")
       }
 
-      console.log("🚀 Mapping trashObject:", trashObject)
-      const mappedObject = this.mapToObjectDto(trashObject)
-      console.log("✅ 변환된 IObjectDto:", mappedObject)
+      // 🔄 생성된 객체들을 Omit<IObjectDto, "id"> 배열로 변환
+      const mappedObjects: Omit<IObjectDto, "id">[] = createdObjects.map(
+        (trashObject) => this.mapToObjectDto(trashObject),
+      )
+      console.log("✅ 변환된 IObjectDto 배열 (id 제외됨):", mappedObjects)
 
-      return mappedObject
+      return mappedObjects
     } catch (error) {
       console.error("❌ TrashToObjectUseCase.execute error:", error)
       throw new Error(`TrashToObjectUseCase.execute error: ${error}`)
     }
   }
 
-  private mapToObjectDto(objectItem: ObjectItem): IObjectDto {
+  private mapToObjectDto(
+    objectItem: ObjectItem | null,
+  ): Omit<IObjectDto, "id"> {
+    if (!objectItem) {
+      throw new Error("Invalid object: received null")
+    }
     return {
-      id: objectItem.id,
       marimoId: objectItem.marimoId,
       type: objectItem.type,
       rect: objectItem.rect as { x: number; y: number },

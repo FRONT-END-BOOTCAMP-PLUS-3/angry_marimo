@@ -19,10 +19,4 @@ export interface ObjectRepository {
     updateAt: Date,
     // level: number,
   ): Promise<ObjectItem | null>
-
-  findById(id: number): Promise<ObjectItem | null>
-
-  findAllByMarimoId(marimoId: number): Promise<ObjectItem[] | null>
-
-  deleteObject(id: number): Promise<void>
 }

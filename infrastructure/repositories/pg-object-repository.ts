@@ -13,28 +13,22 @@ export class PgObjectRepository implements ObjectRepository {
     isActive: boolean,
     url: string,
     level: number,
-  ): Promise<ObjectItem | null> {
+  ): Promise<ObjectItem> {
     try {
-      const newObject = await this.prisma.object.create({
+      const createdObject = await this.prisma.object.create({
         data: {
           marimoId,
           type,
           rect,
           isActive,
-          level,
           url,
+          level,
         },
       })
-      console.log(
-        "----------------------newObject---------------------",
-        newObject,
-      )
-
-      return newObject || null
+      return createdObject
     } catch (error) {
-      throw new Error(`PgObjectRepository.create.error =========> \n ${error}`)
-    } finally {
-      await this.prisma.$disconnect()
+      console.error("❌ Prisma create error:", error)
+      throw new Error("Database insertion failed")
     }
   }
 
