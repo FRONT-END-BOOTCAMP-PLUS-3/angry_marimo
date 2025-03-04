@@ -2,13 +2,13 @@ import type { StateStorage } from "zustand/middleware"
 
 import { create } from "zustand"
 import { createSelectorFunctions } from "auto-zustand-selectors-hook"
+import { TTrashSlice, useTrashStore } from "@marimo/stores/trash-store"
 import { createUserSlice, TUserSlice } from "@marimo/stores/user-store"
 import {
   persist,
   createJSONStorage,
   subscribeWithSelector,
 } from "zustand/middleware"
-import { TrashStore, useTrashStore } from "./trash-store"
 
 const storage: StateStorage = {
   removeItem: async (name: string): Promise<void> => {
@@ -23,7 +23,7 @@ const storage: StateStorage = {
   },
 }
 
-export type State = TUserSlice & TrashStore
+export type State = TUserSlice & TTrashSlice
 
 export const useStore = create<State>()(
   subscribeWithSelector(
