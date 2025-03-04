@@ -14,9 +14,6 @@ export class TrashToObjectUseCase {
     marimoId: number,
   ): Promise<Omit<IObjectDto, "id">[]> {
     try {
-      console.log("📌 trashData 확인:", JSON.stringify(trashData, null, 2))
-      console.log("📌 marimoId 확인:", marimoId)
-
       if (!trashData || !Array.isArray(trashData) || trashData.length === 0) {
         throw new Error("Invalid input: trashData must be a non-empty array.")
       }
@@ -41,21 +38,15 @@ export class TrashToObjectUseCase {
         }),
       )
 
-      console.log("✅ 생성된 trashObjects:", createdObjects)
-
       if (!createdObjects || createdObjects.length === 0) {
         throw new Error("Failed to create objects from trash data")
       }
 
-      // 🔄 생성된 객체들을 Omit<IObjectDto, "id"> 배열로 변환
       const mappedObjects: Omit<IObjectDto, "id">[] = createdObjects.map(
         (trashObject) => this.mapToObjectDto(trashObject),
       )
-      console.log("✅ 변환된 IObjectDto 배열 (id 제외됨):", mappedObjects)
-
       return mappedObjects
     } catch (error) {
-      console.error("❌ TrashToObjectUseCase.execute error:", error)
       throw new Error(`TrashToObjectUseCase.execute error: ${error}`)
     }
   }

@@ -27,8 +27,6 @@ export async function POST(request: NextRequest) {
     }
 
     const { marimoId, trashData } = JSON.parse(body)
-    console.log("marimoId 랑 trashData 확인용 -------> ", marimoId, trashData)
-
     if (!marimoId || !Array.isArray(trashData)) {
       return NextResponse.json(
         { error: "Invalid data format" },
@@ -36,11 +34,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // UseCase 실행
     const usecase = new TrashToObjectUseCase(new PgObjectRepository(prisma))
     const resultData = await usecase.execute(trashData, marimoId)
 
-    console.log("🔄 변환된 데이터:", resultData)
     if (Array.isArray(resultData)) {
       await prisma.object.createMany({ data: resultData })
     } else {
