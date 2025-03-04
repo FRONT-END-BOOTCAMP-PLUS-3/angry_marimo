@@ -155,8 +155,11 @@ const Canvas = () => {
 
     // 드래그 상태일 때만 위치 업데이트
     if (isDragging) {
-      const newX = x - startPosition.x
-      const newY = y - startPosition.y
+      const newX = Math.min(Math.max(0, x - startPosition.x), canvasWidth - 100)
+      const newY = Math.min(
+        Math.max(0, y - startPosition.y),
+        canvasHeight - 100,
+      )
       setMarimoPosition({ x: newX, y: newY })
     }
   }
