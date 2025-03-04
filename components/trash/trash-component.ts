@@ -15,7 +15,7 @@ export default function TrashComponent() {
   const { addTrashItems } = useStore()
 
   useEffect(() => {
-    const headerHeight = 100 // 임의값 수정
+    const headerHeight = 100 // 임의값 수정--> 헤더 높이계산
     worker.current = new Worker(
       new URL("/public/workers/trash-worker", import.meta.url),
       { type: "module" },
@@ -27,21 +27,19 @@ export default function TrashComponent() {
         piValue: number
       }>,
     ) => {
-      // 각 포인트마다 쓰레기 아이템 생성
       const newTrashItems: ITrashDto[] = event.data.points.map((point) => {
         const level = Math.floor(Math.random() * 3) // 0-2 사이의 레벨 생성
         return {
           id: idCounter.current++,
           level,
-          url: getTrashImage(level), // level에 따른 이미지 URL 추가
+          url: getTrashImage(level),
           rect: {
-            x: point.x * 100, // 0-100% 위치값으로 변환
-            y: point.y * 100 + (headerHeight / window.innerHeight) * 200,
+            x: point.x * 100,
+            y: point.y * 100 + (headerHeight / window.innerHeight) * 100,
           },
           type: "trash",
         }
       })
-      // client zustand 에 값 저장해줌
       addTrashItems(newTrashItems)
       const marimoId = 12 // 임의 마리모 ID
 
