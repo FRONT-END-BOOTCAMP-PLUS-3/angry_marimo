@@ -10,7 +10,6 @@ import { getTrashImage } from "@marimo/public/utils/level-image"
 import styles from "@marimo/components/trash/trash.module.css"
 
 import { useStore } from "@marimo/stores/use-store"
-import { TrashToObjectUseCase } from "@marimo/application/usecases/object/trash-object-usecase"
 
 export default function TrashComponent() {
   const { trashItem, trashImage } = styles
@@ -21,13 +20,13 @@ export default function TrashComponent() {
   const { trashItems, addTrashItems } = useStore()
 
   useEffect(() => {
-    const headerHeight = 200
+    const headerHeight = 200 // 임의값 수정
     worker.current = new Worker(
       new URL("/public/workers/trash-worker", import.meta.url),
       { type: "module" },
     )
 
-    worker.current.onmessage = (
+    worker.current.onmessage = async (
       event: MessageEvent<{
         points: Array<{ x: number; y: number; isInside: boolean }>
         piValue: number
@@ -37,29 +36,42 @@ export default function TrashComponent() {
       const newTrashItems = event.data.points.map((point) => {
         const level = Math.floor(Math.random() * 3) // 0-2 사이의 레벨 생성
         return {
-          // id: idCounter.current++,
+          id: idCounter.current++,
           level,
           url: getTrashImage(level), // level에 따른 이미지 URL 추가
           rect: {
             x: point.x * 100, // 0-100% 위치값으로 변환
-            y: point.y * 100 - (headerHeight / window.innerHeight) * 100,
+            y: point.y * 100 + (headerHeight / window.innerHeight) * 200,
           },
           type: "trash",
         }
       })
-
+      // client zustand 에 값 저장해줌
       addTrashItems(newTrashItems)
-
-      const useCase = new TrashToObjectUseCase()
+      console.log("trashItem!!!!!", newTrashItems)
+      // 잘담김
       const marimoId = 123 // 예제 마리모 ID
+      console.log("marimoID!!!!", marimoId)
 
-      const convertTrashToObject = async () => {
-        console.log(trashItem)
-        await useCase.execute(trashItems, marimoId)
+      try {
+        const response = await fetch(`/api/objects`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            marimoId: marimoId,
+            trashData: trashItems,
+          }),
+        })
+
+        if (!response.ok) {
+          throw new Error(`Failed to send data for marimoId: ${marimoId}`)
+        }
+        console.log("📤 모든 객체 API 전송 완료")
+      } catch (error) {
+        console.error("❌ 변환 중 오류 발생:", error)
       }
-
-      convertTrashToObject()
-      console.log("trash", newTrashItems)
     }
 
     return () => {
@@ -68,13 +80,12 @@ export default function TrashComponent() {
   }, [])
 
   useInterval(() => {
-    if (worker.current) {
-      worker.current.postMessage(1) // 한 번에 1개의 포인트 생성
-    }
+    worker.current?.postMessage(1) // 한 번에 1개의 포인트 생성
   }, 20000)
 
   return (
     <div>
+      {/* 컴포넌트 싹 날리고 css 날리고 tsx -> ts 로 변경해서 올리기 */}
       <h2>쓰레기 컴포넌트 생성기</h2>
       <div>
         {trashItems.map((item) => (

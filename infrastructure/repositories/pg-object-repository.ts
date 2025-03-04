@@ -7,33 +7,34 @@ export class PgObjectRepository implements ObjectRepository {
   constructor(private prisma: PrismaClient) {}
 
   async create(
-    id: number,
     marimoId: number,
     type: string,
     rect: InputJsonValue,
     isActive: boolean,
-    createdAt: Date,
-    updatedAt: Date,
     url: string,
     level: number,
   ): Promise<ObjectItem | null> {
     try {
       const newObject = await this.prisma.object.create({
         data: {
-          id,
           marimoId,
           type,
           rect,
           isActive,
-          createdAt,
-          updatedAt,
           level,
           url,
         },
       })
+      console.log(
+        "----------------------newObject---------------------",
+        newObject,
+      )
+
       return newObject || null
     } catch (error) {
       throw new Error(`PgObjectRepository.create.error =========> \n ${error}`)
+    } finally {
+      await this.prisma.$disconnect()
     }
   }
 
@@ -50,6 +51,8 @@ export class PgObjectRepository implements ObjectRepository {
       return updateObject || null
     } catch (error) {
       throw new Error(`PgObjectRepository.update.error =========> \n ${error}`)
+    } finally {
+      await this.prisma.$disconnect()
     }
   }
 
@@ -61,6 +64,8 @@ export class PgObjectRepository implements ObjectRepository {
       return findById || null
     } catch (error) {
       throw new Error(`PgObjectRepository.findId.error =========> \n ${error}`)
+    } finally {
+      await this.prisma.$disconnect()
     }
   }
 
@@ -74,6 +79,8 @@ export class PgObjectRepository implements ObjectRepository {
       throw new Error(
         `PgObjectRepository.findAllByMarimoId.error =========> \n ${error}`,
       )
+    } finally {
+      await this.prisma.$disconnect()
     }
   }
 
@@ -86,6 +93,8 @@ export class PgObjectRepository implements ObjectRepository {
       throw new Error(
         `PgObjectRepository.deleteById.error =========> \n ${error}`,
       )
+    } finally {
+      await this.prisma.$disconnect()
     }
   }
 }

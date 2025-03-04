@@ -1,8 +1,8 @@
 import type { StateStorage } from "zustand/middleware"
 
 import { create } from "zustand"
-import { TTrashSlice, useTrashStore } from "./trash-store"
 import { createSelectorFunctions } from "auto-zustand-selectors-hook"
+import { TTrashSlice, useTrashStore } from "@marimo/stores/trash-store"
 import { createUserSlice, TUserSlice } from "@marimo/stores/user-store"
 import {
   persist,

@@ -5,13 +5,10 @@ import { InputJsonValue } from "@prisma/client/runtime/client"
 
 export interface ObjectRepository {
   create(
-    id: number,
     marimoId: number,
     type: string,
     react: InputJsonValue,
     isActive: boolean,
-    createdAt: Date,
-    updatedAt: Date,
     url: string,
     level: number,
   ): Promise<ObjectItem | null>
