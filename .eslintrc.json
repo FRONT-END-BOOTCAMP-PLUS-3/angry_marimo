@@ -51,6 +51,7 @@
           ["services"],
           ["repositories"],
           ["entities"],
+          ["actions"],
           ["hooks"],
           ["utils"],
           ["style"],
@@ -66,6 +67,7 @@
             "related-react": ["react-*"],
             "next": ["next", "next/**"],
             "style" : ["**/**.module.css", "**/style/**"],
+            "actions": ["**/actions/**"],
             "hooks": ["**/use_*","**/hooks/**"],
             "components":[ "**/components/**", "**/_components/**"],
             "services" : ["**/services/**"],
@@ -82,18 +84,17 @@
       }
     ],
 
-
     "import/no-unresolved": "error",
 
-    "import/no-cycle": "error",
-  
-     "@typescript-eslint/consistent-type-imports": [
-      "error",
-      {
-        "fixStyle": "separate-type-imports"
-      }
-    ],
-
     "@typescript-eslint/no-implied-eval": "error"
-  }
+  },
+
+  "settings": {
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx"]
+    },
+    "import/resolver": {
+      "typescript": {}
+    }
+ }
 }

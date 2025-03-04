@@ -1,0 +1,14 @@
+node_modules
+__test__
+.vscode
+.github
+public
+docs
+playwright-report
+test-results
+
+*.dto.ts
+*.css
+
+.env
+.gitignore

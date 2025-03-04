@@ -1,0 +1,72 @@
+.box_section {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 10px 20px rgb(0 0 0 / 1%), 0 6px 6px rgb(0 0 0 / 6%);
+  padding: 50px 50px 50px 50px;
+  margin-top: 30px;
+  margin-right: auto;
+  margin-left: auto;
+  color: #333d4b;
+  align-items: center;
+  text-align: center;
+  overflow-x: auto; /* Add this property for horizontal scrolling */
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.p_grid {
+  height: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -24px;
+  margin-right: calc(var(--pGridGutter) * -1);
+}
+
+.typography__p {
+  line-height: 1.6;
+  line-height: var(--line-height-base);
+  font-size: 15px;
+  font-size: var(--font-size-p);
+}
+
+.p_grid_col {
+  flex-grow: 1;
+  padding-right: 24px;
+  padding-right: var(--pGridGutter);
+}
+
+.text__left {
+  text-align: left;
+}
+
+.text__right {
+  text-align: right;
+}
+
+.button {
+    width: 100%;
+
+    margin: 3rem 0;
+    padding: 1rem;
+
+    border-radius: 0.5rem;
+
+    background: var(--secondary-color);
+    color: var(--light-green);
+
+    text-align: center;
+
+    box-sizing: border-box;
+
+    cursor: pointer;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    
+    gap: 0.5rem;
+}
+
+.button:hover {
+    background: var(--primary-color);
+}

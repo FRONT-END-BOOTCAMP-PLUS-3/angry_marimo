@@ -1,0 +1,11 @@
+.trashItem {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  transition: all 0.3s ease-in-out;
+}
+
+.trashImage {
+  width: 3rem;
+  height: 3rem;
+  object-fit: contain;
+}

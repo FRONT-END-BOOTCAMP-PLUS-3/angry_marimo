@@ -1,0 +1,33 @@
+.input__gap {
+    display: flex;
+    flex-direction: column; 
+    justify-content: center;
+
+    gap: 1.25rem;
+}
+
+.button {
+    width: 100%;
+
+    padding: 0.5rem;
+
+    border-radius: 0.5rem;
+
+    background: var(--secondary-color);
+    color: var(--light-green);
+
+    text-align: center;
+
+    box-sizing: border-box;
+
+    cursor: pointer;
+}
+
+.button:hover {
+    background: var(--primary-color);
+}
+
+.button:disabled {
+    background: var(--disabled);
+    color: var(--base-white);
+}

@@ -1,0 +1,55 @@
+.container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button {
+  animation: bounce 1.5s infinite;
+  filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.2)); /* drop-shadow-lg */
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.button:hover {
+  transform: scale(1.1);
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.balloon {
+    position: absolute;
+    top: -25px;
+    display: inline-block;
+    background-color: #fff;
+    padding: 4px 6px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+}
+.balloon>p {
+    color: #000;
+}
+
+.triangle {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 10px 10px 0 10px;
+  border-color: #fff transparent transparent transparent;
+}

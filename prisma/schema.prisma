@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  history   History[]
+  marimos   Marimo[]
+  orders    Order[]
+
+  @@map("users")
+}
+
+model Marimo {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  size      Int
+  rect      Json
+  color     String
+  status    String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  history   History[]
+  user      User      @relation(fields: [userId], references: [id])
+  object    Object[]
+  orders    Order[]
+
+  @@map("marimos")
+}
+
+model Object {
+  id        Int      @id @default(autoincrement())
+  marimoId  Int
+  type      String
+  rect      Json
+  isActive  Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  level     Int
+  url       String
+  marimo    Marimo   @relation(fields: [marimoId], references: [id])
+
+  @@map("objects")
+}
+
+model History {
+  id        Int      @id @default(autoincrement())
+  content   String
+  color     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  marimoId  Int
+  userId    Int
+  marimo    Marimo   @relation(fields: [marimoId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("histories")
+}
+
+model Order {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  marimoId    Int
+  status      String
+  amount      Int
+  paymentKey  String
+  payResponse Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  marimo      Marimo   @relation(fields: [marimoId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@map("orders")
+}

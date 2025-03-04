@@ -1,0 +1,32 @@
+.header {
+    width: 100vw;
+    height: 90px;
+
+    padding: 1rem 2rem;
+
+    background-color: var(--background);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+
+    position: fixed;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    box-sizing: border-box;
+
+    z-index: 999;
+}
+
+@media (prefers-color-scheme: dark) {
+  .header {
+    border-bottom: 1px solid gray;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    height: 70px;
+  }
+}
