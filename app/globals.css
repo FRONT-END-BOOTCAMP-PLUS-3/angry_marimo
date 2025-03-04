@@ -1,8 +1,9 @@
 @import "./reset.css";
 
 @font-face {
-  font-family: 'CookieRun-Regular';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/CookieRun-Regular.woff') format('woff');
+  font-family: "CookieRun-Regular";
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/CookieRun-Regular.woff")
+    format("woff");
   font-weight: normal;
   font-style: normal;
 }
@@ -34,7 +35,7 @@ body {
 
   --background: #ffffff;
   --foreground: #171717;
-  --disabled: #B0B0B0;
+  --disabled: #b0b0b0;
   --primary-color: #89a45f;
   --secondary-color: #a2b38b;
   --olive-green: #e4e9be;
@@ -159,6 +160,7 @@ html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 body {
@@ -175,7 +177,7 @@ main {
 
   box-sizing: border-box;
 }
-@media (max-width: 768px){
+@media (max-width: 768px) {
   main {
     padding-top: 70px;
   }

@@ -158,7 +158,7 @@ const Canvas = () => {
       const newX = Math.min(Math.max(0, x - startPosition.x), canvasWidth - 100)
       const newY = Math.min(
         Math.max(0, y - startPosition.y),
-        canvasHeight - 100,
+        canvasHeight - 200, //마리모 size + 100 (헤더 사이즈)
       )
       setMarimoPosition({ x: newX, y: newY })
     }
