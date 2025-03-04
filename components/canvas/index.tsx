@@ -162,6 +162,7 @@ const Canvas = () => {
   }
 
   const handleMouseUp = () => {
+    updateMarimo()
     setIsDragging(false)
   }
 
@@ -219,6 +220,42 @@ const Canvas = () => {
     console.log("Marimo updated:", data)
   }
 
+  const handleTouchStart = (event: React.TouchEvent<HTMLCanvasElement>) => {
+    const touch = event.touches[0]
+    const rect = canvasRef.current?.getBoundingClientRect()
+    if (!rect) return
+    const x = touch.clientX - rect.left // 클릭한 x 좌표를 캔버스 상대 좌표로 변환
+    const y = touch.clientY - rect.top // 클릭한 y 좌표를 캔버스 상대 좌표로 변환
+    if (
+      x > marimoPosition.x &&
+      x < marimoPosition.x + 100 &&
+      y > marimoPosition.y &&
+      y < marimoPosition.y + 100
+    ) {
+      setIsDragging(true)
+      setStartPosition({ x: x - marimoPosition.x, y: y - marimoPosition.y }) // 드래그 시작 위치를 저장
+    }
+  }
+
+  const handleTouchMove = (event: React.TouchEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    if (!isDragging) return
+    const touch = event.touches[0]
+    const rect = canvasRef.current?.getBoundingClientRect()
+    if (!rect) return
+    const x = touch.clientX - rect.left
+    const y = touch.clientY - rect.top
+    const newX = x - startPosition.x
+    const newY = y - startPosition.y
+    setMarimoPosition({ x: newX, y: newY })
+  }
+
+  const handleTouchEnd = () => {
+    updateMarimo()
+    setIsDragging(false)
+  }
+
   useEffect(() => {
     const handleBeforeUnload = async () => {
       // 이벤트의 기본 동작을 막지 않고 업데이트 함수를 바로 호출합니다.
@@ -261,6 +298,9 @@ const Canvas = () => {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       />
     </div>
   )
