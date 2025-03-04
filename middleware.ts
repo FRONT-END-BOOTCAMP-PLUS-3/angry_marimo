@@ -2,9 +2,34 @@ import { NextResponse } from "next/server"
 
 import type { NextRequest } from "next/server"
 
+const allowedOrigins = [process.env.NEXT_WWW_URL, process.env.NEXT_URL]
+
 export function middleware(req: NextRequest) {
   const token = req.cookies.get("token")?.value
   const { pathname } = req.nextUrl
+
+  const origin = req.headers.get("origin")
+
+  if (pathname.startsWith("/api/") && origin) {
+    const response = NextResponse.next()
+
+    if (allowedOrigins.includes(origin)) {
+      response.headers.set("Access-Control-Allow-Origin", origin)
+    } else {
+      return new Response("Not allowed", { status: 403 })
+    }
+
+    response.headers.set(
+      "Access-Control-Allow-Methods",
+      "GET, POST, PUT, DELETE, OPTIONS",
+    )
+    response.headers.set(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization",
+    )
+
+    return response
+  }
 
   if (pathname === "/pay/toss/success" || pathname === "/pay/toss/fail") {
     return NextResponse.next()
@@ -23,15 +48,6 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - /api (API requests)
-     * - Image files (svg, png, jpg, jpeg, gif, webp)
-     * - /pay (URLs starting with /pay)
-     */
-    "/((?!_next/static|_next/image|favicon.ico|api|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$|^/pay).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$|^/pay).*)",
   ],
 }

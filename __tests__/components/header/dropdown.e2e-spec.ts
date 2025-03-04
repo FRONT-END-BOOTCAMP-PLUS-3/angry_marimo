@@ -1,11 +1,13 @@
 import { test, expect } from "@playwright/test"
 
+const url = process.env.NEXT_URL || "http://localhost:3000"
+
 test.describe("드롭다운 테스트", () => {
   test.beforeEach(async ({ page }) => {
     // 로그인 상태를 위한 쿠키 설정 (예제)
     await page
       .context()
-      .addCookies([{ name: "token", value: "test-token", url: "/" }])
+      .addCookies([{ name: "token", value: "test-token", url: `${url}/` }])
 
     await page.goto("/")
   })
