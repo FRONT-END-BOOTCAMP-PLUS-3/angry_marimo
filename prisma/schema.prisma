@@ -83,11 +83,13 @@ model Order {
   @@map("orders")
 }
 
-model coupons {
+model Coupon {
   id        Int      @id @default(autoincrement())
   userId    Int
   code      String
   isUsed    Boolean
   createdAt DateTime @default(now())
-  updatedAt DateTime
+  updatedAt DateTime @updatedAt
+
+  @@map("coupons")
 }
