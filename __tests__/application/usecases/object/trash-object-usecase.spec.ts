@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest"
+import { describe, test, expect, vi, beforeEach } from "vitest"
 import { InputJsonValue } from "@prisma/client/runtime/client"
 import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto"
 import { TrashToObjectUseCase } from "@marimo/application/usecases/object/trash-object-usecase"
@@ -28,19 +28,19 @@ describe("TrashToObjectUseCase.execute", () => {
     useCase = new TrashToObjectUseCase(mockObjectRepository)
   })
 
-  it("should throw an error if trashData is missing or empty", async () => {
+  test("should throw an error if trashData is missing or empty", async () => {
     await expect(useCase.execute([], 1)).rejects.toThrow(
       "Invalid input: trashData must be a non-empty array.",
     )
   })
 
-  it("should throw an error if marimoId is missing", async () => {
+  test("should throw an error if marimoId is missing", async () => {
     return await expect(
       useCase.execute(createMockTrashData(), 0),
     ).rejects.toThrow("Invalid input: marimoId is missing.")
   })
 
-  it("should create objects and return mapped data", async () => {
+  test("should create objects and return mapped data", async () => {
     const mockTrashData = createMockTrashData()
     const mockCreatedObjects = mockTrashData.map((trash) => ({
       type: trash.type,
@@ -57,7 +57,7 @@ describe("TrashToObjectUseCase.execute", () => {
     expect(result).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          type: "plastic",
+          type: "trash",
           url: "http://example.com/image.png",
           level: 1,
         }),
