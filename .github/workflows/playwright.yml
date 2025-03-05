@@ -45,7 +45,7 @@ jobs:
         run: npm ci
 
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: npm playwright install --with-deps
 
       - name: Run Vitest Tests
         run: npm run test  # Vitest 단위 테스트 실행
@@ -85,18 +85,18 @@ jobs:
             cd ~
 
             # 리포지토리 확인 후 처리
-            if [ ! -d "$HOME/angry_marimo/.git" ]; then
+            if [ ! -d "/home/angry_marimo/angry_marimo/.git" ]; then
               echo "리포지토리가 없습니다. 클론을 진행합니다..."
               git clone --depth=1 https://github.com/FRONT-END-BOOTCAMP-PLUS-3/angry_marimo.git
             else
               echo "리포지토리가 존재합니다. 최신 코드 가져오기..."
-              cd angry_marimo
+              cd /home/angry_marimo/angry_marimo
               git reset --hard HEAD
               git checkout main
               git pull origin main
             fi
 
-            cd ~/angry_marimo
+            cd /home/angry_marimo/angry_marimo
 
             # 환경 변수 업데이트
             cat <<EOF > .env
