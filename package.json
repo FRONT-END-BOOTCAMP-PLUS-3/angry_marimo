@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "npx prettier --write .&next lint",
     "test": "vitest run",
-    "test:playwright": "playwright test",
+    "playwright": "playwright test",
     "db:migrate": "npx prisma migrate dev --name init&npx prisma generate",
     "db:push": "npx prisma db push",
     "db:pull": "npx prisma db pull",
