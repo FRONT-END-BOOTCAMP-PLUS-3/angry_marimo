@@ -7,6 +7,7 @@ import { getTrashImage } from "@marimo/public/utils/level-image"
 
 import { useStore } from "@marimo/stores/use-store"
 import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto"
+import { HEADER_HEIGHT } from "@marimo/constants/trash-header"
 
 export default function TrashComponent() {
   const worker = useRef<Worker | null>(null)
@@ -15,7 +16,8 @@ export default function TrashComponent() {
   const { addTrashItems } = useStore()
 
   useEffect(() => {
-    const headerHeight = 100 // 임의값 수정--> 헤더 높이계산
+    const headerHeight = HEADER_HEIGHT
+    
     worker.current = new Worker(
       new URL("/public/workers/trash-worker", import.meta.url),
       { type: "module" },
