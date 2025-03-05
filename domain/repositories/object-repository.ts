@@ -9,7 +9,7 @@ export interface ObjectRepository {
     isActive: boolean,
     url: string,
     level: number,
-  ): Promise<ObjectItem | null>
+  ): Promise<Omit<ObjectItem, "id"> | null>
 
   update(
     id: number,
