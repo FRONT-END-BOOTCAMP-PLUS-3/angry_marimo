@@ -5,9 +5,7 @@ import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto"
 import { IObjectDto } from "@marimo/application/usecases/object/dto/object-dto"
 
 export class TrashToObjectUseCase {
-  constructor(private objectRepository: ObjectRepository) {
-    this.objectRepository = objectRepository
-  }
+  constructor(private objectRepository: ObjectRepository) {}
 
   async execute(
     trashData: ITrashDto[],
@@ -23,7 +21,7 @@ export class TrashToObjectUseCase {
 
       // 🔥 모든 trashData를 한꺼번에 DB에 저장
       const createdObjects = await Promise.all(
-        trashData.map(async (trashItem) => {
+        trashData.map((trashItem) => {
           return this.objectRepository.create(
             marimoId,
             trashItem.type,
@@ -52,7 +50,7 @@ export class TrashToObjectUseCase {
   }
 
   private mapToObjectDto(
-    objectItem: ObjectItem | null,
+    objectItem: Omit<ObjectItem, "id"> | null,
   ): Omit<IObjectDto, "id"> {
     if (!objectItem) {
       throw new Error("Invalid object: received null")

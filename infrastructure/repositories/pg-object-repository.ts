@@ -13,7 +13,7 @@ export class PgObjectRepository implements ObjectRepository {
     isActive: boolean,
     url: string,
     level: number,
-  ): Promise<ObjectItem> {
+  ): Promise<Omit<ObjectItem, "id">> {
     try {
       const createdObject = await this.prisma.object.create({
         data: {

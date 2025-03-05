@@ -38,7 +38,13 @@ export async function POST(request: NextRequest) {
     const resultData = await usecase.execute(trashData, marimoId)
 
     if (Array.isArray(resultData)) {
-      await prisma.object.createMany({ data: resultData })
+      await prisma.object.createMany({
+        data: resultData.map((data) => ({
+          ...data,
+          marimoId: marimoId,
+          isActive: true,
+        })),
+      })
     } else {
       await prisma.object.create({ data: resultData })
     }
