@@ -4,7 +4,6 @@ import { POST } from "@marimo/app/api/objects/route"
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { IObjectDto } from "@marimo/application/usecases/object/dto/object-dto"
 
-// Mocked use case and repository
 const mockTrashToObjectUseCase = {
   execute: vi.fn(),
 }
