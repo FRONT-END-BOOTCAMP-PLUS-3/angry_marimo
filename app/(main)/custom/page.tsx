@@ -6,13 +6,10 @@ import ChangeColor from "@marimo/app/(main)/custom/_components/change-color"
 
 import styles from "@marimo/app/(main)/custom/page.module.css"
 
-interface CustomPageProps {
-  initialName?: string
-}
-
-const CustomPage = ({ initialName = "marimo" }: CustomPageProps) => {
-  const ticket = 0
-  const currentColor = "#89A45F"
+const CustomPage = () => {
+  const initialTicket = 0
+  const initialName = "marimo"
+  const initialColor = "#89A45F"
 
   const {
     container,
@@ -22,12 +19,14 @@ const CustomPage = ({ initialName = "marimo" }: CustomPageProps) => {
     name_input,
     summit_button,
     button_wrapper,
+    custom_title,
     a,
     p,
   } = styles
 
+  const [ticket, setTicket] = useState(initialTicket)
   const [name, setName] = useState(initialName)
-  const [color, setColor] = useState(currentColor)
+  const [color, setColor] = useState(initialColor)
 
   return (
     <div className={container}>
@@ -38,17 +37,25 @@ const CustomPage = ({ initialName = "marimo" }: CustomPageProps) => {
       </div>
       <div className={custom_wrapper}>
         <div className={custom_container}>
-          <label htmlFor="name" className="text-xl">
-            마리모 이름
-          </label>
+          <div className={custom_title}>
+            <label htmlFor="name" className="text-xl">
+              마리모 이름
+            </label>
+            <button onClick={() => setName(initialName)}>되돌리기</button>
+          </div>
           <input
+            id="name"
+            type="text"
             value={name}
             className={`${name_input} text-lg`}
             onChange={(event) => setName(event.target.value)}
           />
         </div>
         <div className={custom_container}>
-          <p className="text-xl">마리모 색상</p>
+          <div className={custom_title}>
+            <p className="text-xl">마리모 색상</p>
+            <button onClick={() => setColor(initialColor)}>되돌리기</button>
+          </div>
           <ChangeColor color={color} setColor={setColor} />
         </div>
       </div>

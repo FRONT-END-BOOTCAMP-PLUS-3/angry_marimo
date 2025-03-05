@@ -21,6 +21,10 @@
     gap : 0.5rem;
 }
 
+.title_container > p {
+    color: var(--disabled);
+}
+
 .custom_wrapper {
     width: 100%;
 
@@ -49,6 +53,26 @@
     flex-direction: column;
 
     gap: 0.5rem;
+}
+
+.custom_title {
+    width: 100%;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.custom_title > button {
+    padding: 0 1rem;
+    border-radius: 1rem;
+
+    background-color : var(--secondary-color);
+    color : var(--base-white);
+}
+
+.custom_title > button:hover {
+    background-color : var(--primary-color);
 }
 
 .name_input {
