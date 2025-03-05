@@ -1,8 +1,7 @@
 import { NextRequest } from "next/server"
 
 import { POST } from "@marimo/app/api/objects/route"
-import { describe, it, expect, vi, beforeEach } from "vitest"
-import { IObjectDto } from "@marimo/application/usecases/object/dto/object-dto"
+import { describe, test, expect, vi, beforeEach } from "vitest"
 
 const mockTrashToObjectUseCase = {
   execute: vi.fn(),
@@ -52,23 +51,23 @@ describe("POST API Handler", () => {
     })
   }
 
-  it("should return 400 if Content-Type is not application/json", async () => {
+  test("should return 400 if Content-Type is not application/json", async () => {
     const request = createTestRequest("text/plain")
     const response = await POST(request)
 
-    expect(Number(response.status)).toBe(400)
+    expect(response.status).toBe(400)
     expect(await response.json()).toEqual({ error: "Invalid Content-Type" })
   })
 
-  it("should return 400 if request body is empty", async () => {
+  test("should return 400 if request body is empty", async () => {
     const request = createTestRequest("application/json", "")
     const response = await POST(request)
 
-    expect(Number(response.status)).toBe(400)
+    expect(response.status).toBe(400)
     expect(await response.json()).toEqual({ error: "Invalid JSON format" })
   })
 
-  it("should return 400 if marimoId or trashData is invalid", async () => {
+  test("should return 400 if marimoId or trashData is invalid", async () => {
     const request = createTestRequest(
       "application/json",
       JSON.stringify({
@@ -78,11 +77,11 @@ describe("POST API Handler", () => {
     )
     const response = await POST(request)
 
-    expect(Number(response.status)).toBe(400)
+    expect(response.status).toBe(400)
     expect(await response.json()).toEqual({ error: "Invalid JSON format" })
   })
 
-  it("save data successfully", async () => {
+  test("save data successfully", async () => {
     const mockMarimoId = 1
 
     mockTrashToObjectUseCase.execute.mockResolvedValue(validTrashData)
@@ -115,15 +114,15 @@ describe("POST API Handler", () => {
     expect(responseBody).toEqual({ success: true })
   })
 
-  it("should return 400 if JSON parsing fails", async () => {
+  test("should return 400 if JSON parsing fails", async () => {
     const request = createTestRequest("application/json", "{ invalid json }")
     const response = await POST(request)
 
-    expect(Number(response.status)).toBe(400)
+    expect(response.status).toBe(400)
     expect(await response.json()).toEqual({ error: "Invalid JSON format" })
   })
 
-  it("should handle usecase execution failure", async () => {
+  test("should handle usecase execution failure", async () => {
     // UseCase 실행 실패 모킹
     mockTrashToObjectUseCase.execute.mockRejectedValue(
       new Error("Processing failed"),
@@ -133,7 +132,7 @@ describe("POST API Handler", () => {
     const response = await POST(request)
 
     // 실패 시 500 상태 코드와 내부 서버 에러 메시지 검증
-    expect(Number(response.status)).toBe(400)
+    expect(response.status).toBe(400)
     expect(await response.json()).toEqual({ error: "Invalid JSON format" })
   })
 })
