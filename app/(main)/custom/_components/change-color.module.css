@@ -1,0 +1,16 @@
+.wrapper {
+    position: relative;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    gap: 2rem;
+}
+
+@media (max-width: 768px){
+  .wrapper {
+    flex-direction: column;
+  }
+}

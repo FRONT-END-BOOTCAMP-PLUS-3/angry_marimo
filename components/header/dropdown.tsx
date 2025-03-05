@@ -73,7 +73,7 @@ export const Dropdown = () => {
               route.push("/custom")
             }}
           >
-            마리모 커스텀하기
+            마리모 꾸미기
           </button>
           <hr className={hr} />
           <button
