@@ -50,7 +50,7 @@ export class TrashToObjectUseCase {
   }
 
   private mapToObjectDto(
-    objectItem: ObjectItem | null,
+    objectItem: Omit<ObjectItem, "id"> | null,
   ): Omit<IObjectDto, "id"> {
     if (!objectItem) {
       throw new Error("Invalid object: received null")
