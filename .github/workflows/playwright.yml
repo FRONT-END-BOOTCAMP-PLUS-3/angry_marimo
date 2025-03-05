@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          clean: true  # ✅ 기존 파일을 삭제하고 새로 Clone
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -27,13 +29,15 @@ jobs:
 
   # 테스트 단계 (Playwright + Vitest)
   test:
-    needs: build  # 빌드가 완료된 후 실행
+    needs: build
     timeout-minutes: 60
     runs-on: [self-hosted, angry-marimo]
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          clean: true
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -41,17 +45,34 @@ jobs:
           node-version: lts/*
           cache: 'npm'
 
+      - name: Create .env file
+        run: |
+          cat <<EOF > .env
+          NODE_ENV=production
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          MARIMO_SECRET_KEY=${{ secrets.MARIMO_SECRET_KEY }}
+          NEXT_URL=${{ secrets.NEXT_URL }}
+          NEXT_PUBLIC_URL=${{ secrets.NEXT_PUBLIC_URL }}
+          COOKIE_DOMAIN=${{ secrets.COOKIE_DOMAIN }}
+          COOKIE_TOKEN=${{ secrets.COOKIE_TOKEN }}
+          NEXT_TOSS_SECRET_KEY=${{ secrets.NEXT_TOSS_SECRET_KEY }}
+          NEXT_PUBLIC_TOSS_CLIENT_KEY=${{ secrets.NEXT_PUBLIC_TOSS_CLIENT_KEY }}
+          EOF
+
       - name: Install Dependencies
         run: npm ci
 
       - name: Install Playwright Browsers
-        run: npm playwright install --with-deps
+        run: npx playwright install --with-deps
 
       - name: Run Vitest Tests
-        run: npm run test  # Vitest 단위 테스트 실행
+        run: npm run test
 
       - name: Run Playwright Tests
-        run: npx playwright test  # Playwright E2E 테스트 실행
+        run: |
+          export $(grep -v '^#' .env | xargs)
+          npm run playwright
+
 
   # 배포 단계
   deploy:
@@ -91,9 +112,13 @@ jobs:
             else
               echo "리포지토리가 존재합니다. 최신 코드 가져오기..."
               cd /home/angry_marimo/angry_marimo
-              git reset --hard HEAD
-              git checkout main
-              git pull origin main
+              git fetch origin main
+              if ! git diff --quiet HEAD origin/main; then
+                git reset --hard origin/main
+                git checkout main
+              else
+                echo "변경 사항 없음"
+              fi
             fi
 
             cd /home/angry_marimo/angry_marimo
