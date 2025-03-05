@@ -1,5 +1,5 @@
 import { VerticalLogo } from "@marimo/components/vertical-logo"
-import SuspendedLoginForm from "@marimo/app/login/_components/login-form"
+import LoginForm from "@marimo/app/login/_components/login-form"
 
 import { userLogin } from "@marimo/app/login/actions/user-login"
 
@@ -20,7 +20,7 @@ const Login = () => {
         <p>앞으로 소셜 로그인 등 다양한 로그인 방법을 만들어 볼께요!</p>
       </div>
       <form className={form} action={userLogin}>
-        <SuspendedLoginForm />
+        <LoginForm />
       </form>
     </div>
   )

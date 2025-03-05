@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation"
 
-import { Suspense, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 
 import { Input } from "@marimo/components/input"
 
@@ -16,7 +16,7 @@ import { LOGIN_TEXT, EMAIL_TEXT, PASSWORD_TEXT } from "@marimo/constants"
 
 const { button, input__gap } = styles
 
-export const LoginForm = () => {
+const LoginForm = () => {
   const searchParams = useSearchParams()
   const status = searchParams.get("status")
 
@@ -61,10 +61,4 @@ export const LoginForm = () => {
   )
 }
 
-const SuspendedLoginForm = () => (
-  <Suspense fallback={<div>로딩 중...</div>}>
-    <LoginForm />
-  </Suspense>
-)
-
-export default SuspendedLoginForm
+export default LoginForm
