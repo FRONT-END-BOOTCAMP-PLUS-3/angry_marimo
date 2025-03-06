@@ -253,7 +253,6 @@ const Canvas = () => {
   useEffect(() => {
     if (user) {
       fetchMarimo()
-    } else {
     }
   }, [user])
 
