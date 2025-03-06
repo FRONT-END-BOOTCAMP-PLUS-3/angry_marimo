@@ -20,7 +20,7 @@ const ChangeColor = ({
   color,
   setColor,
 }: CreateMarimoProps) => {
-  const width = 200
+  const width = 240
   const height = 200
 
   const { wrapper, marimo_name } = styles

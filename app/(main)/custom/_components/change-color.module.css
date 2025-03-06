@@ -12,9 +12,14 @@
 
 .marimo_name {
   width: 100%;
+  max-width: 240px;
 
   padding: 0.5rem;
   font-size: 1.2rem;
 
   text-align: center;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
