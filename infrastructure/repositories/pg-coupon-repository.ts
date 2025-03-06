@@ -29,12 +29,12 @@ export class PgCouponRepository implements CouponRepository {
 
   async update(id: number, isUsed = true): Promise<Coupon | null> {
     try {
-      const newOrder = await this.prisma.coupon.update({
+      const updatedCoupon = await this.prisma.coupon.update({
         where: { id },
         data: { isUsed },
       })
 
-      return newOrder || null
+      return updatedCoupon || null
     } catch (error) {
       throw new Error(`PgCouponRepository.update Error ====> \n ${error}`)
     } finally {
@@ -60,6 +60,9 @@ export class PgCouponRepository implements CouponRepository {
     try {
       const coupons = await this.prisma.coupon.findMany({
         where: { userId, isUsed: false },
+        orderBy: {
+          createdAt: "asc",
+        },
       })
 
       return coupons || null
