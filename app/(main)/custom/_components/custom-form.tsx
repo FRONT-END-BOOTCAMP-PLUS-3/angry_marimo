@@ -7,18 +7,22 @@ import ChangeColor from "@marimo/app/(main)/custom/_components/change-color"
 import styles from "@marimo/app/(main)/custom/_components/custom-form.module.css"
 
 import html2canvas from "html2canvas"
+import { Coupon, Marimo } from "@prisma/client"
 import { useStore } from "@marimo/stores/use-store"
 
 interface CustomFormProps {
-  marimoId: number
-  ticket: number
+  marimo: Marimo
+  coupon: {
+    count: number
+    coupons: Coupon[]
+  }
   initialName: string
   initialColor: string
 }
 
 const CustomForm = ({
-  marimoId,
-  ticket,
+  marimo,
+  coupon,
   initialName,
   initialColor,
 }: CustomFormProps) => {
@@ -94,16 +98,19 @@ const CustomForm = ({
     // captureImage()
 
     const response = await fetch("/api/custom", {
-      method: "POST",
+      method: "PUT",
       mode: "cors",
       credentials: "same-origin",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        marimoId,
-        name,
-        color,
+        marimo: {
+          ...marimo,
+          name,
+          color,
+        },
+        coupon: coupon.coupons[0],
       }),
     }).then((res) => res.json())
 
@@ -114,7 +121,7 @@ const CustomForm = ({
     <>
       <div className={title_container}>
         <h3 className="text-3xl">마리모 꾸미기 (마-꾸)</h3>
-        <p>보유 꾸미기 티켓 : {ticket}</p>
+        <p>보유 꾸미기 티켓 : {coupon.count}</p>
         <p>티켓 하나를 소모해서 마리모를 커스텀 합니다.</p>
       </div>
       <div className={custom_wrapper}>
@@ -149,17 +156,17 @@ const CustomForm = ({
 
       <div className={button_wrapper}>
         <button
-          disabled={ticket < 1}
+          disabled={coupon.count < 1}
           className={summit_button}
           onClick={handleSubmit}
         >
           커스텀 확정하기
         </button>
-        {ticket < 1 && (
+        {coupon.count < 1 && (
           <p className={p}>
             티켓 개수가 부족해요! 티켓 얻으러 가기 👉
             <a href="/pay" className={a}>
-              Get a ticket
+              Get a coupon
             </a>
           </p>
         )}

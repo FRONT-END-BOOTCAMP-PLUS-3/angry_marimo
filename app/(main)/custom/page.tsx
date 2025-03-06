@@ -23,14 +23,18 @@ const CustomPage = async () => {
   if (!response.ok) redirect("/login")
 
   const result = await response.json()
+  const { marimo, count, coupons } = result
 
   return (
     <div className={container}>
       <CustomForm
-        marimoId={result.marimo.id}
-        ticket={result.count}
-        initialName={result.marimo.name}
-        initialColor={result.marimo.color}
+        marimo={marimo}
+        coupon={{
+          count: count,
+          coupons: coupons,
+        }}
+        initialName={marimo.name}
+        initialColor={marimo.color}
       />
     </div>
   )
