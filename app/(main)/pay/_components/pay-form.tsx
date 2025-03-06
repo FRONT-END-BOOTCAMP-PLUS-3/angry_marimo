@@ -25,7 +25,7 @@ import {
 export const PayForm = () => {
   const { wrapper, button, p_wrapper, p_round } = styles
 
-  const { user, marimo } = useStore()
+  const { user } = useStore()
 
   const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!
   const customerKey = `customer_key-${user?.id}`
@@ -60,6 +60,21 @@ export const PayForm = () => {
 
   const onClickHandler = async () => {
     if (user === null) return
+
+    const response = await fetch(`/api/marimo/${user.id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (!response.ok) {
+      alert("서버에 문제가 있어요, 잠시 후 다시 시도해주세요!")
+      return
+    }
+
+    const { user: marimo } = await response.json()
+
     if (!marimo) return
 
     try {

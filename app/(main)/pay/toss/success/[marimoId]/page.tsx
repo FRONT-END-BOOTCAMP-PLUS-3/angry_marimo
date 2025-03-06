@@ -11,7 +11,7 @@ const SuccessPage = () => {
   const param = useParams()
   const router = useRouter()
 
-  const marimoId = param.marimoId
+  const marimoId = Number(param.marimoId)
 
   console.log(marimoId)
 
@@ -81,7 +81,6 @@ const SuccessPage = () => {
         })
       })
       .catch((error) => {
-        console.error("here4")
         router.push(
           `/pay/toss/fail?code=${error.code}&message=${error.message}`,
         )
