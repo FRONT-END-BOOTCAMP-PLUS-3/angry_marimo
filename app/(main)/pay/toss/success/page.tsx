@@ -1,14 +1,18 @@
 "use client"
 
 import Image from "next/image"
-import { useRouter, useSearchParams } from "next/navigation"
+import { redirect, useRouter, useSearchParams } from "next/navigation"
 
 import { Suspense, useEffect, useState } from "react"
 
 import styles from "@marimo/app/(main)/pay/toss/success/page.module.css"
 
+import { useStore } from "@marimo/stores/use-store"
+
 const SuccessPage = () => {
   const router = useRouter()
+
+  const { marimo } = useStore()
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -31,6 +35,12 @@ const SuccessPage = () => {
   }
 
   useEffect(() => {
+    if (!marimo) {
+      alert("마리모를 찾을 수 없는 오류 발견! 잠시 후 다시 시도해주세요!!")
+
+      redirect("/")
+    }
+
     const confirm = async () => {
       const response = await fetch("/api/pay/confirm", {
         method: "POST",
@@ -63,7 +73,7 @@ const SuccessPage = () => {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                marimoId: 1, // FIXME: marimoId를 어떻게 받아올지 확인 필요
+                marimoId: marimo?.id,
                 amount: res.balanceAmount,
                 paymentKey: res.paymentKey,
                 status: "SUCCESS",
