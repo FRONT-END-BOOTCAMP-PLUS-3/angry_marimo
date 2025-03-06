@@ -25,7 +25,7 @@ import {
 export const PayForm = () => {
   const { wrapper, button, p_wrapper, p_round } = styles
 
-  const { user } = useStore()
+  const { user, marimo } = useStore()
 
   const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!
   const customerKey = `customer_key-${user?.id}`
@@ -60,6 +60,7 @@ export const PayForm = () => {
 
   const onClickHandler = async () => {
     if (user === null) return
+    if (!marimo) return
 
     try {
       if (widgets === null) return
@@ -67,7 +68,7 @@ export const PayForm = () => {
       await widgets.requestPayment({
         orderId: `order_id-${uuidGenerator()}`,
         orderName: "앵그리 마리모 후원하기",
-        successUrl: window.location.origin + "/pay/toss/success",
+        successUrl: window.location.origin + `/pay/toss/success/${marimo.id}`,
         failUrl: window.location.origin + "/pay/toss/fail",
         customerEmail: user.email,
         customerName: user.name,

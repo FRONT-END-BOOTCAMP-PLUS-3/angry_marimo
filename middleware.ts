@@ -6,7 +6,7 @@ export function middleware(req: NextRequest) {
   const token = req.cookies.get("token")?.value
   const { pathname } = req.nextUrl
 
-  if (pathname === "/pay/toss/success" || pathname === "/pay/toss/fail") {
+  if (pathname.startsWith("/pay/toss")) {
     return NextResponse.next()
   }
 

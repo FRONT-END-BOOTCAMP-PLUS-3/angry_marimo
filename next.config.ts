@@ -20,7 +20,7 @@ const nextConfig: NextConfig = {
     return config
   },
   images: {
-    domains: ["static.toss.im"],
+    domains: ["static.toss.im", "localhost", "angry-marimo.com"],
   },
 }
 
