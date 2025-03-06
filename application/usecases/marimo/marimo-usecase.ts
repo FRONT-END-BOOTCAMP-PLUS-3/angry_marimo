@@ -31,7 +31,7 @@ export class MarimoUsecase {
       userId: userId,
       size: 80,
       rect: JSON.stringify({ x: 50, y: 50 }),
-      color: "dark_green", // Default color
+      color: "#89a45f", // Default color
       status: "angry", // Default status
     }
 
