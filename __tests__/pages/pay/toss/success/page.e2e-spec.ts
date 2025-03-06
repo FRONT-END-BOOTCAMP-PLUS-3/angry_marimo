@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test"
 
+// TODO : 마리모 꾸미러 가기 버튼에 대한 테스트 추가
 test.describe("결제 완료 페이지 E2E 테스트", () => {
   test.beforeEach(async ({ context }) => {
     await context.addCookies([

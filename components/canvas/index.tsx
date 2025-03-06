@@ -10,7 +10,6 @@ import { useStore } from "@marimo/stores/use-store"
 
 const Canvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const marimoImgSrc = "/images/marimo.svg"
   const [canvasWidth, setCanvasWidth] = useState(window.innerWidth)
   const [canvasHeight, setCanvasHeight] = useState(window.innerHeight)
   const [imageLoaded, setImageLoaded] = useState(false)
@@ -25,6 +24,8 @@ const Canvas = () => {
   const imageRef = useRef(new Image())
 
   const { user, marimo, setMarimo, trashItems } = useStore()
+
+  const marimoImgSrc = marimo?.src ?? "/images/marimo.svg"
 
   useEffect(() => {
     window.addEventListener("resize", handleCanvasResize)

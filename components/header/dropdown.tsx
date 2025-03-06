@@ -64,7 +64,17 @@ export const Dropdown = () => {
       </button>
       {isOpen && (
         <div className={dropdown}>
-          <button className={button}>새 마리모 만들기</button>
+          <button
+            className={button}
+            onClick={(event) => {
+              event.stopPropagation()
+
+              setIsOpen(false)
+              route.push("/custom")
+            }}
+          >
+            마리모 꾸미기
+          </button>
           <hr className={hr} />
           <button
             className={button}

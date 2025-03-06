@@ -1,0 +1,140 @@
+.container {
+    width: 100%;
+
+    padding: 2rem;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+
+    gap: 1rem;
+
+}
+
+.title_container {
+    padding: 0 1rem;
+
+    display: flex;
+    flex-direction: column;
+
+    gap : 0.5rem;
+}
+
+.title_container > p {
+    color: var(--disabled);
+}
+
+.custom_wrapper {
+    width: 100%;
+
+    padding: 4rem;
+
+    box-shadow: 0 3px 3px rgba(0,0,0,0.15);
+    border-radius: 1rem;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+
+    gap: 5rem;
+}
+
+@media (max-width: 768px){
+  .custom_wrapper {
+    padding: 1rem;
+  }
+}
+
+.custom_container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    gap: 0.5rem;
+}
+
+.custom_title {
+    width: 100%;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.custom_title > button {
+    padding: 0 1rem;
+    border-radius: 1rem;
+
+    background-color : var(--secondary-color);
+    color : var(--base-white);
+}
+
+.custom_title > button:hover {
+    background-color : var(--primary-color);
+}
+
+.name_input {
+    width: 100%;
+
+    padding: 0.5rem 1rem;
+
+    border: 0.15rem solid rgba(0,0,0,0.15);
+    border-radius: 1rem;
+}
+
+.summit_button {
+    width: 100%;
+
+    padding: 1rem;
+
+    border-radius: 1rem;
+
+    color : var(--background);
+    background: var(--secondary-color);
+
+    text-align: center;
+
+    box-sizing: border-box;
+
+    cursor: pointer;
+}
+
+.summit_button:hover {
+    background: var(--primary-color);
+}
+
+.summit_button:disabled {
+    background: var(--disabled);
+}
+
+.button_wrapper {
+    width: 100%;
+
+    display : flex;
+    flex-direction: column;
+
+    gap : 0.3rem;
+}
+
+.p {
+    width: 100%;
+
+    color : var(--disabled);
+
+    text-align: center;
+}
+
+.a {
+    padding: 0 0.5rem;
+    color : var(--secondary-color);
+    display: inline-block; 
+    transition: transform 0.3s ease, color 0.3s ease; 
+}
+
+.a:hover {
+    transform: scale(1.1);
+    color : var(--primary-color);
+    transform-origin: center; /* 크기 변화의 기준점을 중앙으로 설정 */
+}
