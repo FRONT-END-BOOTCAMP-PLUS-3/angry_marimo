@@ -5,6 +5,7 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    flex-wrap: wrap;
 
     gap: 2rem;
 }
@@ -16,10 +17,4 @@
   font-size: 1.2rem;
 
   text-align: center;
-}
-
-@media (max-width: 768px){
-  .wrapper {
-    flex-direction: column;
-  }
 }

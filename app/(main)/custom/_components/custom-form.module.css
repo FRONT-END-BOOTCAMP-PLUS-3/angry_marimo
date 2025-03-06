@@ -4,10 +4,11 @@
     display: flex;
     flex-direction: column;
 
-    gap : 0.5rem;
+    gap : 0.3rem;
 }
 
 .title_container > p {
+    padding: 0 0.2rem;
     color: var(--disabled);
 }
 
@@ -16,8 +17,10 @@
 
     padding: 4rem;
 
-    box-shadow: 0 3px 3px rgba(0,0,0,0.15);
+    border : 0.1rem solid rgba(0,0,0,0.15);
     border-radius: 1rem;
+
+    box-shadow: 0 3px 3px rgba(0,0,0,0.15);
 
     display: flex;
     flex-direction: column;
@@ -53,12 +56,13 @@
     padding: 0 1rem;
     border-radius: 1rem;
 
-    background-color : var(--secondary-color);
-    color : var(--base-white);
+    border : 0.1rem solid var(--secondary-color);
+    color : var(--secondary-color);
 }
 
 .custom_title > button:hover {
     background-color : var(--primary-color);
+    color : var(--base-white);
 }
 
 .name_input {
@@ -76,9 +80,11 @@
     padding: 1rem;
 
     border-radius: 1rem;
+    border : 0.1rem solid rgba(0,0,0,0.15);
 
-    color : var(--background);
-    background: var(--secondary-color);
+    box-shadow: 0 3px 3px rgba(0,0,0,0.15);
+    background: var(--background);
+    color : var(--secondary-color);
 
     text-align: center;
 
@@ -89,6 +95,7 @@
 
 .summit_button:hover {
     background: var(--primary-color);
+    color : var(--base-white);
 }
 
 .summit_button:disabled {
