@@ -45,8 +45,6 @@
 }
 
 .custom_title {
-    width: 100%;
-
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -100,6 +98,7 @@
 
 .summit_button:disabled {
     background: var(--disabled);
+    color : var(--base-white);
 }
 
 .button_wrapper {
