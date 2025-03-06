@@ -1,18 +1,19 @@
 "use client"
 
 import Image from "next/image"
-import { redirect, useRouter, useSearchParams } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 
 import { Suspense, useEffect, useState } from "react"
 
-import styles from "@marimo/app/(main)/pay/toss/success/page.module.css"
-
-import { useStore } from "@marimo/stores/use-store"
+import styles from "@marimo/app/(main)/pay/toss/success/[marimoId]/page.module.css"
 
 const SuccessPage = () => {
+  const param = useParams()
   const router = useRouter()
 
-  const { marimo } = useStore()
+  const marimoId = param.marimoId
+
+  console.log(marimoId)
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -35,12 +36,6 @@ const SuccessPage = () => {
   }
 
   useEffect(() => {
-    if (!marimo) {
-      alert("마리모를 찾을 수 없는 오류 발견! 잠시 후 다시 시도해주세요!!")
-
-      redirect("/")
-    }
-
     const confirm = async () => {
       const response = await fetch("/api/pay/confirm", {
         method: "POST",
@@ -51,16 +46,12 @@ const SuccessPage = () => {
         },
         body: JSON.stringify(requestData),
       })
-
       const json = await response.json()
-
       if (!response.ok) {
         throw { message: json.message, code: json.code }
       }
-
       return json
     }
-
     confirm()
       .then(async (res) => {
         const createOrder = async () => {
@@ -73,7 +64,7 @@ const SuccessPage = () => {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                marimoId: marimo?.id,
+                marimoId,
                 amount: res.balanceAmount,
                 paymentKey: res.paymentKey,
                 status: "SUCCESS",
@@ -85,7 +76,6 @@ const SuccessPage = () => {
             alert("잠시 후 다시 시도해주세요!")
           }
         }
-
         await createOrder().catch(() => {
           router.push(`/pay/toss/fail?message=${"결제가 실패하였습니다"}`)
         })
