@@ -41,20 +41,41 @@ export async function GET() {
 }
 
 // TODO : 마리모 커스텀 하는 route
-// [ ] : 마리모 이름을 업데이트 해야한다
 // [ ] : 마리모 이미지를 저장하고 src 주소를 업데이트 해야한다
-// [ ] : 티켓 사용 완료로 변경
-export async function POST(request: NextRequest) {
-  const cookieStore = await cookies()
-  const token = cookieStore.get("token")?.value
+export async function PUT(request: NextRequest) {
+  const prisma = new PrismaClient()
 
   try {
-    const { marimoId, name, color } = await request.json()
+    const cookieStore = await cookies()
+    const token = cookieStore.get("token")?.value
 
-    console.table({ marimoId, name, color })
+    if (!token)
+      return NextResponse.json({ message: "login failed" }, { status: 401 })
 
-    return NextResponse.json({ status: 200 })
+    const userUsecase = new UserUsecase()
+    const user = await userUsecase.getUser(token)
+
+    if (!user)
+      return NextResponse.json({ message: "login failed" }, { status: 401 })
+
+    const { marimo, coupon } = await request.json()
+
+    if (user.id !== marimo.userId)
+      return NextResponse.json({ message: "user not matched" }, { status: 400 })
+
+    const customUsecase = new CustomUsecase(
+      new PgCouponRepository(prisma),
+      new PgMarimoRepository(),
+    )
+
+    const { marimo: updatedMarimo } = await customUsecase.updateCustom(
+      marimo,
+      coupon,
+    )
+
+    return NextResponse.json(updatedMarimo, { status: 200 })
   } catch (error) {
+    console.error(error)
     return NextResponse.json(
       { message: `Custom Post Error: ${error}` },
       { status: 500 },

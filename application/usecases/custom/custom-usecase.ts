@@ -1,6 +1,11 @@
 import { CouponRepository } from "@marimo/domain/repositories/coupon-repository"
 
 import { MarimoRepository } from "@marimo/domain/repositories"
+import { Coupon, Marimo, Object as TObject } from "@prisma/client"
+import {
+  GetDataDto,
+  UpdateCustomDto,
+} from "@marimo/application/usecases/custom/dto"
 
 export class CustomUsecase {
   constructor(
@@ -8,31 +13,34 @@ export class CustomUsecase {
     private marimoRepository: MarimoRepository,
   ) {}
 
-  async getData(userId: number) {
-    // [x] : 사용 가능한 티켓 불러오기
-    const tickets = await this.couponRepository.countByUserId(userId)
-    const count = await this.couponRepository.countByUserId(userId)
-
-    // [ ] : 마리모 데이터 불러오기
+  async getData(userId: number): Promise<GetDataDto> {
+    const coupons = (await this.couponRepository.findAllByUserId(userId)) ?? []
+    const count = (await this.couponRepository.countByUserId(userId)) ?? 0
     const marimo = await this.marimoRepository.findAliveMarimo(userId)
-
-    console.log("============= custom usecase GET =============")
-    console.log("tickets --->", tickets)
-    console.log("count --->", count)
-    console.log("marimo --->", marimo)
 
     return {
       count,
-      tickets,
+      coupons,
       marimo,
     }
   }
 
-  async updateCustom() {
-    // [ ] : 마리모 이미지 저장
-    // [ ] : 마리모 이미지 주소지 받아오기
-    // [ ] : 마리모 이름과 이미지 주소 update
-    // [ ] : 티켓 사용 완료로 변경
-    // [ ] : updated 정보 반환
+  // [ ] : 마리모 이미지 저장
+  // [ ] : 마리모 이미지 주소지 받아오기
+
+  async updateCustom(
+    marimo: Marimo & { object: TObject[] },
+    coupon: Coupon,
+  ): Promise<UpdateCustomDto> {
+    const { createdAt, updatedAt, object, ...customMarimo } = marimo
+
+    const updatedMarimo = await this.marimoRepository.updateMarimo(
+      marimo.id,
+      customMarimo,
+    )
+
+    await this.couponRepository.update(coupon.id)
+
+    return { marimo: updatedMarimo }
   }
 }
