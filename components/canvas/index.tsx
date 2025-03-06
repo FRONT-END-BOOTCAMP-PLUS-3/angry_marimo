@@ -8,17 +8,6 @@ import styles from "./index.module.css"
 
 import { useStore } from "@marimo/stores/use-store"
 
-interface MarimoData {
-  user: {
-    id: number
-    userId: number
-    size: number
-    rect: string
-    color: string
-    status: string
-  }
-}
-
 const Canvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const marimoImgSrc = "/images/marimo.svg"
@@ -34,13 +23,8 @@ const Canvas = () => {
   const [isDragging, setIsDragging] = useState(false)
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 })
   const imageRef = useRef(new Image())
-  const { user, trashItems } = useStore()
 
-  const [marimoData, setMarimoData] = useState<MarimoData | null>(null)
-
-  // useEffect(() => {
-  //   console.log("생성된 쓰레기 배열:", trashItems)
-  // }, [trashItems])
+  const { user, marimo, setMarimo, trashItems } = useStore()
 
   useEffect(() => {
     window.addEventListener("resize", handleCanvasResize)
@@ -57,9 +41,12 @@ const Canvas = () => {
   const loadMarimoImage = () => {
     const marimoImage = imageRef.current
     marimoImage.src = marimoImgSrc
-    marimoImage.onload = () => {
+    ;(marimoImage.onload = () => {
       setImageLoaded(true)
-    }
+    }),
+      (marimoImage.onerror = () => {
+        console.error("Failed to load image")
+      })
   }
 
   const drawMarimoOnCanvas = () => {
@@ -170,23 +157,25 @@ const Canvas = () => {
   }
 
   const fetchMarimo = async () => {
+    if (!user) {
+      console.error("User is null")
+      return
+    }
     try {
-      const response = await fetch(`/api/marimo/${user?.id}`, {
+      const response = await fetch(`/api/marimo/${user.id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({}),
       })
-      console.log(response)
       if (!response.ok) {
         throw new Error("Failed to fetch data")
       }
       const data = await response.json()
 
-      // 마리모 데이터를 상태에 저장
-      setMarimoData({
-        ...data,
+      setMarimo({
+        ...data.user,
       })
     } catch (error) {
       console.error("API Error:", error)
@@ -198,29 +187,25 @@ const Canvas = () => {
       x: (marimoPosition.x * 100) / canvasWidth,
       y: (marimoPosition.y * 100) / canvasHeight,
     })
-
-    // marimoData의 rect 정보를 업데이트
-    const updatedMarimoData = {
-      ...marimoData,
-      user: {
-        ...marimoData?.user,
-        rect: updatedRect,
-      },
+    if (!marimo) {
+      console.error("Marimo is null")
+      return
     }
-    const response = await fetch(`/api/marimo/update/${marimoData?.user.id}`, {
+    const response = await fetch(`/api/marimo/update/${marimo.id}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(updatedMarimoData.user),
+      body: JSON.stringify({ ...marimo, rect: updatedRect }),
     })
+
     if (!response.ok) {
       console.error("Failed to update marimo.")
       return
     }
 
-    const data = await response.json()
-    console.log("Marimo updated:", data)
+    const updatedData = await response.json()
+    setMarimo(updatedData)
   }
 
   const handleTouchStart = (event: React.TouchEvent<HTMLCanvasElement>) => {
@@ -274,21 +259,18 @@ const Canvas = () => {
 
   useEffect(() => {
     if (user) {
-      console.log("User data loaded:", user)
       fetchMarimo()
-    } else {
-      console.log("User data is not loaded. User is null.")
     }
   }, [user])
 
   useEffect(() => {
-    if (marimoData) {
-      const rectObject = JSON.parse(marimoData.user.rect)
+    if (marimo) {
+      const rectObject = JSON.parse(marimo.rect)
       const percentagedX = (canvasWidth * rectObject.x) / 100
       const percentagedY = (canvasHeight * rectObject.y) / 100
       setMarimoPosition({ x: percentagedX, y: percentagedY })
     }
-  }, [marimoData])
+  }, [marimo])
 
   return (
     <div>
