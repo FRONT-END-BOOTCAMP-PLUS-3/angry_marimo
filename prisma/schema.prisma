@@ -30,6 +30,7 @@ model Marimo {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   name      String    @default("marimo")
+  src       String    @default("/images/marimo.svg")
   history   History[]
   user      User      @relation(fields: [userId], references: [id])
   object    Object[]
