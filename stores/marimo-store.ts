@@ -7,6 +7,7 @@ export type TMarimo = {
   name: string
   userId: number
   size: number
+  src: string
   rect: string
   color: string
   status: string
