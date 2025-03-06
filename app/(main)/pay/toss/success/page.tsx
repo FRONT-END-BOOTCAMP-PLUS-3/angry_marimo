@@ -3,12 +3,14 @@
 import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
 
-import { Suspense, useEffect } from "react"
+import { Suspense, useEffect, useState } from "react"
 
 import styles from "@marimo/app/(main)/pay/toss/success/page.module.css"
 
 const SuccessPage = () => {
   const router = useRouter()
+
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const {
     box_section,
@@ -67,7 +69,7 @@ const SuccessPage = () => {
                 status: "SUCCESS",
                 payResponse: res,
               }),
-            }).then((res) => res.json())
+            }).then(() => setIsLoading(true))
           } catch (error) {
             console.error(error)
             alert("잠시 후 다시 시도해주세요!")
@@ -94,46 +96,54 @@ const SuccessPage = () => {
         src="https://static.toss.im/illusts/check-blue-spot-ending-frame.png"
         alt="결제 완료"
       />
-      <h2>결제를 완료했어요</h2>
-      <div
-        className={`${p_grid} ${typography__p}`}
-        style={{ marginTop: "50px" }}
-      >
-        <div className={`${p_grid_col} ${text__left}`}>
-          <b>결제금액</b>
-        </div>
-        <div className={`${p_grid_col} ${text__right}`}>
-          {`${Number(searchParams.get("amount")).toLocaleString()}원`}
-        </div>
-      </div>
-      <div
-        className={`${p_grid} ${typography__p}`}
-        style={{ marginTop: "10px" }}
-      >
-        <div className={`${p_grid_col} ${text__left}`}>
-          <b>주문번호</b>
-        </div>
-        <div className={`${p_grid_col} ${text__right}`}>
-          {searchParams.get("orderId")}
-        </div>
-      </div>
-      <div
-        className={`${p_grid} ${typography__p}`}
-        style={{ marginTop: "10px" }}
-      >
-        <div className={`${p_grid_col} ${text__left}`}>
-          <b>paymentKey</b>
-        </div>
-        <div
-          className={`${p_grid_col} ${text__right}`}
-          style={{ whiteSpace: "initial", width: "250px" }}
-        >
-          {searchParams.get("paymentKey")}
-        </div>
-      </div>
-      <button className={button} onClick={() => router.push("/")}>
-        메인 페이지로 이동
-      </button>
+      {!isLoading && <h2>결제 중 입니다! 잠시 기다려주세요...</h2>}
+      {isLoading && (
+        <>
+          <h2>결제를 완료했어요</h2>
+          <div
+            className={`${p_grid} ${typography__p}`}
+            style={{ marginTop: "50px" }}
+          >
+            <div className={`${p_grid_col} ${text__left}`}>
+              <b>결제금액</b>
+            </div>
+            <div className={`${p_grid_col} ${text__right}`}>
+              {`${Number(searchParams.get("amount")).toLocaleString()}원`}
+            </div>
+          </div>
+          <div
+            className={`${p_grid} ${typography__p}`}
+            style={{ marginTop: "10px" }}
+          >
+            <div className={`${p_grid_col} ${text__left}`}>
+              <b>주문번호</b>
+            </div>
+            <div className={`${p_grid_col} ${text__right}`}>
+              {searchParams.get("orderId")}
+            </div>
+          </div>
+          <div
+            className={`${p_grid} ${typography__p}`}
+            style={{ marginTop: "10px" }}
+          >
+            <div className={`${p_grid_col} ${text__left}`}>
+              <b>paymentKey</b>
+            </div>
+            <div
+              className={`${p_grid_col} ${text__right}`}
+              style={{ whiteSpace: "initial", width: "250px" }}
+            >
+              {searchParams.get("paymentKey")}
+            </div>
+          </div>
+          <button className={button} onClick={() => router.push("/")}>
+            메인 페이지로 이동
+          </button>
+          <button className={button} onClick={() => router.push("/custom")}>
+            마리모 꾸미러 가기
+          </button>
+        </>
+      )}
     </div>
   )
 }

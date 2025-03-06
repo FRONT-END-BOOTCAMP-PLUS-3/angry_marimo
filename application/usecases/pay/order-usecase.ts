@@ -1,3 +1,5 @@
+import { CouponRepository } from "@marimo/domain/repositories/coupon-repository"
+
 import { sumValues } from "@marimo/utils/sum-values"
 
 import { TOrderStatus } from "@marimo/types"
@@ -9,7 +11,10 @@ import {
 } from "@marimo/application/usecases/pay/dto"
 
 export class OrderUsecase {
-  constructor(private orderRepository: OrderRepository) {}
+  constructor(
+    private orderRepository: OrderRepository,
+    private couponRepository: CouponRepository,
+  ) {}
 
   async getAllAmount(): Promise<OrderAllAmountDto | null> {
     const orders = await this.orderRepository.findAllOrders()
@@ -38,6 +43,8 @@ export class OrderUsecase {
       paymentKey,
       payResponse,
     )
+
+    await this.couponRepository.create(userId)
 
     const newOrder = order
       ? ({
