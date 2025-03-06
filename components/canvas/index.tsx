@@ -24,10 +24,7 @@ const Canvas = () => {
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 })
   const imageRef = useRef(new Image())
 
-  // zustand 에서 개별로 가져온 데이터, 왜인지 모르게 usestore로 묶어서 가져오면 에러가 나옴,useMemo나 useCallback 을 쓰라고 함
-  const marimo = useStore((state) => state.marimo)
-  const setMarimo = useStore((state) => state.setMarimo)
-  const user = useStore((state) => state.user)
+  const { user, marimo, setMarimo, trashItems } = useStore()
 
   useEffect(() => {
     window.addEventListener("resize", handleCanvasResize)
