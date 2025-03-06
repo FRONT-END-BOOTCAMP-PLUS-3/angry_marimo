@@ -67,17 +67,21 @@ export default function TrashComponent() {
     }
 
     return () => {
-      worker.current?.terminate() // 데이터  누수 방지
-      worker.current = null
+      if (worker.current) {
+        worker.current.terminate() // 데이터 누수 방지
+        worker.current = null
+      }
     }
   }, [isWorkerRunning])
 
   useInterval(() => {
-    if (!isWorkerRunning || !worker.current) return
+    if (!isWorkerRunning) return
+    if (!worker.current) return
+
     if (trashItems.length < TRASH_LIMIT) {
-      worker.current?.postMessage(1)
+      worker.current.postMessage(1)
     } else {
-      worker.current?.terminate()
+      worker.current.terminate()
       worker.current = null
       setIsWorkerRunning(false)
     }
