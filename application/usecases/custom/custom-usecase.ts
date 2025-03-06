@@ -32,13 +32,6 @@ export class CustomUsecase {
     const storageDir = process.env.NEXT_STORAGE_SRC ?? "../storage"
     const resolvedPath = path.resolve(storageDir)
 
-    console.log("storageDir --->", storageDir)
-    console.log(
-      "process.env.NEXT_STORAGE_SRC ---->",
-      process.env.NEXT_STORAGE_SRC,
-    )
-    console.log("process.env.NEXT_URL ---->", process.env.NEXT_URL)
-
     await fs.mkdir(resolvedPath, { recursive: true })
 
     const filePath = path.join(storageDir, file.name)
