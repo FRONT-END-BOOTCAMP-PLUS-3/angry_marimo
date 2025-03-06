@@ -25,7 +25,9 @@ const Canvas = () => {
 
   const { user, marimo, setMarimo, trashItems } = useStore()
 
-  const marimoImgSrc = marimo?.src ?? "/images/marimo.svg"
+  // FIXME : 이미지 잘 가져오면 수정하도록...
+  // const marimoImgSrc = marimo?.src ?? "/images/marimo.svg"
+  const marimoImgSrc = "/images/marimo.svg"
 
   useEffect(() => {
     window.addEventListener("resize", handleCanvasResize)
