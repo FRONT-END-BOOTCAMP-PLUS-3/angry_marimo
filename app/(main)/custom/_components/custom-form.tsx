@@ -1,5 +1,7 @@
 "use client"
 
+import { redirect } from "next/navigation"
+
 import { useRef, useState } from "react"
 
 import ChangeColor from "@marimo/app/(main)/custom/_components/change-color"
@@ -46,17 +48,14 @@ const CustomForm = ({
   const [color, setColor] = useState<string>(initialColor)
 
   const captureImage = async () => {
-    if (!user || !user.id) return
-
     if (captureRef.current) {
       const canvas = await html2canvas(captureRef.current, {
         backgroundColor: null,
       })
 
       const imgData = canvas.toDataURL("image/png")
-      console.log("imgData", imgData)
 
-      const fileName = `${user.id}-marimo-${new Date().getTime()}.png`
+      const fileName = `user${user?.id}marimo${new Date().getTime()}.png`
 
       const byteString = atob(imgData.split(",")[1])
       const arrayBuffer = new ArrayBuffer(byteString.length)
@@ -70,15 +69,11 @@ const CustomForm = ({
       const formData = new FormData()
       formData.append("image", blob, fileName)
 
-      // 서버로 이미지 전송
       try {
-        const response = await fetch("/api/custom/color", {
+        const response = await fetch("/api/custom", {
           method: "POST",
           mode: "cors",
           credentials: "same-origin",
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
           body: formData,
         })
 
@@ -87,7 +82,8 @@ const CustomForm = ({
         }
 
         const result = await response.json()
-        console.log("Image uploaded successfully", result)
+
+        return result.src
       } catch (error) {
         console.error("Error uploading image:", error)
       }
@@ -95,7 +91,9 @@ const CustomForm = ({
   }
 
   const handleSubmit = async () => {
-    // captureImage()
+    if (!user || !user.id) return
+
+    const src = await captureImage()
 
     const response = await fetch("/api/custom", {
       method: "PUT",
@@ -107,14 +105,18 @@ const CustomForm = ({
       body: JSON.stringify({
         marimo: {
           ...marimo,
+          src,
           name,
           color,
         },
         coupon: coupon.coupons[0],
       }),
-    }).then((res) => res.json())
+    })
 
-    console.log(response)
+    if (!response.ok)
+      return alert("업데이트에 실패했습니다! 다시 시도해주세요!")
+
+    redirect("/")
   }
 
   return (

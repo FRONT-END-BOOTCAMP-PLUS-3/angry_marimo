@@ -40,8 +40,39 @@ export async function GET() {
   }
 }
 
-// TODO : 마리모 커스텀 하는 route
-// [ ] : 마리모 이미지를 저장하고 src 주소를 업데이트 해야한다
+export async function POST(request: NextRequest) {
+  const prisma = new PrismaClient()
+
+  const formData = await request.formData()
+  const file = formData.get("image") as File | null
+
+  if (!file) {
+    return NextResponse.json({ error: "파일이 없습니다." }, { status: 400 })
+  }
+
+  const cookieStore = await cookies()
+  const token = cookieStore.get("token")?.value
+
+  if (!token)
+    return NextResponse.json({ message: "login failed" }, { status: 401 })
+
+  try {
+    const customUsecase = new CustomUsecase(
+      new PgCouponRepository(prisma),
+      new PgMarimoRepository(),
+    )
+
+    const src = await customUsecase.saveMarimoImage(file)
+
+    return NextResponse.json({ src }, { status: 200 })
+  } catch (error) {
+    return NextResponse.json(
+      { message: `Custom Post Error: ${error}` },
+      { status: 500 },
+    )
+  }
+}
+
 export async function PUT(request: NextRequest) {
   const prisma = new PrismaClient()
 
@@ -77,7 +108,7 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error(error)
     return NextResponse.json(
-      { message: `Custom Post Error: ${error}` },
+      { message: `Custom PUT Error: ${error}` },
       { status: 500 },
     )
   }

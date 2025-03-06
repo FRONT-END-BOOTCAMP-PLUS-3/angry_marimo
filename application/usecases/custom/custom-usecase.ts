@@ -1,5 +1,7 @@
 import { CouponRepository } from "@marimo/domain/repositories/coupon-repository"
 
+import path from "path"
+import fs from "fs/promises"
 import { MarimoRepository } from "@marimo/domain/repositories"
 import { Coupon, Marimo, Object as TObject } from "@prisma/client"
 import {
@@ -25,8 +27,19 @@ export class CustomUsecase {
     }
   }
 
-  // [ ] : 마리모 이미지 저장
-  // [ ] : 마리모 이미지 주소지 받아오기
+  async saveMarimoImage(file: File): Promise<string> {
+    const storageDir = process.env.NEXT_STORAGE_SRC ?? "../storage"
+    const resolvedPath = path.resolve(storageDir)
+
+    await fs.mkdir(resolvedPath, { recursive: true })
+
+    const filePath = path.join(storageDir, file.name)
+
+    const buffer = Buffer.from(await file.arrayBuffer())
+    await fs.writeFile(filePath, buffer)
+
+    return `${process.env.NEXT_URL}/storage/${file.name}`
+  }
 
   async updateCustom(
     marimo: Marimo & { object: TObject[] },
