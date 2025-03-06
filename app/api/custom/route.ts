@@ -66,6 +66,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ src }, { status: 200 })
   } catch (error) {
+    console.log(
+      "=================== here custom post 500 error ===================",
+    )
+    console.error(error)
     return NextResponse.json(
       { message: `Custom Post Error: ${error}` },
       { status: 500 },
