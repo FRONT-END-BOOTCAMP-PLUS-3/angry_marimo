@@ -20,7 +20,21 @@ const nextConfig: NextConfig = {
     return config
   },
   images: {
-    domains: ["static.toss.im", "localhost", "angry-marimo.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "static.toss.im",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+      },
+      {
+        protocol: "https",
+        hostname: "angry-marimo.com",
+        pathname: "/storage/**",
+      },
+    ],
   },
 }
 
