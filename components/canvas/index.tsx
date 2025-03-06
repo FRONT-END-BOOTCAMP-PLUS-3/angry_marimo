@@ -157,8 +157,12 @@ const Canvas = () => {
   }
 
   const fetchMarimo = async () => {
+    if (!user) {
+      console.error("User is null")
+      return
+    }
     try {
-      const response = await fetch(`/api/marimo/${user?.id}`, {
+      const response = await fetch(`/api/marimo/${user.id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -183,8 +187,11 @@ const Canvas = () => {
       x: (marimoPosition.x * 100) / canvasWidth,
       y: (marimoPosition.y * 100) / canvasHeight,
     })
-
-    const response = await fetch(`/api/marimo/update/${marimo?.id}`, {
+    if (!marimo) {
+      console.error("Marimo is null")
+      return
+    }
+    const response = await fetch(`/api/marimo/update/${marimo.id}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
