@@ -2,7 +2,9 @@ name: Deploy Next.js to Server with Playwright & Vitest
 
 on:
   push:
-    branches: main
+    branches:
+          - main
+          - deploy
 
 jobs:
   # 빌드 단계
