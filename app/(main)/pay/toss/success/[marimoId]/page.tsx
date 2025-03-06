@@ -13,8 +13,6 @@ const SuccessPage = () => {
 
   const marimoId = Number(param.marimoId)
 
-  console.log(marimoId)
-
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const {

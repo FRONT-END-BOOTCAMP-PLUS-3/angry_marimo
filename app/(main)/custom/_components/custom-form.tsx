@@ -93,7 +93,14 @@ const CustomForm = ({
   const handleSubmit = async () => {
     if (!user || !user.id) return
 
-    const src = await captureImage()
+    const src: string = await captureImage()
+
+    console.log(src)
+
+    if (!src || typeof src !== "string") {
+      alert("마리모 저장에 실패했습니다, 다시 시도해주세요!")
+      return
+    }
 
     const response = await fetch("/api/custom", {
       method: "PUT",
