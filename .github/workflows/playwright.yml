@@ -51,14 +51,16 @@ jobs:
         run: |
           cat <<EOF > .env
           NODE_ENV=production
-          DATABASE_URL=${{ secrets.DATABASE_URL }}
-          MARIMO_SECRET_KEY=${{ secrets.MARIMO_SECRET_KEY }}
-          NEXT_URL=${{ secrets.NEXT_URL }}
-          NEXT_PUBLIC_URL=${{ secrets.NEXT_PUBLIC_URL }}
           COOKIE_DOMAIN=${{ secrets.COOKIE_DOMAIN }}
           COOKIE_TOKEN=${{ secrets.COOKIE_TOKEN }}
-          NEXT_TOSS_SECRET_KEY=${{ secrets.NEXT_TOSS_SECRET_KEY }}
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          MARIMO_SECRET_KEY=${{ secrets.MARIMO_SECRET_KEY }}
           NEXT_PUBLIC_TOSS_CLIENT_KEY=${{ secrets.NEXT_PUBLIC_TOSS_CLIENT_KEY }}
+          NEXT_PUBLIC_URL=${{ secrets.NEXT_PUBLIC_URL }}
+          NEXT_TOSS_SECRET_KEY=${{ secrets.NEXT_TOSS_SECRET_KEY }}
+          NEXT_URL=${{ secrets.NEXT_URL }}
+          NEXT_WWW_URL=${{ secrets.NEXT_WWW_URL }}
+          NEXT_STORAGE_SRC=${{ secrets.NEXT_STORAGE_SRC }}
           EOF
 
       - name: Install Dependencies
