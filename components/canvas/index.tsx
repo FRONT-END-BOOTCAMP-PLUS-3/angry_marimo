@@ -45,7 +45,7 @@ const Canvas = () => {
       setImageLoaded(true)
     }),
       (marimoImage.onerror = () => {
-        console.error("Failed to load image") // 이미지 로드 실패 시 로그
+        console.error("Failed to load image")
       })
   }
 
@@ -165,13 +165,10 @@ const Canvas = () => {
         },
         body: JSON.stringify({}),
       })
-      console.log(response)
       if (!response.ok) {
         throw new Error("Failed to fetch data")
       }
       const data = await response.json()
-      console.log("fetch data", data)
-      // 마리모 데이터를 상태에 저장
 
       setMarimo({
         ...data.user,
@@ -255,10 +252,8 @@ const Canvas = () => {
 
   useEffect(() => {
     if (user) {
-      console.log("User data loaded:", user)
       fetchMarimo()
     } else {
-      console.log("User data is not loaded. User is null.")
     }
   }, [user])
 
