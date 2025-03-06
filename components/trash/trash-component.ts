@@ -1,6 +1,4 @@
 "use client"
-import Image from "next/image"
-
 import { useEffect, useRef, useState } from "react"
 
 import { useInterval } from "@marimo/hooks/use-interval"
@@ -83,5 +81,5 @@ export default function TrashComponent() {
       worker.current = null
       setIsWorkerRunning(false)
     }
-  }, 2000)
+  }, 20000)
 }
