@@ -88,7 +88,7 @@ export const useTrashComponent = () => {
       worker.current = null
       setIsWorkerRunning(false)
     }
-  }, 2000)
+  }, 20000)
 
   return <></>
 }
