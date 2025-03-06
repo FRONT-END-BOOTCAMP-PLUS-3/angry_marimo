@@ -1,4 +1,5 @@
 "use client"
+import Image from "next/image"
 
 import { useEffect, useRef, useState } from "react"
 
@@ -78,10 +79,9 @@ export default function TrashComponent() {
     if (trashItems.length < TRASH_LIMIT) {
       worker.current?.postMessage(1)
     } else {
-      console.log("한계치 도달했습니다!! 끝낼게요!!!")
       worker.current?.terminate()
       worker.current = null
       setIsWorkerRunning(false)
     }
-  }, 20000)
+  }, 2000)
 }
