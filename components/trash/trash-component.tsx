@@ -1,4 +1,6 @@
 "use client"
+import dynamic from "next/dynamic"
+
 import { useEffect, useRef, useState } from "react"
 
 import { useInterval } from "@marimo/hooks/use-interval"
@@ -10,7 +12,7 @@ import { HEADER_HEIGHT, TRASH_LIMIT } from "@marimo/constants/trash-header"
 import { useStore } from "@marimo/stores/use-store"
 import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto"
 
-export default function TrashComponent() {
+export const useTrashComponent = () => {
   const worker = useRef<Worker | null>(null)
   const idCounter = useRef(0)
 
@@ -44,7 +46,8 @@ export default function TrashComponent() {
         }
       })
       addTrashItems(newTrashItems)
-      const marimoId = 12 // 임의 마리모 ID
+      const marimoId = 15 // 임의 마리모 ID
+      console.log(newTrashItems)
 
       try {
         const response = await fetch(`/api/objects`, {
@@ -85,5 +88,16 @@ export default function TrashComponent() {
       worker.current = null
       setIsWorkerRunning(false)
     }
-  }, 20000)
+  }, 2000)
+
+  return <></>
 }
+
+const DynamicTrashComponent = dynamic(
+  () => Promise.resolve(useTrashComponent),
+  {
+    ssr: false,
+  },
+)
+
+export default DynamicTrashComponent
