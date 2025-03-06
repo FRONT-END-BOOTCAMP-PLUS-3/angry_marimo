@@ -43,11 +43,13 @@ export class MarimoUsecase {
   }
 
   async updateMarimo(marimoData: Marimo) {
-    const { id, userId, name, size, rect, color, status } = marimoData
+    const { id, userId, name, size, rect, color, src, status } = marimoData
+
     return this.marimoRepository.updateMarimo(id, {
       id,
       userId,
       name,
+      src,
       size,
       rect,
       color,
