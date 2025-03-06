@@ -4,6 +4,7 @@ import { create } from "zustand"
 import { createSelectorFunctions } from "auto-zustand-selectors-hook"
 import { TTrashSlice, useTrashStore } from "@marimo/stores/trash-store"
 import { createUserSlice, TUserSlice } from "@marimo/stores/user-store"
+import { TMarimoSlice, createMarimoSlice } from "@marimo/stores/marimo-store"
 import {
   persist,
   createJSONStorage,
@@ -23,21 +24,28 @@ const storage: StateStorage = {
   },
 }
 
-export type State = TUserSlice & TTrashSlice
+export type State = TUserSlice & TTrashSlice & TMarimoSlice
 
 export const useStore = create<State>()(
   subscribeWithSelector(
-    persist((...a) => ({ ...createUserSlice(...a), ...useTrashStore(...a) }), {
-      version: 144,
-      name: "angry_marimo",
-      storage: createJSONStorage(() => storage),
-      partialize: (keys) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { ...persistData } = keys
+    persist(
+      (...a) => ({
+        ...createUserSlice(...a),
+        ...useTrashStore(...a),
+        ...createMarimoSlice(...a),
+      }),
+      {
+        version: 144,
+        name: "angry_marimo",
+        storage: createJSONStorage(() => storage),
+        partialize: (keys) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { ...persistData } = keys
 
-        return persistData
+          return persistData
+        },
       },
-    }),
+    ),
   ),
 )
 

@@ -7,6 +7,7 @@ export interface MarimoRepository {
     marimoData: Omit<Marimo, "createdAt" | "updatedAt">,
   ): Promise<Marimo | null>
   createDefaultMarimo(defaultMarimo: {
+    name: string
     userId: number
     size: number
     rect: string

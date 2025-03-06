@@ -27,9 +27,10 @@ export class MarimoUsecase {
 
   private async createDefaultMarimo(userId: number): Promise<Marimo> {
     const defaultMarimo = {
+      name: "marimo",
       userId: userId,
-      size: 100, // Default size
-      rect: JSON.stringify({ x: 50, y: 50 }), // Default position
+      size: 80,
+      rect: JSON.stringify({ x: 50, y: 50 }),
       color: "dark_green", // Default color
       status: "angry", // Default status
     }

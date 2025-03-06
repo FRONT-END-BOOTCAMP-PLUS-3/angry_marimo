@@ -43,6 +43,7 @@ export class PgMarimoRepository implements MarimoRepository {
     }
   }
   async createDefaultMarimo(defaultMarimo: {
+    name: string
     userId: number
     size: number
     rect: string

@@ -11,6 +11,7 @@ import { useStore } from "@marimo/stores/use-store"
 interface MarimoData {
   user: {
     id: number
+    name: string
     userId: number
     size: number
     rect: string
@@ -183,7 +184,7 @@ const Canvas = () => {
         throw new Error("Failed to fetch data")
       }
       const data = await response.json()
-
+      console.log("fetch data", data)
       // 마리모 데이터를 상태에 저장
       setMarimoData({
         ...data,
