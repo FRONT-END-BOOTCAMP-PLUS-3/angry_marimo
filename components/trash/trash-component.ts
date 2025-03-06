@@ -1,9 +1,11 @@
 "use client"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { useInterval } from "@marimo/hooks/use-interval"
 
 import { getTrashImage } from "@marimo/public/utils/level-image"
+
+import { HEADER_HEIGHT, TRASH_LIMIT } from "@marimo/constants/trash-header"
 
 import { useStore } from "@marimo/stores/use-store"
 import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto"
@@ -12,15 +14,16 @@ export default function TrashComponent() {
   const worker = useRef<Worker | null>(null)
   const idCounter = useRef(0)
 
-  const { addTrashItems } = useStore()
+  const { trashItems, addTrashItems } = useStore()
+  const [isWorkerRunning, setIsWorkerRunning] = useState(true)
 
   useEffect(() => {
-    const headerHeight = 100 // 임의값 수정--> 헤더 높이계산
+    const headerHeight = HEADER_HEIGHT
+    if (!isWorkerRunning) return
     worker.current = new Worker(
       new URL("/public/workers/trash-worker", import.meta.url),
       { type: "module" },
     )
-
     worker.current.onmessage = async (
       event: MessageEvent<{
         points: Array<{ x: number; y: number; isInside: boolean }>
@@ -64,11 +67,23 @@ export default function TrashComponent() {
     }
 
     return () => {
-      worker.current?.terminate()
+      if (worker.current) {
+        worker.current.terminate() // 데이터 누수 방지
+        worker.current = null
+      }
     }
-  }, [])
+  }, [isWorkerRunning])
 
   useInterval(() => {
-    worker.current?.postMessage(1)
+    if (!isWorkerRunning) return
+    if (!worker.current) return
+
+    if (trashItems.length < TRASH_LIMIT) {
+      worker.current.postMessage(1)
+    } else {
+      worker.current.terminate()
+      worker.current = null
+      setIsWorkerRunning(false)
+    }
   }, 20000)
 }
