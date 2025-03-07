@@ -12,8 +12,17 @@ const Canvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [canvasWidth, setCanvasWidth] = useState(window.innerWidth)
   const [canvasHeight, setCanvasHeight] = useState(window.innerHeight)
-  const [imageLoaded, setImageLoaded] = useState(false)
-  // const [loadedTrashImages, setLoadedTrashImages] = useState([])
+  const [marimoImageLoaded, setMarimoImageLoaded] = useState(false)
+  const [loadedTrashImages, setLoadedTrashImages] = useState<
+    {
+      image: HTMLImageElement
+      id: number
+      level: number
+      url: string
+      rect: { x: number; y: number }
+      type: string
+    }[]
+  >([])
 
   const [marimoPosition, setMarimoPosition] = useState({
     x: -500, // fetch 전 안보이게 하려고 넣어놓은 숫자
@@ -42,29 +51,17 @@ const Canvas = () => {
   const loadMarimoImage = () => {
     const marimoImage = imageRef.current
     marimoImage.src = marimoImgSrc
-    ;(marimoImage.onload = () => {
-      setImageLoaded(true)
-    }),
-      (marimoImage.onerror = () => {
-        console.error("Failed to load image")
-      })
+    marimoImage.onload = () => setMarimoImageLoaded(true)
+    marimoImage.onerror = () => console.error("Failed to load image")
   }
 
-  const drawMarimoOnCanvas = () => {
-    if (imageLoaded && canvasRef.current) {
-      const canvas = canvasRef.current
-      const ctx = canvas.getContext("2d")
-      if (ctx) {
-        ctx.clearRect(0, 0, canvasWidth, canvasHeight)
-        ctx.drawImage(
-          imageRef.current,
-          marimoPosition.x,
-          marimoPosition.y,
-          100,
-          100,
-        )
-      }
-    }
+  const loadTrashImages = () => {
+    trashItems.forEach((item) => {
+      const img = new Image()
+      img.src = item.url
+      img.onload = () =>
+        setLoadedTrashImages((prev) => [...prev, { ...item, image: img }])
+    })
   }
 
   useEffect(() => {
@@ -72,39 +69,42 @@ const Canvas = () => {
   }, [marimoImgSrc])
 
   useEffect(() => {
-    drawMarimoOnCanvas()
-  }, [marimoPosition, imageLoaded, canvasWidth, canvasHeight])
+    loadTrashImages()
+  }, [trashItems])
 
-  // const loadTrashImages = () => {
-  //   trashItems.forEach((item) => {
-  //     const img = new Image()
-  //     img.src = item.url
-  //     img.onload = () =>
-  //       setLoadedTrashImages((prev) => [...prev, { ...item, image: img }])
-  //   })
-  // }
+  const drawOnCanvas = () => {
+    if (canvasRef.current) {
+      const canvas = canvasRef.current
+      const ctx = canvas.getContext("2d")
+      if (ctx) {
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight) // 캔버스 클리어
+        if (marimoImageLoaded) {
+          ctx.drawImage(
+            imageRef.current,
+            marimoPosition.x,
+            marimoPosition.y,
+            100,
+            100,
+          )
+        }
+        loadedTrashImages.forEach((trash) => {
+          const x = (trash.rect.x / 100) * canvasWidth
+          const y = (trash.rect.y / 100) * canvasHeight
+          ctx.drawImage(trash.image, x, y, 50, 50)
+        })
+      }
+    }
+  }
 
-  // // 캔버스에 쓰레기 이미지를 그리는 함수
-  // const drawTrashOnCanvas = () => {
-  //   const canvas = canvasRef.current
-  //   const ctx = canvas?.getContext("2d")
-
-  //   if (ctx) {
-  //     loadedTrashImages.forEach((trash) => {
-  //       const x = (trash.x / 100) * canvasWidth // 퍼센테이지 위치 계산
-  //       const y = (trash.y / 100) * canvasHeight
-  //       ctx.drawImage(trash.image, x, y, 50, 50) // 이미지 그리기
-  //     })
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   loadTrashImages()
-  // }, [trashItems])
-
-  // useEffect(() => {
-  //   drawTrashOnCanvas() // 캔버스에 그리기
-  // }, [loadedTrashImages, canvasWidth, canvasHeight])
+  useEffect(() => {
+    drawOnCanvas()
+  }, [
+    marimoPosition,
+    marimoImageLoaded,
+    loadedTrashImages,
+    canvasWidth,
+    canvasHeight,
+  ])
 
   const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = canvasRef.current?.getBoundingClientRect()
@@ -272,6 +272,10 @@ const Canvas = () => {
       setMarimoPosition({ x: percentagedX, y: percentagedY })
     }
   }, [marimo])
+
+  useEffect(() => {
+    console.log("트래시 스토어에 저장된 trashItems", trashItems)
+  }, [trashItems])
 
   return (
     <div>
