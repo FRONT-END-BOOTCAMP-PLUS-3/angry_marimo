@@ -55,18 +55,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/*
-const response = await fetch(`/api/objects`, {
-  method: "PUT",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    marimoId: 29,
-  }),
-}) --> PUT 매서드 이렇게 요청 보내주시면 됩니다!
- */
-
 export async function PUT(request: NextRequest) {
   try {
     if (request.headers.get("content-type") !== "application/json") {
