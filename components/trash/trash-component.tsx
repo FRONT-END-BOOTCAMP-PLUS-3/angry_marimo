@@ -38,6 +38,7 @@ export const useTrashComponent = () => {
           id: idCounter.current++,
           level,
           url: getTrashImage(level),
+          isActive: true,
           rect: {
             x: point.x * 100,
             y: point.y * 100 + (headerHeight / window.innerHeight) * 100,
