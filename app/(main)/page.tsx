@@ -1,5 +1,5 @@
 import DynamicCanvas from "@marimo/components/canvas"
-import DynamicTrashComponent from "@marimo/components/trash/trash-component"
+import DynamicTrashComponent from "@marimo/components/object/object-component"
 
 const Home = () => {
   return (

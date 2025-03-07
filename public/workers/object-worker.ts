@@ -17,3 +17,5 @@ self.addEventListener("message", (event: MessageEvent<number>) => {
     postMessage({ error: "연산 중 오류가 발생했습니다." })
   }
 })
+
+self.onmessage
