@@ -20,6 +20,12 @@ export const useTrashComponent = () => {
   const [isWorkerRunning, setIsWorkerRunning] = useState(true)
 
   useEffect(() => {
+    if (!marimo) {
+      console.log("마리모 데이터가 아직 로드되지 않았습니다.")
+      return
+    }
+    console.log("마리모", marimo)
+
     const headerHeight = HEADER_HEIGHT
     if (!isWorkerRunning) return
     worker.current = new Worker(
@@ -47,8 +53,6 @@ export const useTrashComponent = () => {
         }
       })
       addTrashItems(newTrashItems)
-      if (!marimo) return
-      const marimoId = marimo.id
       console.log(newTrashItems)
 
       try {
@@ -58,12 +62,12 @@ export const useTrashComponent = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            marimoId: marimoId,
+            marimoId: marimo.id,
             trashData: newTrashItems,
           }),
         })
         if (!response.ok) {
-          throw new Error(`마리모 아이디 보내는데 에러입니다다: ${marimoId}`)
+          throw new Error(`마리모 아이디 보내는데 에러입니다: ${marimo.id}`)
         }
         console.log("📤 모든 객체 API 전송 완료")
       } catch (error) {
@@ -77,7 +81,7 @@ export const useTrashComponent = () => {
         worker.current = null
       }
     }
-  }, [isWorkerRunning])
+  }, [marimo, isWorkerRunning])
 
   useInterval(() => {
     if (!isWorkerRunning) return
