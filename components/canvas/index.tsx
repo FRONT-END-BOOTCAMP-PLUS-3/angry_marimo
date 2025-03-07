@@ -21,6 +21,7 @@ const Canvas = () => {
       url: string
       rect: { x: number; y: number }
       type: string
+      isActive: boolean
     }[]
   >([])
 
@@ -32,7 +33,7 @@ const Canvas = () => {
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 })
   const imageRef = useRef(new Image())
 
-  const { user, marimo, setMarimo, trashItems } = useStore()
+  const { user, marimo, setMarimo, trashItems, updateTrashItem } = useStore()
 
   const marimoImgSrc = marimo?.src ?? "/images/marimo.svg"
 
@@ -77,7 +78,7 @@ const Canvas = () => {
       const canvas = canvasRef.current
       const ctx = canvas.getContext("2d")
       if (ctx) {
-        ctx.clearRect(0, 0, canvasWidth, canvasHeight) // 캔버스 클리어
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight)
         if (marimoImageLoaded) {
           ctx.drawImage(
             imageRef.current,
@@ -90,12 +91,29 @@ const Canvas = () => {
         loadedTrashImages.forEach((trash) => {
           const x = (trash.rect.x / 100) * canvasWidth
           const y = (trash.rect.y / 100) * canvasHeight
-          ctx.drawImage(trash.image, x, y, 50, 50)
+          if (trash.isActive) {
+            if (isColliding(marimoPosition, { x, y, width: 50, height: 50 })) {
+              trash.isActive = false
+              updateTrashItem(trash.id, { isActive: false })
+            } else {
+              ctx.drawImage(trash.image, x, y, 50, 50)
+            }
+          }
         })
       }
     }
   }
-
+  const isColliding = (
+    marimoPosition: { x: number; y: number },
+    trashPosition: { x: number; y: number; width: number; height: number },
+  ) => {
+    return !(
+      marimoPosition.x + 100 < trashPosition.x ||
+      marimoPosition.x > trashPosition.x + trashPosition.width ||
+      marimoPosition.y + 100 < trashPosition.y ||
+      marimoPosition.y > trashPosition.y + trashPosition.height
+    )
+  }
   useEffect(() => {
     drawOnCanvas()
   }, [

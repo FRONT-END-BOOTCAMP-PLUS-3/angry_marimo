@@ -16,7 +16,7 @@ export const useTrashComponent = () => {
   const worker = useRef<Worker | null>(null)
   const idCounter = useRef(0)
 
-  const { trashItems, addTrashItems } = useStore()
+  const { marimo, trashItems, addTrashItems } = useStore()
   const [isWorkerRunning, setIsWorkerRunning] = useState(true)
 
   useEffect(() => {
@@ -47,7 +47,8 @@ export const useTrashComponent = () => {
         }
       })
       addTrashItems(newTrashItems)
-      const marimoId = 15 // 임의 마리모 ID
+      if (!marimo) return
+      const marimoId = marimo.id
       console.log(newTrashItems)
 
       try {
@@ -89,7 +90,7 @@ export const useTrashComponent = () => {
       worker.current = null
       setIsWorkerRunning(false)
     }
-  }, 20000)
+  }, 200)
 
   return <></>
 }

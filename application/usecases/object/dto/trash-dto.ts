@@ -1,5 +1,6 @@
 export interface ITrashDto {
   id: number
+  isActive: boolean
   level: number
   url: string
   rect: {
