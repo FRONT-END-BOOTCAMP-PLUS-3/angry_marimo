@@ -12,6 +12,7 @@ export interface ObjectRepository {
   ): Promise<Omit<ObjectItem, "id"> | null>
 
   update(
+    marimoId: number,
     id: number,
     isActive: boolean,
     updateAt: Date,

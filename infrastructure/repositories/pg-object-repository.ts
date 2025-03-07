@@ -33,13 +33,17 @@ export class PgObjectRepository implements ObjectRepository {
   }
 
   async update(
+    marimoId: number,
     id: number,
     isActive: boolean,
     updatedAt: Date,
   ): Promise<ObjectItem | null> {
     try {
       const updateObject = await this.prisma.object.update({
-        where: { id },
+        where: {
+          marimoId: marimoId,
+          id: id,
+        },
         data: { isActive, updatedAt },
       })
       return updateObject || null
