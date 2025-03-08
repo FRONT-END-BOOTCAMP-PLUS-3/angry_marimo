@@ -39,7 +39,7 @@ describe("POST API Handler", () => {
   ]
 
   const createTestRequest = (contentType = "application/json", body = "") => {
-    return new NextRequest(baseURL, {
+    return new NextRequest(process.env.TEST_BASE_URL!, {
       method: "POST",
       headers: { "content-type": contentType },
       body:
