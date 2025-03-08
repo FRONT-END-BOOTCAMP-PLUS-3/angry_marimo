@@ -14,7 +14,7 @@ test.describe("드롭다운 테스트", () => {
 
   test("드롭다운 버튼을 클릭하면 메뉴가 열려야 한다", async ({ page }) => {
     await page.locator("button", { hasText: "님" }).click()
-    await expect(page.locator("text=새 마리모 만들기")).toBeVisible()
+    await expect(page.locator("text=마리모 꾸미기")).toBeVisible()
   })
 
   test("'마리모팀 후원하기' 버튼 클릭 시 /pay로 이동해야 한다", async ({
