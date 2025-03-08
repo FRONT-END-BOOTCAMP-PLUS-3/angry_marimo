@@ -61,6 +61,7 @@ jobs:
           NEXT_URL=${{ secrets.NEXT_URL }}
           NEXT_WWW_URL=${{ secrets.NEXT_WWW_URL }}
           NEXT_STORAGE_SRC=${{ secrets.NEXT_STORAGE_SRC }}
+          TEST_BASE_URL=${{ secrets.TEST_BASE_URL }}
           EOF
 
       - name: Install Dependencies
@@ -137,6 +138,7 @@ jobs:
             NEXT_URL=${{ secrets.NEXT_URL }}
             NEXT_WWW_URL=${{ secrets.NEXT_WWW_URL }}
             NEXT_STORAGE_SRC=${{ secrets.NEXT_STORAGE_SRC }}
+            TEST_BASE_URL=${{ secrets.TEST_BASE_URL }}
             EOF
 
             # 패키지 업데이트 및 빌드
