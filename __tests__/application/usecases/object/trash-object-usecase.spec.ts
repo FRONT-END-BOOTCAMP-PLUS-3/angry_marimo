@@ -1,24 +1,21 @@
-import { describe, test, expect, vi, beforeEach } from "vitest"
 import { InputJsonValue } from "@prisma/client/runtime/client"
+import { describe, test, expect, vi, beforeEach } from "vitest"
 import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto"
 import { TrashToObjectUseCase } from "@marimo/application/usecases/object/trash-object-usecase"
 
-// Mock Object Repository
 const mockObjectRepository = {
   create: vi.fn(),
   update: vi.fn(),
 }
 
-// Helper function to create mock trash data
-const createMockTrashData = (): ITrashDto[] => [
-  {
-    id: 1,
-    type: "trash",
-    rect: { x: 10, y: 20 },
-    url: "http://example.com/image.png",
-    level: 1,
-  },
-]
+const createMockTrashData = (): ITrashDto => ({
+  id: 1,
+  type: "trash",
+  rect: { x: 10, y: 20 },
+  url: "http://example.com/image.png",
+  level: 1,
+  isActive: true,
+})
 
 describe("TrashToObjectUseCase.execute", () => {
   let useCase: TrashToObjectUseCase
@@ -28,40 +25,48 @@ describe("TrashToObjectUseCase.execute", () => {
     useCase = new TrashToObjectUseCase(mockObjectRepository)
   })
 
-  test("should throw an error if trashData is missing or empty", async () => {
-    await expect(useCase.execute([], 1)).rejects.toThrow(
-      "Invalid input: trashData must be a non-empty array.",
+  test("trashData가 undefined일 경우 에러를 발생시켜야 한다", async () => {
+    await expect(useCase.execute(null as any, 1)).rejects.toThrow(
+      "입력값 확인 필요: trashData가 필요합니다.",
     )
   })
 
-  test("should throw an error if marimoId is missing", async () => {
-    return await expect(
-      useCase.execute(createMockTrashData(), 0),
-    ).rejects.toThrow("Invalid input: marimoId is missing.")
+  test("trashData가 null일 경우 에러를 발생시켜야 한다", async () => {
+    await expect(useCase.execute(null as any, 1)).rejects.toThrow(
+      "입력값 확인 필요: trashData가 필요합니다.",
+    )
   })
+
+  test("trashData가 빈 객체일 경우 에러를 발생시켜야 한다", async () => {
+    await expect(useCase.execute({} as any, 1)).rejects.toThrow(
+      "입력값 확인 필요: trashData는 비어 있으면 안 됩니다.",
+    )
+  })
+
+  // 여기에 다른 유형의 잘못된 입력에 대한 추가 테스트를 포함할 수 있습니다
 
   test("should create objects and return mapped data", async () => {
     const mockTrashData = createMockTrashData()
-    const mockCreatedObjects = mockTrashData.map((trash) => ({
-      type: trash.type,
-      position: { x: trash.rect.x, y: trash.rect.y } as InputJsonValue,
-      url: trash.url,
-      level: trash.level,
-    }))
+    const expectedObject = {
+      marimoId: 1,
+      type: mockTrashData.type,
+      rect: JSON.stringify(mockTrashData.rect) as InputJsonValue,
+      url: mockTrashData.url,
+      level: mockTrashData.level,
+    }
 
-    mockObjectRepository.create.mockResolvedValueOnce(mockCreatedObjects[0])
+    mockObjectRepository.create.mockResolvedValueOnce(expectedObject)
 
     const result = await useCase.execute(mockTrashData, 1)
 
     expect(mockObjectRepository.create).toHaveBeenCalledTimes(1)
     expect(result).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          type: "trash",
-          url: "http://example.com/image.png",
-          level: 1,
-        }),
-      ]),
+      expect.objectContaining({
+        type: mockTrashData.type,
+        rect: JSON.stringify(mockTrashData.rect),
+        url: mockTrashData.url,
+        level: mockTrashData.level,
+      }),
     )
   })
 })

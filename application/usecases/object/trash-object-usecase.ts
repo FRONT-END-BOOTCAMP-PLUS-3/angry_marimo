@@ -1,56 +1,48 @@
-import { Object as ObjectItem } from "@prisma/client"
+import { ITrashDto } from "./dto/trash-dto"
+import { IObjectDto } from "./dto/object-dto"
 import { ObjectRepository } from "@marimo/domain/repositories"
-import { InputJsonValue } from "@prisma/client/runtime/library"
-import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto"
-import { IObjectDto } from "@marimo/application/usecases/object/dto/object-dto"
 
 export class TrashToObjectUseCase {
   constructor(private objectRepository: ObjectRepository) {}
 
   async execute(
-    trashData: ITrashDto[],
+    trashData: ITrashDto,
     marimoId: number,
-  ): Promise<Omit<IObjectDto, "id">[]> {
+  ): Promise<Omit<IObjectDto, "id">> {
     try {
-      if (!trashData || !Array.isArray(trashData) || trashData.length === 0) {
-        throw new Error("Invalid input: trashData must be a non-empty array.")
+      if (!trashData) {
+        throw new Error("Invalid input: trashData is required.")
       }
       if (!marimoId) {
         throw new Error("Invalid input: marimoId is missing.")
       }
-
-      // 🔥 모든 trashData를 한꺼번에 DB에 저장
-      const createdObjects = await Promise.all(
-        trashData.map((trashItem) => {
-          return this.objectRepository.create(
-            marimoId,
-            trashItem.type,
-            {
-              x: trashItem.rect.x,
-              y: trashItem.rect.y,
-            } as InputJsonValue,
-            true,
-            trashItem.url,
-            trashItem.level,
-          )
-        }),
-      )
-
-      if (!createdObjects || createdObjects.length === 0) {
-        throw new Error("Failed to create objects from trash data")
+      if (!trashData.rect || trashData.rect === null) {
+        throw new Error("Invalid input: rect data is missing or null.")
       }
 
-      const mappedObjects: Omit<IObjectDto, "id">[] = createdObjects.map(
-        (trashObject) => this.mapToObjectDto(trashObject),
+      const rectJson = JSON.stringify(trashData.rect)
+
+      const objectItem = await this.objectRepository.create(
+        marimoId,
+        trashData.type,
+        rectJson,
+        true,
+        trashData.url,
+        trashData.level,
       )
-      return mappedObjects
+
+      if (!objectItem) {
+        throw new Error("Failed to create object from trash data")
+      }
+
+      return this.mapToObjectDto(objectItem)
     } catch (error) {
       throw new Error(`TrashToObjectUseCase.execute error: ${error}`)
     }
   }
 
   private mapToObjectDto(
-    objectItem: Omit<ObjectItem, "id"> | null,
+    objectItem: Omit<IObjectDto, "id">,
   ): Omit<IObjectDto, "id"> {
     if (!objectItem) {
       throw new Error("Invalid object: received null")
@@ -58,7 +50,7 @@ export class TrashToObjectUseCase {
     return {
       marimoId: objectItem.marimoId,
       type: objectItem.type,
-      rect: objectItem.rect as { x: number; y: number },
+      rect: objectItem.rect,
       isActive: objectItem.isActive,
       url: objectItem.url,
       level: objectItem.level,
