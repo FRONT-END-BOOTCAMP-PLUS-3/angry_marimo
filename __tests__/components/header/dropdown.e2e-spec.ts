@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test"
 
-const url = process.env.NEXT_URL || "http://localhost:3000"
+const url = process.env.TEST_BASE_URL || "http://localhost:3000"
 
 test.describe("드롭다운 테스트", () => {
   test.beforeEach(async ({ page }) => {

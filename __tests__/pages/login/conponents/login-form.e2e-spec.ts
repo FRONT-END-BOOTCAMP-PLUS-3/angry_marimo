@@ -35,7 +35,6 @@ test.describe("LoginForm", () => {
       await dialog.dismiss()
     })
 
-    // 쿼리 파라미터 status=303를 포함하여 페이지에 접근
     await page.goto("/login?status=303")
   })
 })
