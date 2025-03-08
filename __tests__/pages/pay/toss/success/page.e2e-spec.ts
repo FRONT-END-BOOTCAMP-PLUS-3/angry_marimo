@@ -1,5 +1,7 @@
 import { test, expect } from "@playwright/test"
 
+const url = process.env.TEST_BASE_URL || "http://localhost:3000"
+
 // TODO : 마리모 꾸미러 가기 버튼에 대한 테스트 추가
 test.describe("결제 완료 페이지 E2E 테스트", () => {
   test.beforeEach(async ({ context }) => {
@@ -41,7 +43,7 @@ test.describe("결제 완료 페이지 E2E 테스트", () => {
     })
 
     await page.goto(
-      `http://localhost:3000/pay/toss/success/${marimoId}?orderId=${orderId}&amount=${amount}&paymentKey=${paymentKey}`,
+      `${url}/pay/toss/success/${marimoId}?orderId=${orderId}&amount=${amount}&paymentKey=${paymentKey}`,
     )
 
     // 1️⃣ 결제 중 메시지 확인
@@ -69,16 +71,16 @@ test.describe("결제 완료 페이지 E2E 테스트", () => {
     // 4️⃣ "메인 페이지로 이동" 버튼 클릭 후 이동 확인
     const mainButton = page.locator('button:text("메인 페이지로 이동")')
     await mainButton.click()
-    await expect(page).toHaveURL("http://localhost:3000/")
+    await expect(page).toHaveURL(url)
 
     // 5️⃣ "마리모 꾸미러 가기" 버튼 클릭 후 이동 확인
     await page.goto(
-      `http://localhost:3000/pay/toss/success/${marimoId}?orderId=${orderId}&amount=${amount}&paymentKey=${paymentKey}`,
+      `${url}/pay/toss/success/${marimoId}?orderId=${orderId}&amount=${amount}&paymentKey=${paymentKey}`,
     )
 
     const customButton = page.locator('button:text("마리모 꾸미러 가기")')
     await customButton.click()
-    await expect(page).toHaveURL("http://localhost:3000/custom")
+    await expect(page).toHaveURL(`${url}/custom`)
   })
 
   test("결제 실패 시 실패 페이지로 리다이렉트", async ({ page }) => {
@@ -93,7 +95,7 @@ test.describe("결제 완료 페이지 E2E 테스트", () => {
     })
 
     await page.goto(
-      "http://localhost:3000/pay/toss/success?orderId=12345&amount=1000&paymentKey=abc123",
+      `${url}/pay/toss/success?orderId=12345&amount=1000&paymentKey=abc123`,
     )
   })
 })

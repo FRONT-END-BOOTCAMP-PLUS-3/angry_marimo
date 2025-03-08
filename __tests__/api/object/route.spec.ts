@@ -39,7 +39,7 @@ describe("POST API Handler", () => {
   ]
 
   const createTestRequest = (contentType = "application/json", body = "") => {
-    return new NextRequest("http://localhost:3000", {
+    return new NextRequest(baseURL, {
       method: "POST",
       headers: { "content-type": contentType },
       body:

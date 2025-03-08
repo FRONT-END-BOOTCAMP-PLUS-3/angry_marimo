@@ -57,8 +57,6 @@ test("유효한 자격 증명으로 로그인하고 쿠키를 설정해야 한�
 
   await userLogin(formData)
 
-  expect(process.env.NEXT_URL).toBe("http://localhost:3000")
-
   // fetch가 올바르게 호출되었는지 확인
   expect(fetch).toHaveBeenCalledWith(
     `${process.env.NEXT_PUBLIC_URL}/api/login`,
