@@ -9,12 +9,11 @@ export interface ObjectRepository {
     isActive: boolean,
     url: string,
     level: number,
-  ): Promise<Omit<ObjectItem, "id"> | null>
+  ): Promise<Omit<ObjectItem, "id">>
 
   update(
     marimoId: number,
-    id: number,
     isActive: boolean,
     updateAt: Date,
-  ): Promise<ObjectItem | null>
+  ): Promise<Omit<ObjectItem, "id">>
 }

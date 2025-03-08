@@ -82,7 +82,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const { id, marimoId, isActive, updatedAt } = body
-    if (!id || !marimoId || !updatedAt || !isActive) {
+    if (!id || !marimoId || !updatedAt || isActive === undefined) {
       return NextResponse.json(
         { error: "Invalid data format" },
         { status: 400 },
@@ -90,7 +90,13 @@ export async function PUT(request: NextRequest) {
     }
 
     const repository = new PgObjectRepository(prisma)
-    await repository.update(id, marimoId, isActive, updatedAt)
+    const existingObject = await repository.findById(id)
+
+    if (!existingObject) {
+      return NextResponse.json({ error: "Object not found" }, { status: 404 })
+    }
+
+    await repository.update(marimoId, isActive, updatedAt)
 
     return NextResponse.json({ success: true }, { status: 200 })
   } catch (error) {
