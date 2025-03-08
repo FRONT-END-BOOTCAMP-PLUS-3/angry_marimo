@@ -43,8 +43,6 @@ describe("TrashToObjectUseCase.execute", () => {
     )
   })
 
-  // 여기에 다른 유형의 잘못된 입력에 대한 추가 테스트를 포함할 수 있습니다
-
   test("should create objects and return mapped data", async () => {
     const mockTrashData = createMockTrashData()
     const expectedObject = {
