@@ -37,16 +37,6 @@ export async function POST(request: NextRequest) {
     const usecase = new TrashToObjectUseCase(new PgObjectRepository(prisma))
     const resultData = await usecase.execute(trashData, marimoId)
 
-    if (Array.isArray(resultData)) {
-      await prisma.object.createMany({
-        data: resultData.map((data) => ({
-          ...data,
-          marimoId: marimoId,
-        })),
-      })
-    } else {
-      await prisma.object.create({ data: resultData })
-    }
 
     return NextResponse.json({ success: true }, { status: 200 })
   } catch (error) {
