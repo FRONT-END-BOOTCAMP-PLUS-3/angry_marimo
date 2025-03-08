@@ -5,7 +5,7 @@ import { userLogin } from "@marimo/app/login/actions/user-login"
 
 import { generateJWT } from "@marimo/utils/jwt"
 
-import { vi, test, expect, beforeEach, afterEach } from "vitest"
+import { vi, test, expect, beforeEach, afterEach, Mock } from "vitest"
 
 global.fetch = vi.fn()
 
@@ -30,6 +30,7 @@ afterEach(() => {
 // 테스트 시작
 test("유효한 자격 증명으로 로그인하고 쿠키를 설정해야 한다", async () => {
   const formData = new FormData()
+
   formData.append("email", "test@example.com")
   formData.append("password", "password123")
 
@@ -39,23 +40,24 @@ test("유효한 자격 증명으로 로그인하고 쿠키를 설정해야 한�
   }
 
   // fetch 응답 모킹
-  fetch.mockResolvedValueOnce({
+  ;(fetch as Mock).mockResolvedValueOnce({
     ok: true,
     json: vi.fn().mockResolvedValueOnce(userResponse),
   })
 
   // JWT 생성 모킹
-  generateJWT.mockReturnValue("fake-jwt-token")
+  ;(generateJWT as Mock).mockReturnValue("fake-jwt-token")
 
   // cookies() 모킹을 비동기로 설정
   const mockCookieStore = {
     set: vi.fn(),
   }
-  cookies.mockResolvedValueOnce(mockCookieStore)
+
+  ;(cookies as Mock).mockResolvedValueOnce(mockCookieStore)
 
   await userLogin(formData)
 
-  expect(process.env.NEXT_URL).toBe("/")
+  expect(process.env.NEXT_URL).toBe("http://localhost:3000")
 
   // fetch가 올바르게 호출되었는지 확인
   expect(fetch).toHaveBeenCalledWith(
@@ -93,8 +95,7 @@ test("로그인 실패 시 로그인 페이지로 리디렉션해야 한다", as
   const formData = new FormData()
   formData.append("email", "test@example.com")
   formData.append("password", "wrongpassword")
-
-  fetch.mockResolvedValueOnce({
+  ;(fetch as Mock).mockResolvedValueOnce({
     ok: false,
     status: 401,
     json: vi.fn().mockResolvedValueOnce({ message: "Unauthorized" }),

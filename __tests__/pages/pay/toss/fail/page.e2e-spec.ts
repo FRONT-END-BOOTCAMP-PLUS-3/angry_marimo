@@ -5,7 +5,7 @@ test.describe("결제 실패 페이지 E2E 테스트", () => {
     await context.addCookies([
       {
         name: "token",
-        value: "your_token_value_here",
+        value: process.env.COOKIE_TOKEN!,
         domain: "localhost",
         path: "/",
       },
