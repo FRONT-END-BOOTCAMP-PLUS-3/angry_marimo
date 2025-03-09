@@ -14,7 +14,13 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log("Received request headers:", request.headers)
+
     if (request.headers.get("content-type") !== "application/json") {
+      console.error(
+        "Invalid content-type:",
+        request.headers.get("content-type"),
+      )
       return NextResponse.json(
         { error: "Invalid Content-Type" },
         { status: 400 },
@@ -22,25 +28,48 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.text()
+    console.log("Received request body:", body)
+
     if (!body) {
+      console.error("Empty request body")
       return NextResponse.json({ error: "Empty request body" }, { status: 400 })
     }
 
-    const { marimoId, trashData } = JSON.parse(body)
+    const data = JSON.parse(body)
+    console.log("Parsed data:", data)
+
+    const { marimoId, trashData } = data
     if (!marimoId || !trashData) {
+      console.error("Missing required data:", { marimoId, trashData })
       return NextResponse.json(
-        { error: "Invalid data format" },
+        { error: "Missing required data" },
+        { status: 400 },
+      )
+    }
+
+    const { type, rect, isActive, url, level } = trashData
+    if (!type || !rect || !isActive || !url || !level) {
+      console.error("Invalid trash data format:", trashData)
+      return NextResponse.json(
+        { error: "Invalid trash data format" },
         { status: 400 },
       )
     }
 
     const usecase = new TrashToObjectUseCase(new PgObjectRepository(prisma))
-    const resultData = await usecase.execute(trashData, marimoId)
-
+    await usecase.execute(type, rect, isActive, url, level, marimoId)
+    console.log("Trash data processed successfully:", {
+      type,
+      rect,
+      isActive,
+      url,
+      level,
+      marimoId,
+    })
 
     return NextResponse.json({ success: true }, { status: 200 })
   } catch (error) {
-    console.error("❌ JSON parsing error:", error)
+    console.error("Error handling request:", error)
     return NextResponse.json({ error: "Invalid JSON format" }, { status: 400 })
   }
 }

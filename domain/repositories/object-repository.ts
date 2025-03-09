@@ -5,7 +5,7 @@ export interface ObjectRepository {
   create(
     marimoId: number,
     type: string,
-    react: InputJsonValue,
+    rect: InputJsonValue,
     isActive: boolean,
     url: string,
     level: number,

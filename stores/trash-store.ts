@@ -3,7 +3,7 @@ import { StateCreator } from "zustand"
 import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto"
 
 export interface TTrashSlice {
-  trashItems: ITrashDto | null
+  trashItems?: ITrashDto
   idCounter: number
 
   addTrashItems: (item: Omit<ITrashDto, "id">) => void
@@ -18,7 +18,7 @@ export const useTrashStore: StateCreator<
   [],
   TTrashSlice
 > = (set) => ({
-  trashItems: null,
+  trashItems: undefined,
   idCounter: 0,
 
   addTrashItems: (item) => {
@@ -32,20 +32,22 @@ export const useTrashStore: StateCreator<
   },
 
   removeTrashItem: () => {
-    set({ trashItems: null })
+    set({ trashItems: undefined })
   },
 
   clearAllTrash: () => {
-    set({ trashItems: null, idCounter: 0 })
+    set({ trashItems: undefined, idCounter: 0 })
   },
 
   updateTrashItem: (updates) => {
     set((state) => ({
-      trashItems: state.trashItems ? { ...state.trashItems, ...updates } : null,
+      trashItems: state.trashItems
+        ? { ...state.trashItems, ...updates }
+        : undefined,
     }))
   },
 })
 
 export const selectTrashItem = (state: TTrashSlice) => state.trashItems
 export const selectIsTrashItemPresent = (state: TTrashSlice) =>
-  state.trashItems !== null
+  state.trashItems !== undefined

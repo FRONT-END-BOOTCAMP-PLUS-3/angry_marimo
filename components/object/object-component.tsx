@@ -8,23 +8,30 @@ import { useWindowEvents } from "@marimo/public/utils/use-window-event"
 
 import { TRASH_LIMIT } from "@marimo/constants/trash-header"
 
+import { useStore } from "@marimo/stores/use-store"
+
 export const useObjectComponent = () => {
-  const { worker, isWorkerRunning, setIsWorkerRunning, trashItems } =
-    useWorker()
+  const { trashItems } = useStore()
+  const { worker, isWorkerRunning, setIsWorkerRunning } = useWorker()
+  // window event 감지하는 함수 utils
   useWindowEvents(worker)
 
   useInterval(() => {
     if (!isWorkerRunning) return
     if (!worker.current) return
+    if (!trashItems) return
 
-    if (trashItems.length < TRASH_LIMIT) {
+    const trashItemId = trashItems.id
+
+    console.log("✅ useInterval 요청보내기", trashItemId)
+    if (trashItemId !== 0 && trashItemId < TRASH_LIMIT) {
       worker.current.postMessage(1)
     } else {
       worker.current.terminate()
       worker.current = null
       setIsWorkerRunning(false)
     }
-  }, 20000)
+  }, 2000)
 
   return <></>
 }
@@ -32,6 +39,7 @@ export const useObjectComponent = () => {
 const DynamicTrashComponent = dynamic(
   () => Promise.resolve(useObjectComponent),
   {
+    loading: () => <p>Loading...</p>,
     ssr: false,
   },
 )
