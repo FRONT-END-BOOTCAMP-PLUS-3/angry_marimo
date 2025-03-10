@@ -5,6 +5,6 @@ export interface ITrashDto {
   level: number
   url: string
   rect: InputJsonValue
-  type: string // "trash"| "feed"| "object" 형식이다.
+  type: string
   isActive: boolean
 }
