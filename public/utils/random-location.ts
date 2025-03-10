@@ -1,7 +1,7 @@
 //  랜덤 위치
 export const randomLocation = (
   iterations: number,
-): { x: number; y: number; isInside: boolean }[] =>{
+): { x: number; y: number; isInside: boolean }[] => {
   const points: { x: number; y: number; isInside: boolean }[] = []
 
   for (let i = 0; i < iterations; i++) {

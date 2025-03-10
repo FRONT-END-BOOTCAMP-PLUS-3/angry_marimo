@@ -1,14 +1,16 @@
 "use client"
-import { useEffect, useRef, useState } from "react";
-import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto";
-import { HEADER_HEIGHT } from "@marimo/constants/trash-header";
-import { useStore } from "@marimo/stores/use-store";
-import { getTrashImage } from "@marimo/public/utils/level-image";
+import { useEffect, useRef, useState } from "react"
+
+import { getTrashImage } from "@marimo/public/utils/level-image"
+
+import { HEADER_HEIGHT } from "@marimo/constants/trash-header"
+
+import { useStore } from "@marimo/stores/use-store"
+import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto"
 
 export const useWorker = () => {
   const worker = useRef<Worker>(null) // 워커 초기 상태를 null로 설정
-  const idCounter = useRef(0)
-  const { addTrashItems } = useStore()
+  const { addTrashItems, marimo } = useStore()
   const [isWorkerRunning, setIsWorkerRunning] = useState(true)
   const headerHeight = HEADER_HEIGHT
 
@@ -39,7 +41,7 @@ export const useWorker = () => {
     try {
       worker.current = new Worker(
         new URL("/public/workers/object-worker", import.meta.url),
-        { type: "module" }
+        { type: "module" },
       )
       worker.current.postMessage(1)
       worker.current.onmessage = async (event) => {
@@ -48,8 +50,8 @@ export const useWorker = () => {
           console.log("⚠️ No points data received.")
           return
         }
-        const point = points[0];
-        const level = Math.floor(Math.random() * 3) +1;
+        const point = points[0]
+        const level = Math.floor(Math.random() * 3) + 1
         const newTrashItem: Omit<ITrashDto, "id"> = {
           level,
           url: getTrashImage(level),
@@ -61,7 +63,6 @@ export const useWorker = () => {
           type: "trash",
         }
 
-        addTrashItems(newTrashItem)
         await sendTrashData(newTrashItem)
       }
 
@@ -81,6 +82,8 @@ export const useWorker = () => {
   }
 
   const sendTrashData = async (trashData: Omit<ITrashDto, "id">) => {
+    if (!marimo || !marimo.id) return
+
     try {
       const response = await fetch(`/api/objects`, {
         method: "POST",
@@ -88,21 +91,28 @@ export const useWorker = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          marimoId: 29,
+          marimoId: marimo.id,
           trashData,
         }),
       })
 
-       if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`🚨 API 요청 실패: ${response.status} - ${errorText}`);
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`🚨 API 요청 실패: ${response.status} - ${errorText}`)
+      }
+      const data = await response.json()
+      addTrashItems(data.objectItem)
+    } catch (error) {
+      console.error("❌ API 전송 중 오류 발생:", error)
     }
-
-  } catch (error) {
-    console.error("❌ API 전송 중 오류 발생:", error);
-  }
-    
   }
 
-  return { worker, isWorkerRunning, workerLoading, setIsWorkerRunning, initializeWorker, terminateWorker };
+  return {
+    worker,
+    isWorkerRunning,
+    workerLoading,
+    setIsWorkerRunning,
+    initializeWorker,
+    terminateWorker,
+  }
 }

@@ -14,7 +14,9 @@ export const useWindowEvents = (workerRef: React.RefObject<Worker | null>) => {
         const formattedDate = lastClosedDate.toISOString()
 
         const elapsed = Date.now() - lastClosedDate.getTime()
-        console.log(`창이 ${elapsed / 1000}초 동안 닫혀있었습니다. (마지막 종료 시간: ${formattedDate})`)
+        console.log(
+          `창이 ${elapsed / 1000}초 동안 닫혀있었습니다. (마지막 종료 시간: ${formattedDate})`,
+        )
 
         if (elapsed > 5000) {
           console.log("💡 5초 이상 닫혀 있었으므로 특정 객체 생성")

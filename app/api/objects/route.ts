@@ -46,9 +46,16 @@ export async function POST(request: NextRequest) {
     const usecase = new TrashToObjectUseCase(
       new PgObjectRepository(new PrismaClient()),
     )
-    await usecase.execute(type, rect, isActive, url, level, marimoId)
+    const objectItem = await usecase.execute(
+      type,
+      rect,
+      isActive,
+      url,
+      level,
+      marimoId,
+    )
 
-    return NextResponse.json({ success: true }, { status: 200 })
+    return NextResponse.json({ objectItem }, { status: 200 })
   } catch (error) {
     console.error("Error handling request:", error)
     return NextResponse.json({ error: "Invalid JSON format" }, { status: 400 })
