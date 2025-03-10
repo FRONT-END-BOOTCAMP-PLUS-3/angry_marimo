@@ -12,12 +12,9 @@ import { useStore } from "@marimo/stores/use-store"
 
 export const useObjectComponent = () => {
   const { idCounter } = useStore()
-  console.log("✅ trashItems 확인용", idCounter)
   const { worker, isWorkerRunning, workerLoading, setIsWorkerRunning, terminateWorker } =
     useWorker()
-  console.log("✅ useWorker 확인용", isWorkerRunning)
   useWindowEvents(worker)
-  console.log("✅ useWindowEvents 확인용", worker)
 
   useInterval(() => {
     if (!isWorkerRunning) return
@@ -26,15 +23,13 @@ export const useObjectComponent = () => {
     
     const trashItemId = idCounter
     workerLoading();
-    console.log("✅ useInterval 요청보내기", trashItemId)
     if (trashItemId !== 0 && trashItemId < TRASH_LIMIT) {
-      console.log("✅ useInterval 접근하는지 확인", isWorkerRunning)
       worker.current.postMessage(1)
     } else {
       terminateWorker()
       setIsWorkerRunning(false)
     }
-  }, 2000)
+  }, 20000)
 
   return <></>
 }
