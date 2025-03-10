@@ -11,24 +11,27 @@ import { TRASH_LIMIT } from "@marimo/constants/trash-header"
 import { useStore } from "@marimo/stores/use-store"
 
 export const useObjectComponent = () => {
-  const { trashItems } = useStore()
-  const { worker, isWorkerRunning, setIsWorkerRunning } = useWorker()
-  // window event 감지하는 함수 utils
+  const { idCounter } = useStore()
+  console.log("✅ trashItems 확인용", idCounter)
+  const { worker, isWorkerRunning, workerLoading, setIsWorkerRunning, terminateWorker } =
+    useWorker()
+  console.log("✅ useWorker 확인용", isWorkerRunning)
   useWindowEvents(worker)
+  console.log("✅ useWindowEvents 확인용", worker)
 
   useInterval(() => {
     if (!isWorkerRunning) return
     if (!worker.current) return
-    if (!trashItems) return
-
-    const trashItemId = trashItems.id
-
+    if (!idCounter) return
+    
+    const trashItemId = idCounter
+    workerLoading();
     console.log("✅ useInterval 요청보내기", trashItemId)
     if (trashItemId !== 0 && trashItemId < TRASH_LIMIT) {
+      console.log("✅ useInterval 접근하는지 확인", isWorkerRunning)
       worker.current.postMessage(1)
     } else {
-      worker.current.terminate()
-      worker.current = null
+      terminateWorker()
       setIsWorkerRunning(false)
     }
   }, 2000)

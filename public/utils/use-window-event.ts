@@ -11,7 +11,7 @@ export const useWindowEvents = (workerRef: React.RefObject<Worker | null>) => {
       const lastClosedTime = localStorage.getItem("lastClosedTime")
       if (lastClosedTime) {
         const lastClosedDate = new Date(parseInt(lastClosedTime, 10))
-        const formattedDate = lastClosedDate.toLocaleString() // 사람이 읽을 수 있는 형식
+        const formattedDate = lastClosedDate.toISOString()
 
         const elapsed = Date.now() - lastClosedDate.getTime()
         console.log(`창이 ${elapsed / 1000}초 동안 닫혀있었습니다. (마지막 종료 시간: ${formattedDate})`)
