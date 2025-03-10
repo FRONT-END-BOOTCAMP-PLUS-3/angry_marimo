@@ -28,14 +28,6 @@ export class TrashToObjectUseCase {
         throw new Error("Invalid input: Rect data is missing or null.")
       }
 
-      console.log("Creating object with data:", {
-        type,
-        rect,
-        isActive,
-        url,
-        level,
-        marimoId,
-      })
       const objectItem = await this.objectRepository.create(
         marimoId,
         type,
@@ -46,17 +38,11 @@ export class TrashToObjectUseCase {
       )
 
       if (!objectItem) {
-        console.error(
-          "Creation Error: Failed to create object from trash data.",
-          { marimoId, type, rect, isActive, url, level },
-        )
         throw new Error("Failed to create object from trash data")
       }
 
-      console.log("Object created successfully:", objectItem)
       return this.mapToObjectDto(objectItem, marimoId)
     } catch (error) {
-      console.error("Execution Error in TrashToObjectUseCase:", error)
       throw new Error(`TrashToObjectUseCase.execute error: ${error}`)
     }
   }
@@ -66,13 +52,8 @@ export class TrashToObjectUseCase {
     marimoId: number,
   ): Omit<IObjectDto, "id" | "createdAt" | "updatedAt"> {
     if (!objectItem) {
-      console.error(
-        "Mapping Error: Received null object when mapping to DTO.",
-        { objectItem },
-      )
       throw new Error("Invalid object: received null")
     }
-    console.log("Mapping object to DTO:", { objectItem, marimoId })
     return {
       ...objectItem,
       marimoId: marimoId,

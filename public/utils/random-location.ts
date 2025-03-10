@@ -20,7 +20,6 @@ export const containerInside = (
   points: { x: number; y: number; isInside: boolean }[],
 ): number => {
   const insidePoints = points.filter((point) => point.isInside).length
-  // x, y 포지션에 따른 랜덤 계산
   return 4 * (insidePoints / points.length)
 }
 

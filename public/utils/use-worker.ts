@@ -6,7 +6,7 @@ import { useStore } from "@marimo/stores/use-store";
 import { getTrashImage } from "./level-image";
 
 export const useWorker = () => {
-  const worker = useRef<Worker>(null) // 워커 초기 상태를 null로 설정
+  const worker = useRef<Worker>(null)
   const idCounter = useRef(0)
   const { addTrashItems } = useStore()
   const [isWorkerRunning, setIsWorkerRunning] = useState(true)
@@ -24,7 +24,6 @@ export const useWorker = () => {
     if (!isWorkerRunning) {
       return
     } else if (worker.current) {
-      console.log("✅ Worker 이미 초기화됨")
       return
     }
     workerLoading()
@@ -41,11 +40,10 @@ export const useWorker = () => {
         new URL("/public/workers/object-worker", import.meta.url),
         { type: "module" }
       )
-      worker.current.postMessage(1) // -> worker 깨우기 
+      worker.current.postMessage(1)
       worker.current.onmessage = async (event) => {
         const points = event.data.points
         if (!points || points.length === 0) {
-          console.log("⚠️ No points data received.")
           return
         }
         const point = points[0];
