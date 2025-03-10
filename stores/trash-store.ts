@@ -1,17 +1,12 @@
-import { State } from "./use-store"
 import { StateCreator } from "zustand"
+import { State } from "@marimo/stores/use-store"
 import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto"
 
 export interface TTrashSlice {
-  trashItems: ITrashDto[]
-  idCounter: number
+  trashItems: ITrashDto[] | null
 
-  addTrashItems: (items: Omit<ITrashDto, "id">[]) => void
-  removeTrashItem: (id: number) => void
-  clearAllTrash: () => void
-  updateTrashItem: (id: number, updates: Partial<Omit<ITrashDto, "id">>) => void
-  getTrashById: (id: number) => ITrashDto | undefined
-  getTrashByLevel: (level: number) => ITrashDto[]
+  addTrashItems: (item: ITrashDto) => void
+  closeActive: (id: number) => void
 }
 
 export const useTrashStore: StateCreator<
@@ -21,51 +16,27 @@ export const useTrashStore: StateCreator<
   TTrashSlice
 > = (set, get) => ({
   trashItems: [],
-  idCounter: 0,
 
-  addTrashItems: (items) => {
-    set((state) => {
-      const currentIdCounter = state.idCounter ?? 0 // undefined 방지
-      const newItems = items.map((item, index) => ({
-        ...item,
-        id: currentIdCounter + index, // 고유 ID 생성
-      }))
+  addTrashItems: (item) => {
+    if (!item) return
+    set({ trashItems: [...(get().trashItems ?? []), item] })
+  },
 
-      return {
-        trashItems: [...(state.trashItems || []), ...newItems], // undefined 방지
-        idCounter: currentIdCounter + items.length, // ID 카운터 업데이트
-      }
+  closeActive: (id: number) => {
+    if (!id) return
+    set({
+      trashItems: [
+        ...(get().trashItems ?? []).map((data) => {
+          if (data.id === id) {
+            return {
+              ...data,
+              isActive: false,
+            }
+          }
+
+          return data
+        }),
+      ],
     })
   },
-
-  removeTrashItem: (id) => {
-    set((state) => ({
-      trashItems: (state.trashItems || []).filter((item) => item.id !== id),
-    }))
-  },
-
-  clearAllTrash: () => {
-    set({ trashItems: [], idCounter: 0 })
-  },
-
-  updateTrashItem: (id, updates) => {
-    set((state) => ({
-      trashItems: (state.trashItems || []).map((item) =>
-        item.id === id ? { ...item, ...updates } : item,
-      ),
-    }))
-  },
-
-  getTrashById: (id) => {
-    return (get().trashItems || []).find((item) => item.id === id)
-  },
-
-  getTrashByLevel: (level) => {
-    return (get().trashItems || []).filter((item) => item.level === level)
-  },
 })
-
-export const selectAllTrash = (state: TTrashSlice) => state.trashItems
-export const selectTrashCount = (state: TTrashSlice) => state.trashItems.length
-export const selectTrashByLevel = (level: number) => (state: TTrashSlice) =>
-  state.trashItems.filter((item) => item.level === level)

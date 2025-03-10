@@ -5,8 +5,6 @@ import { PgObjectRepository } from "@marimo/infrastructure/repositories/pg-objec
 import { PrismaClient } from "@prisma/client"
 import { TrashToObjectUseCase } from "@marimo/application/usecases/object/trash-object-usecase"
 
-const prisma = new PrismaClient()
-
 export async function GET() {
   const response = NextResponse.json({ message: "쓰레기를 생성합니다." })
   response.ok
@@ -22,50 +20,47 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.text()
+
     if (!body) {
       return NextResponse.json({ error: "Empty request body" }, { status: 400 })
     }
 
-    const { marimoId, trashData } = JSON.parse(body)
-    if (!marimoId || !Array.isArray(trashData)) {
+    const data = JSON.parse(body)
+
+    const { marimoId, trashData } = data
+    if (!marimoId || !trashData) {
       return NextResponse.json(
-        { error: "Invalid data format" },
+        { error: "Missing required data" },
         { status: 400 },
       )
     }
 
-    const usecase = new TrashToObjectUseCase(new PgObjectRepository(prisma))
-    const resultData = await usecase.execute(trashData, marimoId)
-
-    if (Array.isArray(resultData)) {
-      await prisma.object.createMany({
-        data: resultData.map((data) => ({
-          ...data,
-          marimoId: marimoId,
-        })),
-      })
-    } else {
-      await prisma.object.create({ data: resultData })
+    const { type, rect, isActive, url, level } = trashData
+    if (!type || !rect || !isActive || !url || !level) {
+      return NextResponse.json(
+        { error: "Invalid trash data format" },
+        { status: 400 },
+      )
     }
 
-    return NextResponse.json({ success: true }, { status: 200 })
+    const usecase = new TrashToObjectUseCase(
+      new PgObjectRepository(new PrismaClient()),
+    )
+    const objectItem = await usecase.execute(
+      type,
+      rect,
+      isActive,
+      url,
+      level,
+      marimoId,
+    )
+
+    return NextResponse.json({ objectItem }, { status: 200 })
   } catch (error) {
-    console.error("❌ JSON parsing error:", error)
+    console.error("Error handling request:", error)
     return NextResponse.json({ error: "Invalid JSON format" }, { status: 400 })
   }
 }
-
-/*
-const response = await fetch(`/api/objects`, {
-  method: "PUT",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    marimoId: 29,
-  }),
-}) --> PUT 매서드 이렇게 요청 보내주시면 됩니다!
- */
 
 export async function PUT(request: NextRequest) {
   try {
@@ -89,8 +84,14 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    const repository = new PgObjectRepository(prisma)
-    await repository.update(id, marimoId, isActive, updatedAt)
+    const repository = new PgObjectRepository(new PrismaClient())
+    const existingObject = await repository.findById(id)
+
+    if (!existingObject) {
+      return NextResponse.json({ error: "Object not found" }, { status: 404 })
+    }
+
+    await repository.update(marimoId, isActive, updatedAt)
 
     return NextResponse.json({ success: true }, { status: 200 })
   } catch (error) {

@@ -1,4 +1,6 @@
-import randomLocation, { containerInside } from "@marimo/public/utils/random-location"
+import randomLocation, {
+  containerInside,
+} from "@marimo/public/utils/random-location"
 
 self.addEventListener("message", (event: MessageEvent<number>) => {
   if (typeof event.data !== "number" || event.data <= 0) {
