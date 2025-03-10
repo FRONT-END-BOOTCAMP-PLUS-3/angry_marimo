@@ -51,7 +51,6 @@ export const useWorker = () => {
         const point = points[0];
         const level = Math.floor(Math.random() * 3) +1;
         const newTrashItem: Omit<ITrashDto, "id"> = {
-          // id: idCounter.current++,
           level,
           url: getTrashImage(level),
           rect: {

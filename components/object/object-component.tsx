@@ -11,7 +11,7 @@ import { TRASH_LIMIT } from "@marimo/constants/trash-header"
 import { useStore } from "@marimo/stores/use-store"
 
 export const useObjectComponent = () => {
-  const { idCounter } = useStore()
+  const { trashItems } = useStore()
   const {
     worker,
     isWorkerRunning,
@@ -24,9 +24,10 @@ export const useObjectComponent = () => {
   useInterval(() => {
     if (!isWorkerRunning) return
     if (!worker.current) return
-    if (!idCounter) return
+    if (!trashItems) return
 
-    const trashItemId = idCounter
+    const trashItemId = trashItems.length
+
     workerLoading()
     if (trashItemId !== 0 && trashItemId < TRASH_LIMIT) {
       worker.current.postMessage(1)

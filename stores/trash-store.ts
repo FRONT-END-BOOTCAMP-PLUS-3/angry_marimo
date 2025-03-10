@@ -3,8 +3,8 @@ import { StateCreator } from "zustand"
 import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto"
 
 export interface TTrashSlice {
-  trashItems: ITrashDto | null
-  idCounter: number
+  trashItem: ITrashDto | null
+  trashItems: ITrashDto[] | null
 
   findTrashItems: () => ITrashDto | null
   addTrashItems: (item: Omit<ITrashDto, "id">) => void
@@ -19,42 +19,59 @@ export const useTrashStore: StateCreator<
   [],
   TTrashSlice
 > = (set, get) => ({
-  trashItems: null,
-  idCounter: 0,
+  trashItem: null,
+  trashItems: [],
 
   findTrashItems: () => {
-    return get().trashItems ?? null
+    return get().trashItem ?? null
   },
 
   addTrashItems: (item) => {
+    if (!item) return
+
     set((state) => {
-      const currentIdCounter = state.idCounter ?? 0
+      const newId = (state.trashItems ?? []).length + 1
+      const newItem: ITrashDto = { ...item, id: newId }
+
       return {
-        trashItems: { ...item, id: currentIdCounter },
-        idCounter: currentIdCounter + 1,
+        trashItem: newItem,
+        trashItems: [...(state.trashItems ?? []), newItem],
       }
     })
-    get().trashItems
   },
 
   removeTrashItem: () => {
-    set({ trashItems: undefined })
+    const currentItem = get().trashItem
+    if (!currentItem) return
+
+    set((state) => ({
+      trashItem: null,
+      trashItems: (state.trashItems ?? []).filter(
+        (item) => item.id !== currentItem.id,
+      ),
+    }))
   },
 
   clearAllTrash: () => {
-    set({ trashItems: undefined, idCounter: 0 })
+    if ((get().trashItems ?? []).length === 0) return
+    set({ trashItems: [], trashItem: null })
   },
 
   updateTrashItem: (updates) => {
+    const currentItem = get().trashItem
+    if (!currentItem) return
+
     set((state) => ({
-      trashItems: state.trashItems
-        ? { ...state.trashItems, ...updates }
-        : undefined,
+      trashItem: { ...currentItem, ...updates },
+      trashItems: (state.trashItems ?? []).map((item) =>
+        item.id === currentItem.id ? { ...item, ...updates } : item,
+      ),
     }))
   },
 })
 
 export const selectTrashItemId = (state: TTrashSlice) =>
-  state.trashItems?.id ?? null
+  state.trashItem?.id ?? null
+
 export const selectIsTrashItemPresent = (state: TTrashSlice) =>
-  state.trashItems !== undefined
+  (state.trashItems ?? []).length > 0
