@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto";
 import { HEADER_HEIGHT } from "@marimo/constants/trash-header";
 import { useStore } from "@marimo/stores/use-store";
-import { getTrashImage } from "./level-image";
+import { getTrashImage } from "@marimo/public/utils/level-image";
 
 export const useWorker = () => {
   const worker = useRef<Worker>(null) // 워커 초기 상태를 null로 설정

@@ -1,4 +1,4 @@
-import { IObjectDto } from "./object-dto"
+import { IObjectDto } from "@marimo/application/usecases/object/dto/object-dto"
 
 export const mapToObjectDto = (
   objectItem: IObjectDto,

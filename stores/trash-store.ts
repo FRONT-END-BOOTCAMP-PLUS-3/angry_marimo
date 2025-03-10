@@ -1,5 +1,5 @@
-import { State } from "./use-store"
 import { StateCreator } from "zustand"
+import { State } from "@marimo/stores/use-store"
 import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto"
 
 export interface TTrashSlice {
