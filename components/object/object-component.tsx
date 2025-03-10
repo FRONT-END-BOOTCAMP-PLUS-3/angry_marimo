@@ -12,17 +12,22 @@ import { useStore } from "@marimo/stores/use-store"
 
 export const useObjectComponent = () => {
   const { idCounter } = useStore()
-  const { worker, isWorkerRunning, workerLoading, setIsWorkerRunning, terminateWorker } =
-    useWorker()
+  const {
+    worker,
+    isWorkerRunning,
+    workerLoading,
+    setIsWorkerRunning,
+    terminateWorker,
+  } = useWorker()
   useWindowEvents(worker)
 
   useInterval(() => {
     if (!isWorkerRunning) return
     if (!worker.current) return
     if (!idCounter) return
-    
+
     const trashItemId = idCounter
-    workerLoading();
+    workerLoading()
     if (trashItemId !== 0 && trashItemId < TRASH_LIMIT) {
       worker.current.postMessage(1)
     } else {
