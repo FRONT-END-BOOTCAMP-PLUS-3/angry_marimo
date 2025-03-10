@@ -1,6 +1,7 @@
-import { IObjectDto } from "./dto/object-dto"
 import { ObjectRepository } from "@marimo/domain/repositories"
 import { InputJsonValue } from "@prisma/client/runtime/client"
+import { IObjectDto } from "@marimo/application/usecases/object/dto/object-dto"
+import { mapToObjectDto } from "@marimo/application/usecases/object/dto/map-object-dto"
 
 export class TrashToObjectUseCase {
   constructor(private objectRepository: ObjectRepository) {}
@@ -41,22 +42,9 @@ export class TrashToObjectUseCase {
         throw new Error("Failed to create object from trash data")
       }
 
-      return this.mapToObjectDto(objectItem, marimoId)
+      return mapToObjectDto(objectItem, marimoId)
     } catch (error) {
       throw new Error(`TrashToObjectUseCase.execute error: ${error}`)
-    }
-  }
-
-  private mapToObjectDto(
-    objectItem: IObjectDto,
-    marimoId: number,
-  ): Omit<IObjectDto, "id" | "createdAt" | "updatedAt"> {
-    if (!objectItem) {
-      throw new Error("Invalid object: received null")
-    }
-    return {
-      ...objectItem,
-      marimoId: marimoId,
     }
   }
 }

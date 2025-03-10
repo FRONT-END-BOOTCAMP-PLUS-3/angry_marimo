@@ -6,7 +6,7 @@ import { useStore } from "@marimo/stores/use-store";
 import { getTrashImage } from "./level-image";
 
 export const useWorker = () => {
-  const worker = useRef<Worker>(null)
+  const worker = useRef<Worker>(null) // 워커 초기 상태를 null로 설정
   const idCounter = useRef(0)
   const { addTrashItems } = useStore()
   const [isWorkerRunning, setIsWorkerRunning] = useState(true)
@@ -24,6 +24,7 @@ export const useWorker = () => {
     if (!isWorkerRunning) {
       return
     } else if (worker.current) {
+      console.log("✅ Worker 이미 초기화됨")
       return
     }
     workerLoading()
@@ -44,12 +45,13 @@ export const useWorker = () => {
       worker.current.onmessage = async (event) => {
         const points = event.data.points
         if (!points || points.length === 0) {
+          console.log("⚠️ No points data received.")
           return
         }
         const point = points[0];
-        const level = Math.floor(Math.random() * 3);
-        const newTrashItem: ITrashDto = {
-          id: idCounter.current++,
+        const level = Math.floor(Math.random() * 3) +1;
+        const newTrashItem: Omit<ITrashDto, "id"> = {
+          // id: idCounter.current++,
           level,
           url: getTrashImage(level),
           rect: {
@@ -79,7 +81,7 @@ export const useWorker = () => {
     }
   }
 
-  const sendTrashData = async (trashData: ITrashDto) => {
+  const sendTrashData = async (trashData: Omit<ITrashDto, "id">) => {
     try {
       const response = await fetch(`/api/objects`, {
         method: "POST",
@@ -92,12 +94,15 @@ export const useWorker = () => {
         }),
       })
 
-      if (!response.ok) {
-        throw new Error(`🚨 API 요청 실패: ${response.status}`)
-      }
-    } catch (error) {
-      console.error("❌ API 전송 중 오류 발생:", error)
+       if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`🚨 API 요청 실패: ${response.status} - ${errorText}`);
     }
+
+  } catch (error) {
+    console.error("❌ API 전송 중 오류 발생:", error);
+  }
+    
   }
 
   return { worker, isWorkerRunning, workerLoading, setIsWorkerRunning, initializeWorker, terminateWorker };

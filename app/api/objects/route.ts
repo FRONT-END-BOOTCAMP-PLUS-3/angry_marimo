@@ -5,8 +5,6 @@ import { PgObjectRepository } from "@marimo/infrastructure/repositories/pg-objec
 import { PrismaClient } from "@prisma/client"
 import { TrashToObjectUseCase } from "@marimo/application/usecases/object/trash-object-usecase"
 
-const prisma = new PrismaClient()
-
 export async function GET() {
   const response = NextResponse.json({ message: "쓰레기를 생성합니다." })
   response.ok
@@ -45,7 +43,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const usecase = new TrashToObjectUseCase(new PgObjectRepository(prisma))
+    const usecase = new TrashToObjectUseCase(
+      new PgObjectRepository(new PrismaClient()),
+    )
     await usecase.execute(type, rect, isActive, url, level, marimoId)
 
     return NextResponse.json({ success: true }, { status: 200 })
@@ -77,7 +77,7 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    const repository = new PgObjectRepository(prisma)
+    const repository = new PgObjectRepository(new PrismaClient())
     const existingObject = await repository.findById(id)
 
     if (!existingObject) {
