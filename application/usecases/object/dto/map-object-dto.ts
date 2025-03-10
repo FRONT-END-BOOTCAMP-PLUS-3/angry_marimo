@@ -8,7 +8,7 @@ export const mapToObjectDto = (
     throw new Error("Invalid object: received null")
   }
 
-  const { createdAt, updatedAt, ...rest } = objectItem
+  const { ...rest } = objectItem
 
   return {
     ...rest,
