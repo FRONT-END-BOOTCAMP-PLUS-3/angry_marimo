@@ -31,7 +31,7 @@ const Canvas = () => {
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 })
   const imageRef = useRef(new Image())
   const [bounce, setBounce] = useState(0)
-  const [velocity, setVelocity] = useState(1.5)
+  const [velocity, setVelocity] = useState(0.5)
   const { user, marimo, setMarimo, trashItems, closeActive } = useStore()
 
   const marimoImgSrc = marimo?.src ?? "/images/marimo.svg"
