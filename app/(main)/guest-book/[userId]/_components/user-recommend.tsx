@@ -76,7 +76,7 @@ export const UserRecommend = () => {
   return (
     <div className={container}>
       <div className={recommend__header}>
-        <p className="text-lg-b">📖 다른 게스트 북 놀러가기</p>
+        <p className="text-lg-b">📖 다른 방명록 놀러가기</p>
         <button
           className={refresh__button}
           onClick={(event) => {
@@ -116,7 +116,7 @@ export const UserRecommend = () => {
                     alt={`${user?.id}`}
                   />
                 </div>
-                <p className={user_name}>{name}님의 게스트 북</p>
+                <p className={user_name}>{name}님의 방명록</p>
               </button>
             )
           })}

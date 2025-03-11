@@ -30,7 +30,7 @@ export const Aside = ({ owner, ownerMarimo }: AsideProps) => {
       <div className={contents__div}>
         <div>
           <p>안녕하세요,</p>
-          {owner.name}님의 게스트 북입니다.
+          {owner.name}님의 방명록입니다.
         </div>
         <div className={description}>{owner.description}</div>
       </div>

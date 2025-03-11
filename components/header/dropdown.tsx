@@ -99,7 +99,7 @@ export const Dropdown = () => {
               route.push(`/guest-book/${user.id}`)
             }}
           >
-            나의 게스트 북
+            나의 방명록
           </button>
           <hr className={hr} />
           <button className={button} onClick={logoutHandler}>
