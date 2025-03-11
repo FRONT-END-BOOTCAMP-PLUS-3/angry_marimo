@@ -32,7 +32,6 @@ export async function POST(request: NextRequest) {
     }
 
     const { type, rect, isActive, url, level } = trashData
-    console.log("trashData 확인용", trashData)
     if (!type || !rect || !isActive || !url || !level) {
       return NextResponse.json(
         { error: "Invalid trash data format" },
