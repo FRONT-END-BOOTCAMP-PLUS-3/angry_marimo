@@ -19,6 +19,7 @@ export const useObjectComponent = () => {
     setIsWorkerRunning,
     terminateWorker,
   } = useWorker()
+
   useWindowEvents(worker)
 
   useInterval(() => {

@@ -9,8 +9,8 @@ import { useStore } from "@marimo/stores/use-store"
 import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto"
 
 export const useWorker = () => {
-  const worker = useRef<Worker>(null) // 워커 초기 상태를 null로 설정
-  const { addTrashItems, marimo} = useStore()
+  const worker = useRef<Worker>(null)
+  const { addTrashItems, marimo } = useStore()
   const [isWorkerRunning, setIsWorkerRunning] = useState(true)
   const headerHeight = HEADER_HEIGHT
 
@@ -45,14 +45,14 @@ export const useWorker = () => {
       )
 
       if (!marimo || !marimo.id) {
-        console.warn("⚠️ marimo 객체가 없거나 ID가 없습니다.")
+        console.log("⚠️ marimo 객체가 없거나 ID가 없습니다.")
         return
       }
 
       worker.current.onmessage = async (event) => {
         const points = event.data?.points
         if (!Array.isArray(points) || points.length === 0) {
-          console.warn("⚠️ No points data received.")
+          console.log("⚠️ No points data received.")
           return
         }
 
