@@ -9,7 +9,7 @@ import { UserRecommend } from "@marimo/app/(main)/guest-book/[userId]/_component
 import styles from "@marimo/app/(main)/guest-book/[userId]/page.module.css"
 
 import { error } from "console"
-import { GuestBook, User } from "@prisma/client"
+import { GuestBook, Marimo, User } from "@prisma/client"
 
 const url = process.env.NEXT_URL
 
@@ -87,17 +87,16 @@ const GuestBookPage = async ({ params }: GuestBookPageProps) => {
         <ul className={post_list__ul}>
           {(posts ?? []).map(
             (
-              post: Partial<GuestBook> & { guest: Partial<User> },
+              post: GuestBook & {
+                guest: User & { marimos: Marimo[] }
+              },
               index: number,
             ) => (
               <PostCard
                 key={index}
-                user={post.guest as { id: number; email: string; src?: string }}
-                post={{
-                  id: post.id as number,
-                  content: post.content as string,
-                  createdAt: post.createdAt?.toString(),
-                }}
+                user={post.guest}
+                marimo={post.guest.marimos[0]}
+                post={post}
               />
             ),
           )}

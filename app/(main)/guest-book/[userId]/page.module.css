@@ -55,9 +55,9 @@
 .post_list__ul {
     width: 100%;
 
-    padding: 1rem;
+    padding: 0.5rem;
     border: 0.1rem solid var(--secondary-color);
-    border-radius: 1.5rem;
+    border-radius: 2rem;
 
     background-color: var(--secondary-color);
     box-shadow: inset 5px 5px 15px rgba(0, 0, 0, 0.3);
@@ -67,5 +67,5 @@
     display: flex;
     flex-direction: column;
 
-    gap: 2rem;
+    gap: 1rem;
 }

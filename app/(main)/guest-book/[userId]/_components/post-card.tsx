@@ -9,22 +9,17 @@ import { formatRelativeTime } from "@marimo/utils/format-relative-time"
 
 import styles from "@marimo/app/(main)/guest-book/[userId]/_components/post-card.module.css"
 
+import { GuestBook, Marimo, User } from "@prisma/client"
+
 interface PostCardProps {
-  user: {
-    id: number
-    email: string
-    src?: string
-  }
-  post: {
-    id: number
-    content: string
-    createdAt?: string
-  }
+  user: User
+  marimo: Marimo
+  post: GuestBook
 }
 
-export const PostCard = ({ user, post }: PostCardProps) => {
+export const PostCard = ({ user, marimo, post }: PostCardProps) => {
   const route = useRouter()
-  const contentRef = useRef<HTMLDivElement>(null) // 콘텐츠 높이 측정용 Ref
+  const contentRef = useRef<HTMLDivElement>(null)
 
   const {
     post_card__wrapper,
@@ -40,7 +35,7 @@ export const PostCard = ({ user, post }: PostCardProps) => {
   const [isTruncated, setIsTruncated] = useState<boolean>(false)
 
   const name = user.email.split("@")[0]
-  const date = formatRelativeTime(post.createdAt ?? new Date().toISOString())
+  const date = formatRelativeTime(`${post.createdAt}`)
 
   useEffect(() => {
     if (contentRef.current) {
@@ -61,7 +56,7 @@ export const PostCard = ({ user, post }: PostCardProps) => {
         >
           <div className={user_image__div}>
             <Image
-              src={user.src ?? "/images/marimo.svg"}
+              src={marimo.src ?? "/images/marimo.svg"}
               layout="fill"
               objectFit="cover"
               alt={`${post.id}`}
