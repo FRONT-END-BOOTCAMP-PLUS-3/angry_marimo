@@ -8,14 +8,17 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  password  String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  history   History[]
-  marimos   Marimo[]
-  orders    Order[]
+  id              Int         @id @default(autoincrement())
+  email           String      @unique
+  password        String
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  description     String      @default("")
+  guestGuestBooks GuestBook[] @relation("GuestRelation")
+  ownedGuestBooks GuestBook[] @relation("OwnerRelation")
+  history         History[]
+  marimos         Marimo[]
+  orders          Order[]
 
   @@map("users")
 }
@@ -93,4 +96,17 @@ model Coupon {
   updatedAt DateTime @updatedAt
 
   @@map("coupons")
+}
+
+model GuestBook {
+  id        Int      @id @default(autoincrement())
+  ownerId   Int
+  guestId   Int
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  guest     User     @relation("GuestRelation", fields: [guestId], references: [id])
+  owner     User     @relation("OwnerRelation", fields: [ownerId], references: [id])
+
+  @@map("guestbooks")
 }
