@@ -12,22 +12,18 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    if (request.headers.get("content-type") !== "application/json") {
+    if (request.headers.get("Content-type") !== "application/json") {
       return NextResponse.json(
         { error: "Invalid Content-Type" },
         { status: 400 },
       )
     }
-
-    const body = await request.text()
-
+    const body = await request.json()
     if (!body) {
       return NextResponse.json({ error: "Empty request body" }, { status: 400 })
     }
 
-    const data = JSON.parse(body)
-
-    const { marimoId, trashData } = data
+    const { marimoId, trashData } = body
     if (!marimoId || !trashData) {
       return NextResponse.json(
         { error: "Missing required data" },
@@ -90,7 +86,6 @@ export async function PUT(request: NextRequest) {
     if (!existingObject) {
       return NextResponse.json({ error: "Object not found" }, { status: 404 })
     }
-
     await repository.update(marimoId, isActive, updatedAt)
 
     return NextResponse.json({ success: true }, { status: 200 })
