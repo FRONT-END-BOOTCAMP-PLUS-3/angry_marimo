@@ -7,5 +7,4 @@ export interface ITrashDto {
   url: string
   rect: JsonValue
   type: string
-  isActive: boolean
 }

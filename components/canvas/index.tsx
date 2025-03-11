@@ -250,32 +250,6 @@ const Canvas = () => {
     setMarimo(updatedData)
   }
 
-  const updateTrashDB = async () => {
-    if (!marimo) {
-      console.error("Marimo is null")
-      return
-    }
-
-    const response = await fetch(`/api/objects`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        marimoId: marimo.id,
-        items: trashItems.map((item) => ({
-          id: item.id,
-          isActive: item.isActive,
-          updateAt: new Date().toISOString(),
-        })),
-      }),
-    })
-    if (!response.ok) {
-      throw new Error("Failed to update trash item.")
-    }
-    console.log("Trash item updated successfully")
-  }
-
   const handleTouchStart = (event: React.TouchEvent<HTMLCanvasElement>) => {
     const touch = event.touches[0]
     const rect = canvasRef.current?.getBoundingClientRect()
