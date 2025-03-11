@@ -43,27 +43,58 @@ export const useWorker = () => {
         new URL("/public/workers/object-worker", import.meta.url),
         { type: "module" },
       )
-      worker.current.postMessage(1)
+
+      if (!marimo) {
+        console.warn("⚠️ marimo 객체가 없거나 ID가 없습니다.")
+        return
+      }
+
       worker.current.onmessage = async (event) => {
-        const points = event.data.points
-        if (!points || points.length === 0) {
-          console.log("⚠️ No points data received.")
+        const points = event.data?.points
+        if (!Array.isArray(points) || points.length === 0) {
+          console.warn("⚠️ No points data received.")
           return
         }
+
         const point = points[0]
         const level = Math.floor(Math.random() * 3) + 1
+
+        const windowHeight = window.innerHeight || 1
         const newTrashItem: Omit<ITrashDto, "id"> = {
           level,
           url: getTrashImage(level),
           rect: {
             x: point.x * 100,
-            y: point.y * 100 + (headerHeight / window.innerHeight) * 100,
+            y: point.y * 100 + (headerHeight / windowHeight) * 100,
           },
           isActive: true,
           type: "trash",
         }
 
-        await sendTrashData(newTrashItem)
+        try {
+          const response = await fetch(`/api/objects`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              marimoId: marimo.id,
+              trashData: newTrashItem,
+            }),
+          })
+
+          if (!response.ok) {
+            const errorText = await response.text()
+            throw new Error(
+              `🚨 API 요청 실패: ${response.status} - ${errorText}`,
+            )
+          }
+          const data = await response.json()
+          addTrashItems(data.objectItem)
+          console.log("zustand 데이터 확인용:", data.objectItem)
+        } catch (error) {
+          console.error("❌ API 전송 중 오류 발생:", error)
+        }
       }
 
       worker.current.onerror = (error) => {
@@ -78,32 +109,6 @@ export const useWorker = () => {
     if (worker.current) {
       worker.current.terminate()
       worker.current = null
-    }
-  }
-
-  const sendTrashData = async (trashData: Omit<ITrashDto, "id">) => {
-    if (!marimo || !marimo.id) return
-
-    try {
-      const response = await fetch(`/api/objects`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          marimoId: marimo.id,
-          trashData,
-        }),
-      })
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(`🚨 API 요청 실패: ${response.status} - ${errorText}`)
-      }
-      const data = await response.json()
-      addTrashItems(data.objectItem)
-    } catch (error) {
-      console.error("❌ API 전송 중 오류 발생:", error)
     }
   }
 

@@ -26,16 +26,17 @@ export const useObjectComponent = () => {
     if (!worker.current) return
     if (!trashItems) return
 
-    const itemCount = trashItems.length
+    const itemCount = trashItems.length + 1
 
     workerLoading()
+
     if (itemCount !== 0 && itemCount < TRASH_LIMIT) {
       worker.current.postMessage(1)
     } else {
       terminateWorker()
       setIsWorkerRunning(false)
     }
-  }, 20000)
+  }, 2000)
 
   return <></>
 }
