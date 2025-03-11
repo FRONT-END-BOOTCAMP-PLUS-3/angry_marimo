@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
+import { PrismaClient } from "@prisma/client"
 import { LoginUsecase } from "@marimo/application/usecases/auth/login-usecase"
 import {
   PgAuthRepository,
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
     }
 
     const usecase = new LoginUsecase(
-      new PgUserRepository(),
+      new PgUserRepository(new PrismaClient()),
       new PgAuthRepository(),
     )
 
