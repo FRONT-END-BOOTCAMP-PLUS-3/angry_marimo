@@ -96,9 +96,7 @@ export const UserRecommend = () => {
       <ul className={user__ul}>
         {!isLoading &&
           recommendedUsers.map((user) => {
-            const activeMarimo = user.marimos.filter(
-              (marimo) => marimo.status !== "dead",
-            ) as Partial<Marimo>
+            const activeMarimo = user.marimos[0]
 
             if (!activeMarimo) return
 

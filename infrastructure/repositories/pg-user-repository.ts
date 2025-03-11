@@ -39,7 +39,7 @@ export class PgUserRepository implements UserRepository {
           NOT: { id },
         },
         include: {
-          marimos: true,
+          marimos: { where: { status: { not: "dead" } } },
         },
       })
 
