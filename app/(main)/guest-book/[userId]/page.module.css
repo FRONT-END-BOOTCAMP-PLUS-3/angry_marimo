@@ -37,7 +37,14 @@
     }
 
     .aside__div {
+        max-width: none;
         flex-direction: row;
+    }
+}
+
+@media (max-width: 430px) {
+    .aside__div {
+        flex-direction: column;
     }
 }
 

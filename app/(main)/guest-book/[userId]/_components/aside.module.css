@@ -14,7 +14,7 @@
     line-height : 1.5rem;
     
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: start;
 
     gap: 1rem;
@@ -23,8 +23,6 @@
 @media (min-width: 769px) {
     .aside__wrapper {
         max-width: 450px;
-
-        flex-direction: column;
     }
 }
 
