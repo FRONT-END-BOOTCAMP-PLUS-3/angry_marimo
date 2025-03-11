@@ -4,7 +4,9 @@ import dynamic from "next/dynamic"
 
 import React, { useState, useEffect, useRef } from "react"
 
-import styles from "./index.module.css"
+import { remToPx } from "@marimo/utils/rem-to-px"
+
+import styles from "@marimo/components/canvas/index.module.css"
 
 import { useStore } from "@marimo/stores/use-store"
 import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto"
@@ -33,6 +35,7 @@ const Canvas = () => {
   const [bounce, setBounce] = useState(0)
   const [velocity, setVelocity] = useState(0.5)
   const { user, marimo, setMarimo, trashItems, closeActive } = useStore()
+  const [marimoSize, setMarimoSize] = useState(5) // 5rem
 
   const marimoImgSrc = marimo?.src ?? "/images/marimo.svg"
 
@@ -74,7 +77,6 @@ const Canvas = () => {
     marimoImage.onload = () => setMarimoImageLoaded(true)
     marimoImage.onerror = () => console.error("Failed to load image")
   }
-
   const loadTrashImages = () => {
     if (!trashItems) return
     trashItems.forEach((item) => {
@@ -93,24 +95,32 @@ const Canvas = () => {
     loadTrashImages()
   }, [trashItems])
 
+  useEffect(() => {
+    console.log("로드된 쓰레기 이미지 객체는", loadedTrashImages)
+  }, [loadedTrashImages])
   const drawOnCanvas = () => {
     if (canvasRef.current) {
       const canvas = canvasRef.current
       const ctx = canvas.getContext("2d")
       if (ctx) {
         ctx.clearRect(0, 0, canvasWidth, canvasHeight)
-        if (marimoImageLoaded) {
+        if (marimoImageLoaded && marimo) {
+          const pxSize = remToPx(marimoSize, canvasWidth)
+
           ctx.drawImage(
             imageRef.current,
             marimoPosition.x,
             marimoPosition.y + bounce,
-            100,
-            100,
+            pxSize,
+            pxSize,
           )
         }
         loadedTrashImages.forEach((trash) => {
-          if (!trash.rect) return
-          const rect = JSON.parse(trash.rect as string)
+          if (!trash.rect) {
+            console.error("rect 정보가 없습니다:", trash)
+            return
+          }
+          const rect = trash.rect as { x: number; y: number }
           const x = (rect.x / 100) * canvasWidth
           const y = (rect.y / 100) * canvasHeight
           if (trash.isActive) {
@@ -129,10 +139,11 @@ const Canvas = () => {
     marimoPosition: { x: number; y: number },
     trashPosition: { x: number; y: number; width: number; height: number },
   ) => {
+    if (!marimo) return
     return !(
-      marimoPosition.x + 100 < trashPosition.x ||
+      marimoPosition.x + marimoSize < trashPosition.x ||
       marimoPosition.x > trashPosition.x + trashPosition.width ||
-      marimoPosition.y + 100 < trashPosition.y ||
+      marimoPosition.y + marimoSize < trashPosition.y ||
       marimoPosition.y > trashPosition.y + trashPosition.height
     )
   }
@@ -144,19 +155,19 @@ const Canvas = () => {
     loadedTrashImages,
     canvasWidth,
     canvasHeight,
-    animateMarimo,
   ])
 
   const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = canvasRef.current?.getBoundingClientRect()
-    if (!rect) return
+    if (!rect || !marimo) return
+
     const x = event.clientX - rect.left // 클릭한 x 좌표를 캔버스 상대 좌표로 변환
     const y = event.clientY - rect.top //클릭한 y 좌표를 캔버스 상대 좌표로 변환
     if (
       x > marimoPosition.x &&
-      x < marimoPosition.x + 100 &&
+      x < marimoPosition.x + marimoSize &&
       y > marimoPosition.y &&
-      y < marimoPosition.y + 100
+      y < marimoPosition.y + marimoSize
     ) {
       setIsDragging(true)
       setStartPosition({ x: x - marimoPosition.x, y: y - marimoPosition.y }) // 드래그 시작 위치를 저장
@@ -165,17 +176,16 @@ const Canvas = () => {
 
   const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current
-    if (!canvas) return
+    if (!canvas || !marimo) return
 
     const rect = canvas.getBoundingClientRect()
     const x = event.clientX - rect.left
     const y = event.clientY - rect.top
-
     if (
       x > marimoPosition.x &&
-      x < marimoPosition.x + 100 &&
+      x < marimoPosition.x + marimoSize &&
       y > marimoPosition.y &&
-      y < marimoPosition.y + 100
+      y < marimoPosition.y + marimoSize
     ) {
       canvas.style.cursor = "pointer"
     } else {
@@ -184,7 +194,10 @@ const Canvas = () => {
 
     // 드래그 상태일 때만 위치 업데이트
     if (isDragging) {
-      const newX = Math.min(Math.max(0, x - startPosition.x), canvasWidth - 100)
+      const newX = Math.min(
+        Math.max(0, x - startPosition.x),
+        canvasWidth - marimoSize,
+      )
       const newY = Math.min(
         Math.max(0, y - startPosition.y),
         canvasHeight - 200, //마리모 size + 100 (헤더 사이즈)
@@ -219,6 +232,7 @@ const Canvas = () => {
       setMarimo({
         ...data.user,
       })
+      console.log("marimo를 잘 데려왔습니다.", data.user)
     } catch (error) {
       console.error("API Error:", error)
     }
@@ -253,14 +267,15 @@ const Canvas = () => {
   const handleTouchStart = (event: React.TouchEvent<HTMLCanvasElement>) => {
     const touch = event.touches[0]
     const rect = canvasRef.current?.getBoundingClientRect()
-    if (!rect) return
+    if (!rect || !marimo) return
     const x = touch.clientX - rect.left // 클릭한 x 좌표를 캔버스 상대 좌표로 변환
     const y = touch.clientY - rect.top // 클릭한 y 좌표를 캔버스 상대 좌표로 변환
+
     if (
       x > marimoPosition.x &&
-      x < marimoPosition.x + 100 &&
+      x < marimoPosition.x + marimoSize &&
       y > marimoPosition.y &&
-      y < marimoPosition.y + 100
+      y < marimoPosition.y + marimoSize
     ) {
       setIsDragging(true)
       setStartPosition({ x: x - marimoPosition.x, y: y - marimoPosition.y }) // 드래그 시작 위치를 저장
@@ -297,7 +312,7 @@ const Canvas = () => {
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload)
     }
-  }, [updateMarimo])
+  }, [])
 
   useEffect(() => {
     if (user) {
@@ -315,8 +330,9 @@ const Canvas = () => {
   }, [marimo])
 
   useEffect(() => {
-    console.log("트래시 스토어에 저장된 trashItems", trashItems)
-  }, [trashItems])
+    if (!marimo) return
+    setMarimoSize(marimoSize)
+  }, [marimo?.size])
 
   return (
     <div>
