@@ -10,7 +10,7 @@ import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto"
 
 export const useWorker = () => {
   const worker = useRef<Worker>(null) // 워커 초기 상태를 null로 설정
-  const { addTrashItems, marimo } = useStore()
+  const { addTrashItems, marimo} = useStore()
   const [isWorkerRunning, setIsWorkerRunning] = useState(true)
   const headerHeight = HEADER_HEIGHT
 
@@ -44,7 +44,7 @@ export const useWorker = () => {
         { type: "module" },
       )
 
-      if (!marimo) {
+      if (!marimo || !marimo.id) {
         console.warn("⚠️ marimo 객체가 없거나 ID가 없습니다.")
         return
       }
@@ -91,7 +91,6 @@ export const useWorker = () => {
           }
           const data = await response.json()
           addTrashItems(data.objectItem)
-          console.log("zustand 데이터 확인용:", data.objectItem)
         } catch (error) {
           console.error("❌ API 전송 중 오류 발생:", error)
         }

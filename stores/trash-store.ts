@@ -19,13 +19,13 @@ export const useTrashStore: StateCreator<
 
   addTrashItems: (item) => {
     if (!item) return
-    set({ trashItems: { ...(get().trashItems ?? []), ...item } })
+    set({ trashItems: [...(get().trashItems ?? []), item] })
   },
 
   closeActive: (id: number) => {
     if (!id) return
     set({
-      trashItems: {
+      trashItems: [
         ...(get().trashItems ?? []).map((data) => {
           if (data.id === id) {
             return {
@@ -36,7 +36,7 @@ export const useTrashStore: StateCreator<
 
           return data
         }),
-      },
+      ],
     })
   },
 })
