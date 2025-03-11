@@ -1,0 +1,50 @@
+.container {
+    width: 100%;
+
+    padding: 1rem 1.5rem;
+    border: 0.1rem solid rgba(0,0,0,0.15);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+    border-radius: 1.5rem;
+
+    display: flex;
+    flex-direction: row;
+
+    gap: 1rem;
+}
+
+.text_area {
+    width: 100%;
+    height: 100%;
+
+    margin: 0;
+    padding: 1rem;
+
+    border: 0.1rem solid rgba(0,0,0,0.15);
+    border-radius: 1.5rem;
+
+    background: transparent;
+
+    box-sizing: border-box;
+}
+
+.submit__div {
+    display: flex;
+    justify-content: end;
+}
+
+.submit__button {
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+
+    background-color: var(--secondary-color);
+    color: white;
+
+    white-space: nowrap;
+
+    cursor: pointer;
+}
+
+.submit__button:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
