@@ -1,0 +1,32 @@
+.container {
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    gap: 3rem;
+}
+
+.container > div {
+    position: relative;
+
+    width: 200px;
+    height: 200px;
+}
+
+.container > button {
+    padding: 1rem;
+    border-radius: 1rem;
+
+    background: var(--secondary-color);
+    color : var(--base-white);
+
+    cursor: pointer;
+}
+
+.container > button:hover {
+    background: var(--primary-color);
+}
