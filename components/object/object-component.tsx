@@ -26,8 +26,7 @@ export const useObjectComponent = () => {
     if (!worker.current) return
     if (!trashItems) return
 
-    const itemIndexes = trashItems.map((item, index) => {index})
-    const itemCount = itemIndexes.length
+    const itemCount = trashItems.length
     workerLoading()
 
     if (itemCount < TRASH_LIMIT) {
