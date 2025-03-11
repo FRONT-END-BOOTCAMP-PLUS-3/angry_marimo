@@ -82,6 +82,27 @@ export async function GET(request: NextRequest) {
 // }
 
 export async function POST(request: NextRequest) {
+  /*
+  { 이런식으로 데이터 보내면 됨. - 확인 완료
+  "marimoId": 29,
+  "trashItems": [
+    {
+      "type": "trash",
+      "rect": { "x": 100, "y": 200 },
+      "isActive": true,
+      "url": "image1.jpeg",
+      "level": 1
+    },
+    {
+      "type": "trash",
+      "rect": { "x": 300, "y": 400 },
+      "isActive": true,
+      "url": "image2.jpeg",
+      "level": 2
+    }
+  ]
+}
+   */
   try {
     if (request.headers.get("Content-type") !== "application/json") {
       return NextResponse.json(
