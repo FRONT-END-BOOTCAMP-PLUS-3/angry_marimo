@@ -34,10 +34,16 @@ const Canvas = () => {
   const imageRef = useRef(new Image())
   const [bounce, setBounce] = useState(0)
   const [velocity, setVelocity] = useState(0.5)
-  const { user, marimo, setMarimo, trashItems, closeActive } = useStore()
+  const {
+    user,
+    marimo,
+    setMarimo,
+    trashItems,
+    closeActive,
+    marimoImgSrc,
+    updateMarimoStatusAndImgSrc,
+  } = useStore()
   const [marimoSize, setMarimoSize] = useState(5) // 5rem
-
-  const marimoImgSrc = marimo?.src ?? "/images/marimo.svg"
 
   useEffect(() => {
     window.addEventListener("resize", handleCanvasResize)
@@ -63,6 +69,10 @@ const Canvas = () => {
       requestAnimationFrame(animateMarimo)
     }
   }
+
+  useEffect(() => {
+    updateMarimoStatusAndImgSrc()
+  }, [trashItems?.length])
 
   useEffect(() => {
     if (!isDragging) {
