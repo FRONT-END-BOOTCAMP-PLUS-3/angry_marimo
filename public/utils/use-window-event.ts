@@ -1,18 +1,20 @@
 "use client"
 import { useEffect } from "react"
 
-export const useWindowEvents = (workerRef: React.RefObject<Worker | null>) => {
+export const useWindowEvents = (worker: React.RefObject<Worker | null>) => {
   useEffect(() => {
     const handleBeforeUnload = () => {
-      localStorage.setItem("lastClosedTime", Date.now().toString())
-      workerRef.current?.postMessage("closed")
+      const formattedTime = new Date(Date.now()).toLocaleString()
+      localStorage.setItem("lastClosedTime", formattedTime)
+
+      worker.current?.postMessage("closed")
     }
 
     const handleLoad = () => {
       const lastClosedTime = localStorage.getItem("lastClosedTime")
       if (lastClosedTime) {
         const lastClosedDate = new Date(parseInt(lastClosedTime, 10))
-        const formattedDate = lastClosedDate.toISOString()
+        const formattedDate = lastClosedDate.toLocaleString()
 
         const elapsed = Date.now() - lastClosedDate.getTime()
         console.log(
@@ -25,7 +27,7 @@ export const useWindowEvents = (workerRef: React.RefObject<Worker | null>) => {
           )
         }
       }
-      workerRef.current?.postMessage("opened")
+      worker.current?.postMessage("opened")
     }
 
     window.addEventListener("beforeunload", handleBeforeUnload)
@@ -35,5 +37,5 @@ export const useWindowEvents = (workerRef: React.RefObject<Worker | null>) => {
       window.removeEventListener("beforeunload", handleBeforeUnload)
       window.removeEventListener("load", handleLoad)
     }
-  }, [workerRef])
+  }, [worker])
 }
