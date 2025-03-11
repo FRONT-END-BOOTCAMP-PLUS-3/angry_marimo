@@ -5,10 +5,81 @@ import { PgObjectRepository } from "@marimo/infrastructure/repositories/pg-objec
 import { PrismaClient } from "@prisma/client"
 import { TrashToObjectUseCase } from "@marimo/application/usecases/object/trash-object-usecase"
 
-export async function GET() {
-  const response = NextResponse.json({ message: "쓰레기를 생성합니다." })
-  response.ok
+// get 에서 isActive 가 true 인 객체들만 가져옴.-> test 필요
+export async function GET(request: NextRequest) {
+  try {
+    const response = NextResponse.json({ message: "쓰레기를 생성합니다." })
+    console.log("response.ok ", response.ok)
+
+    const body = await request.json()
+    if (!body) {
+      return NextResponse.json({ error: "Empty request body" }, { status: 400 })
+    }
+
+    const { marimoId } = body
+    if (!marimoId) {
+      return NextResponse.json(
+        { error: "Missing marimoID data" },
+        { status: 400 },
+      )
+    }
+    const objectRepository = new PgObjectRepository(new PrismaClient())
+    const activeObject = objectRepository.findAllByMarimoId(marimoId)
+
+    return NextResponse.json({ activeObject }, { status: 200 })
+  } catch (error) {
+    console.error("Error handling request:", error)
+    return NextResponse.json({ error: "Invalid JSON format" }, { status: 400 })
+  }
 }
+
+// export async function POST(request: NextRequest) {
+//   try {
+//     if (request.headers.get("Content-type") !== "application/json") {
+//       return NextResponse.json(
+//         { error: "Invalid Content-Type" },
+//         { status: 400 },
+//       )
+//     }
+//     const body = await request.json()
+//     if (!body) {
+//       return NextResponse.json({ error: "Empty request body" }, { status: 400 })
+//     }
+
+//     const { marimoId, trashData } = body
+//     if (!marimoId || !trashData) {
+//       return NextResponse.json(
+//         { error: "Missing required data" },
+//         { status: 400 },
+//       )
+//     }
+
+//     const { type, rect, isActive, url, level } = trashData
+//     if (!type || !rect || !isActive || !url || !level) {
+//       return NextResponse.json(
+//         { error: "Invalid trash data format" },
+//         { status: 400 },
+//       )
+//     }
+
+//     const usecase = new TrashToObjectUseCase(
+//       new PgObjectRepository(new PrismaClient()),
+//     )
+//     const objectItem = await usecase.execute(
+//       type,
+//       rect,
+//       isActive,
+//       url,
+//       level,
+//       marimoId,
+//     )
+
+//     return NextResponse.json({ objectItem }, { status: 200 })
+//   } catch (error) {
+//     console.error("Error handling request:", error)
+//     return NextResponse.json({ error: "Invalid JSON format" }, { status: 400 })
+//   }
+// }
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,23 +89,16 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       )
     }
+
     const body = await request.json()
     if (!body) {
       return NextResponse.json({ error: "Empty request body" }, { status: 400 })
     }
 
-    const { marimoId, trashData } = body
-    if (!marimoId || !trashData) {
+    const { marimoId, trashItems } = body
+    if (!marimoId || !Array.isArray(trashItems) || trashItems.length === 0) {
       return NextResponse.json(
-        { error: "Missing required data" },
-        { status: 400 },
-      )
-    }
-
-    const { type, rect, isActive, url, level } = trashData
-    if (!type || !rect || !isActive || !url || !level) {
-      return NextResponse.json(
-        { error: "Invalid trash data format" },
+        { error: "Missing or invalid trashItems array" },
         { status: 400 },
       )
     }
@@ -42,19 +106,13 @@ export async function POST(request: NextRequest) {
     const usecase = new TrashToObjectUseCase(
       new PgObjectRepository(new PrismaClient()),
     )
-    const objectItem = await usecase.execute(
-      type,
-      rect,
-      isActive,
-      url,
-      level,
-      marimoId,
-    )
 
-    return NextResponse.json({ objectItem }, { status: 200 })
+    const objectItems = await usecase.executeAll(marimoId, trashItems)
+
+    return NextResponse.json({ objectItems }, { status: 200 })
   } catch (error) {
     console.error("Error handling request:", error)
-    return NextResponse.json({ error: "Invalid JSON format" }, { status: 400 })
+    return NextResponse.json({ error: "Server error" }, { status: 400 })
   }
 }
 
@@ -72,8 +130,8 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "Empty request body" }, { status: 400 })
     }
 
-    const { id, marimoId, isActive, updatedAt } = body
-    if (!id || !marimoId || !updatedAt || !isActive) {
+    const { id, isActive, updatedAt } = body
+    if (!id || !updatedAt || !isActive) {
       return NextResponse.json(
         { error: "Invalid data format" },
         { status: 400 },
@@ -81,12 +139,11 @@ export async function PUT(request: NextRequest) {
     }
 
     const repository = new PgObjectRepository(new PrismaClient())
-    const existingObject = await repository.findById(id)
+    const existingObject = await repository.update(id, isActive, updatedAt)
 
     if (!existingObject) {
       return NextResponse.json({ error: "Object not found" }, { status: 404 })
     }
-    await repository.update(marimoId, isActive, updatedAt)
 
     return NextResponse.json({ success: true }, { status: 200 })
   } catch (error) {

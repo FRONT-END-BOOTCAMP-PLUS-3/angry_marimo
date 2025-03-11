@@ -1,12 +1,23 @@
 import { StateCreator } from "zustand"
 import { State } from "@marimo/stores/use-store"
-import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto"
+import { JsonValue } from "@prisma/client/runtime/client"
+
+export type TTrash = {
+  id: number
+  level: number
+  url: string
+  rect: JsonValue
+  type: string
+  isActive: boolean
+}
 
 export interface TTrashSlice {
-  trashItems: ITrashDto[] | null
+  trashItems: TTrash[] | null
 
-  addTrashItems: (item: ITrashDto) => void
-  closeActive: (id: number) => void
+  setTrashItems: (trashItems: TTrash[]) => void
+  addTrashItems: (item: TTrash) => void
+  // closeActive: (id: number) => void
+  deleteItem: (id: number) => void
 }
 
 export const useTrashStore: StateCreator<
@@ -16,6 +27,8 @@ export const useTrashStore: StateCreator<
   TTrashSlice
 > = (set, get) => ({
   trashItems: [],
+
+  setTrashItems: (trashItems: TTrash[]) => set({ trashItems }),
 
   addTrashItems: (item) => {
     if (!item) return
@@ -37,6 +50,21 @@ export const useTrashStore: StateCreator<
           return data
         }),
       ],
+    })
+  },
+
+  deleteItem: (id: number) => {
+    set((state) => {
+      const updatedTrashItems = [...(state.trashItems ?? [])]
+      const index = updatedTrashItems.findIndex(
+        (item) => item.id === id && item.isActive,
+      )
+
+      if (index !== -1) {
+        updatedTrashItems.splice(index, 1)
+      }
+
+      return { trashItems: updatedTrashItems }
     })
   },
 })
