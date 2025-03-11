@@ -87,7 +87,6 @@ export async function PUT(request: NextRequest) {
     if (!existingObject) {
       return NextResponse.json({ error: "Object not found" }, { status: 404 })
     }
-
     await repository.update(marimoId, isActive, updatedAt)
 
     return NextResponse.json({ success: true }, { status: 200 })
