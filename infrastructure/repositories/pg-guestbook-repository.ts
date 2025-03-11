@@ -1,5 +1,5 @@
-import { PrismaClient, GuestBook } from "@prisma/client"
 import { GuestBookRepository } from "@marimo/domain/repositories"
+import { PrismaClient, GuestBook, User, Marimo } from "@prisma/client"
 
 export class PgGuestBookRepository implements GuestBookRepository {
   constructor(private prisma: PrismaClient) {}
@@ -21,12 +21,20 @@ export class PgGuestBookRepository implements GuestBookRepository {
     }
   }
 
-  async getAllPostByOwnerId(ownerId: number): Promise<GuestBook[] | null> {
+  async getAllPostByOwnerId(
+    ownerId: number,
+  ): Promise<(GuestBook & { guest: User & { marimos: Marimo[] } })[] | null> {
     try {
       const posts = await this.prisma.guestBook.findMany({
         where: { ownerId },
         include: {
-          guest: true,
+          guest: {
+            include: {
+              marimos: {
+                where: { status: { not: "dead" } },
+              },
+            },
+          },
         },
         orderBy: {
           createdAt: "desc",
