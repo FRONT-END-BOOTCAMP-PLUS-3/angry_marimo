@@ -29,7 +29,7 @@ export const useObjectComponent = () => {
     const itemCount = trashItems.length
     workerLoading()
 
-    if (itemCount >= 0 && itemCount < TRASH_LIMIT) {
+    if (itemCount < TRASH_LIMIT) {
       worker.current.postMessage(1)
     } else {
       terminateWorker()
