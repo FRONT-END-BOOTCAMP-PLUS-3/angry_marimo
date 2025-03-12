@@ -9,10 +9,9 @@ import { useWindowEvents } from "@marimo/public/utils/use-window-event"
 import { TRASH_LIMIT } from "@marimo/constants/trash-header"
 
 import { useStore } from "@marimo/stores/use-store"
-import { useEffect } from "react"
 
 export const useObjectComponent = () => {
-  const { marimo ,trashItems, setTrashItems } = useStore()
+  const { trashItems } = useStore()
   const {
     worker,
     isWorkerRunning,
@@ -49,6 +48,7 @@ export const useObjectComponent = () => {
   //     } catch (error) {
   //       console.error("❌ [API 요청 중 오류 발생]:", error);
   //     }
+  //     console.log("[최종 확인용 trashItem]", trashItems)
   //   };
     
   //   fetchData();
