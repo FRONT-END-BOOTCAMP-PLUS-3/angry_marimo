@@ -78,15 +78,14 @@ export const createMarimoSlice: StateCreator<
       })
 
       let toggle = false
-      const intervalId = setInterval(() => {
-        set({
-          marimoImgSrc: toggle
-            ? get().leftTwerkingMarimoSrc
-            : get().rightTwerkingMarimoSrc,
-        })
-        toggle = !toggle
-      }, 500)
-
+      // intervalId = setInterval(() => {
+      set({
+        marimoImgSrc: toggle
+          ? get().leftTwerkingMarimoSrc
+          : get().rightTwerkingMarimoSrc,
+      })
+      toggle = !toggle
+      // }, 500)
       return
     }
 
