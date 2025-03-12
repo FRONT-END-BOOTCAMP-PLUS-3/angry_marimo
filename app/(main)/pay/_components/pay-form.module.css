@@ -4,13 +4,13 @@
     
     max-width: 400px;
 
-    padding: 3rem 1rem 6rem;
+    padding: 3rem 1rem 900px;
     
     display: flex;
     flex-direction: column;
     justify-content: start;
 
-    /* gap: 1rem; */
+    box-sizing: border-box;
 }
 
 .p_wrapper {
