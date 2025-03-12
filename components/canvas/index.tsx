@@ -143,6 +143,7 @@ const Canvas = () => {
             marimoSizePx,
           )
         }
+
         loadedTrashImages.forEach((trash) => {
           if (!trash.rect) {
             console.error("rect 정보가 없습니다:", trash)
@@ -165,6 +166,7 @@ const Canvas = () => {
       }
     }
   }
+
   const isColliding = (
     marimoPosition: { x: number; y: number },
     trashPosition: { x: number; y: number; width: number; height: number },
@@ -264,6 +266,8 @@ const Canvas = () => {
     }
 
     try {
+      resetImages()
+
       const response = await fetch(`/api/marimo/${user.id}`, {
         method: "GET",
         headers: {
@@ -301,7 +305,6 @@ const Canvas = () => {
         ...data.user,
       })
 
-      resetImages()
       updateMarimoStatusAndImgSrc()
       fetchMarimoStatus()
     } catch (error) {
