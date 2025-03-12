@@ -48,6 +48,7 @@ const Canvas = () => {
     fetchMarimoStatus,
     adoptMarimo,
     setImages,
+    resetImages,
   } = useStore()
   const [marimoSizePx, setMarimoSizePx] = useState(80)
 
@@ -299,6 +300,8 @@ const Canvas = () => {
       setMarimo({
         ...data.user,
       })
+
+      resetImages()
       updateMarimoStatusAndImgSrc()
       fetchMarimoStatus()
     } catch (error) {

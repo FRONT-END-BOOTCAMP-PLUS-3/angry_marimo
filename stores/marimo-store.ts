@@ -181,6 +181,11 @@ export const createMarimoSlice: StateCreator<
 
     set({
       marimo,
+      marimoImgSrc: "/images/marimo.svg",
+      marimoSrc: "/images/marimo.svg",
+      deadMarimoSrc: "/images/dead-marimo.svg",
+      leftTwerkingMarimoSrc: "/images/left-twerking-marimo.svg",
+      rightTwerkingMarimoSrc: "/images/right-twerking-marimo.svg",
       trashItems: [],
     })
   },
