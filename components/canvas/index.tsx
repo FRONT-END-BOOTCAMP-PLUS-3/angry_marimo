@@ -4,6 +4,8 @@ import dynamic from "next/dynamic"
 
 import React, { useState, useEffect, useRef } from "react"
 
+import { Loading } from "@marimo/components/loading"
+
 import { remToPx } from "@marimo/utils/rem-to-px"
 
 import styles from "@marimo/components/canvas/index.module.css"
@@ -25,10 +27,10 @@ const Canvas = () => {
     ILoadedTrashImage[]
   >([])
 
-  const [marimoPosition, setMarimoPosition] = useState({
-    x: -500, // fetch 전 안보이게 하려고 넣어놓은 숫자
-    y: -500,
-  })
+  const [marimoPosition, setMarimoPosition] = useState<{
+    x: number
+    y: number
+  } | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 })
   const imageRef = useRef(new Image())
@@ -49,6 +51,7 @@ const Canvas = () => {
   const [marimoSizePx, setMarimoSizePx] = useState(80)
 
   const [isEscape, setIsEscape] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
     window.addEventListener("resize", handleCanvasResize)
@@ -133,7 +136,7 @@ const Canvas = () => {
       const ctx = canvas.getContext("2d")
       if (ctx) {
         ctx.clearRect(0, 0, canvasWidth, canvasHeight)
-        if (marimoImageLoaded && marimo) {
+        if (marimoImageLoaded && marimo && marimoPosition) {
           ctx.drawImage(
             imageRef.current,
             marimoPosition.x,
@@ -150,7 +153,7 @@ const Canvas = () => {
           const rect = trash.rect as { x: number; y: number }
           const x = (rect.x / 100) * canvasWidth
           const y = (rect.y / 100) * canvasHeight
-          if (trash.isActive) {
+          if (trash.isActive && marimoPosition) {
             if (isColliding(marimoPosition, { x, y, width: 50, height: 50 })) {
               trash.isActive = false
               closeActive(trash.id)
@@ -159,6 +162,8 @@ const Canvas = () => {
             }
           }
         })
+
+        setIsLoading(false)
       }
     }
   }
@@ -177,6 +182,10 @@ const Canvas = () => {
   useEffect(() => {
     if (!canvasWidth || !canvasHeight || !marimoPosition) return
 
+    console.table({ marimoPosition })
+
+    drawOnCanvas()
+
     if (
       marimoPosition.x < -marimoSizePx ||
       marimoPosition.x > canvasWidth ||
@@ -187,8 +196,6 @@ const Canvas = () => {
     } else {
       setIsEscape(false)
     }
-
-    drawOnCanvas()
   }, [
     marimoPosition,
     marimoImageLoaded,
@@ -206,6 +213,7 @@ const Canvas = () => {
     const x = event.clientX - rect.left
     const y = event.clientY - rect.top
     if (
+      marimoPosition &&
       x > marimoPosition.x &&
       x < marimoPosition.x + marimoSizePx &&
       y > marimoPosition.y &&
@@ -224,6 +232,7 @@ const Canvas = () => {
     const x = event.clientX - rect.left
     const y = event.clientY - rect.top
     if (
+      marimoPosition &&
       x > marimoPosition.x &&
       x < marimoPosition.x + marimoSizePx &&
       y > marimoPosition.y &&
@@ -257,6 +266,7 @@ const Canvas = () => {
       console.error("User is null")
       return
     }
+
     try {
       const response = await fetch(`/api/marimo/${user.id}`, {
         method: "GET",
@@ -280,6 +290,7 @@ const Canvas = () => {
   }
 
   const updateMarimo = async () => {
+    if (!marimoPosition) return
     const updatedRect = JSON.stringify({
       x: (marimoPosition.x * 100) / canvasWidth,
       y: (marimoPosition.y * 100) / canvasHeight,
@@ -313,6 +324,7 @@ const Canvas = () => {
     const y = touch.clientY - rect.top
 
     if (
+      marimoPosition &&
       x > marimoPosition.x &&
       x < marimoPosition.x + marimoSizePx &&
       y > marimoPosition.y &&
@@ -371,6 +383,7 @@ const Canvas = () => {
 
   return (
     <div>
+      {isLoading && <Loading />}
       {marimo?.status === "dead" && (
         <div className={styles.button__div}>
           <button
