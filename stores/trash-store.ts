@@ -14,9 +14,8 @@ export type TTrash = {
 export interface TTrashSlice {
   trashItems: Omit<TTrash, "id">[] | null
 
-  setTrashItems: (trashItems: TTrash[]) => void
+  setTrashItems: (trashItems: Omit<TTrash, "id">[]) => void
   addTrashItem: (item: Omit<TTrash, "id">) => void
-  // closeActive: (id: number) => void
   deleteItem: (id: number) => void
 }
 
@@ -28,7 +27,7 @@ export const useTrashStore: StateCreator<
 > = (set, get) => ({
   trashItems: [],
 
-  setTrashItems: (trashItems: TTrash[]) => set({ ...trashItems, trashItems }),
+  setTrashItems: (trashItems: Omit<TTrash, "id">[]) => set({ trashItems: trashItems }),
 
   addTrashItem: (item) => {
     if (!item) return
@@ -56,6 +55,7 @@ export const useTrashStore: StateCreator<
   deleteItem: (id: number) => {
     set((state) => {
       const updatedTrashItems = [...(state.trashItems ?? [])]
+      // trashItems 에 id 가 없음. id 를 어떻게 넣어줘야 하는지 고민해보기
       const index = updatedTrashItems.findIndex(
         (item) => item.id === id && item.isActive,
       )

@@ -9,9 +9,10 @@ import { useWindowEvents } from "@marimo/public/utils/use-window-event"
 import { TRASH_LIMIT } from "@marimo/constants/trash-header"
 
 import { useStore } from "@marimo/stores/use-store"
+import { useEffect } from "react"
 
 export const useObjectComponent = () => {
-  const { trashItems } = useStore()
+  const { marimo ,trashItems, setTrashItems } = useStore()
   const {
     worker,
     isWorkerRunning,
@@ -21,6 +22,38 @@ export const useObjectComponent = () => {
   } = useWorker()
 
   useWindowEvents(worker)
+
+  // GET 요청 함수
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     if (!marimo) {
+  //       console.log("⚠️ [경고] marimo가 존재하지 않음! API 요청 취소");
+  //       return;
+  //     }
+  //     try {
+    
+  //       const response = await fetch(`/api/objects?marimoId=${marimo.id}`, {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       });
+    
+  //       if (!response.ok) {
+  //         const errorText = await response.text();
+  //         throw new Error(`🚨 API 요청 실패: ${response.status} - ${errorText}`);
+  //       }
+  //       const data = await response.json();
+  //       setTrashItems(data.activeObject);
+
+  //     } catch (error) {
+  //       console.error("❌ [API 요청 중 오류 발생]:", error);
+  //     }
+  //   };
+    
+  //   fetchData();
+  // }, [marimo])
+
 
   useInterval(() => {
     if (!isWorkerRunning) return

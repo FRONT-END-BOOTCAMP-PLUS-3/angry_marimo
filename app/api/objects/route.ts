@@ -7,7 +7,6 @@ import { TrashToObjectUseCase } from "@marimo/application/usecases/object/trash-
 
 export async function GET(request: NextRequest) {
   try {
-    NextResponse.json({ message: "쓰레기를 생성합니다." })
     const marimoId = Number(request.nextUrl.searchParams.get("marimoId"))
 
     if (!marimoId) {
@@ -128,8 +127,8 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "Empty request body" }, { status: 400 })
     }
 
-    const { id, isActive, updatedAt } = body
-    if (!id || !updatedAt || !isActive) {
+    const { marimoId, id, isActive, updatedAt } = body
+    if (!id || !updatedAt || !marimoId || !isActive) {
       return NextResponse.json(
         { error: "Invalid data format" },
         { status: 400 },
@@ -137,7 +136,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const repository = new PgObjectRepository(new PrismaClient())
-    const existingObject = await repository.update(id, isActive, updatedAt)
+    const existingObject = await repository.update(marimoId, id, isActive, updatedAt)
 
     if (!existingObject) {
       return NextResponse.json({ error: "Object not found" }, { status: 404 })

@@ -23,6 +23,7 @@ export interface ObjectRepository {
   ): Promise<void>
 
   update(
+    id: number,
     marimoId: number,
     isActive: boolean,
     updateAt: Date,

@@ -37,7 +37,6 @@ export const useWorker = () => {
       console.error("❌ Web Workers를 지원하지 않는 환경입니다.")
       return
     }
-
     try {
       worker.current = new Worker(
         new URL("/public/workers/object-worker", import.meta.url),
@@ -71,29 +70,8 @@ export const useWorker = () => {
           type: "trash",
         }
 
-        try {
-          const response = await fetch(`/api/objects`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              marimoId: marimo.id,
-              trashData: newTrashItem,
-            }),
-          })
-
-          if (!response.ok) {
-            const errorText = await response.text()
-            throw new Error(
-              `🚨 API 요청 실패: ${response.status} - ${errorText}`,
-            )
-          }
-          const data = await response.json()
-          addTrashItem(data.objectItem)
-        } catch (error) {
-          console.error("❌ API 전송 중 오류 발생:", error)
-        }
+        console.log("newTrashItem 확인용", newTrashItem)
+        addTrashItem(newTrashItem)
       }
 
       worker.current.onerror = (error) => {
