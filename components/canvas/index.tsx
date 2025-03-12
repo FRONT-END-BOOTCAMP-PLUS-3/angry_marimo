@@ -182,8 +182,6 @@ const Canvas = () => {
   useEffect(() => {
     if (!canvasWidth || !canvasHeight || !marimoPosition) return
 
-    console.table({ marimoPosition })
-
     drawOnCanvas()
 
     if (
@@ -267,6 +265,8 @@ const Canvas = () => {
       return
     }
 
+    console.log("fetchMarimo ---- start")
+
     try {
       const response = await fetch(`/api/marimo/${user.id}`, {
         method: "GET",
@@ -274,11 +274,15 @@ const Canvas = () => {
           "Content-Type": "application/json",
         },
       })
+
+      console.log("fetchMarimo ---- middle")
+
       if (!response.ok) {
         throw new Error("Failed to fetch data")
       }
       const data = await response.json()
 
+      console.log("fetchMarimo ---- bottom")
       setMarimo({
         ...data.user,
       })
