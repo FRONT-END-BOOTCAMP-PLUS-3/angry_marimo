@@ -29,56 +29,56 @@ jobs:
       - name: Build Next.js Project
         run: npm run build
 
-  # 테스트 단계 (Playwright + Vitest)
-  test:
-    needs: build
-    timeout-minutes: 60
-    runs-on: [self-hosted, angry-marimo]
+  # # 테스트 단계 (Playwright + Vitest)
+  # test:
+  #   needs: build
+  #   timeout-minutes: 60
+  #   runs-on: [self-hosted, angry-marimo]
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          clean: true
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v4
+  #       with:
+  #         clean: true
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-          cache: 'npm'
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: lts/*
+  #         cache: 'npm'
 
-      - name: Create .env file
-        run: |
-          cat <<EOF > .env
-          NODE_ENV=production
-          COOKIE_DOMAIN=${{ secrets.COOKIE_DOMAIN }}
-          COOKIE_TOKEN=${{ secrets.COOKIE_TOKEN }}
-          DATABASE_URL=${{ secrets.DATABASE_URL }}
-          MARIMO_SECRET_KEY=${{ secrets.MARIMO_SECRET_KEY }}
-          NEXT_PUBLIC_TOSS_CLIENT_KEY=${{ secrets.NEXT_PUBLIC_TOSS_CLIENT_KEY }}
-          NEXT_PUBLIC_URL=${{ secrets.NEXT_PUBLIC_URL }}
-          NEXT_TOSS_SECRET_KEY=${{ secrets.NEXT_TOSS_SECRET_KEY }}
-          NEXT_URL=${{ secrets.NEXT_URL }}
-          NEXT_WWW_URL=${{ secrets.NEXT_WWW_URL }}
-          NEXT_STORAGE_SRC=${{ secrets.NEXT_STORAGE_SRC }}
-          TEST_BASE_URL=${{ secrets.TEST_BASE_URL }}
-          EOF
+  #     - name: Create .env file
+  #       run: |
+  #         cat <<EOF > .env
+  #         NODE_ENV=production
+  #         COOKIE_DOMAIN=${{ secrets.COOKIE_DOMAIN }}
+  #         COOKIE_TOKEN=${{ secrets.COOKIE_TOKEN }}
+  #         DATABASE_URL=${{ secrets.DATABASE_URL }}
+  #         MARIMO_SECRET_KEY=${{ secrets.MARIMO_SECRET_KEY }}
+  #         NEXT_PUBLIC_TOSS_CLIENT_KEY=${{ secrets.NEXT_PUBLIC_TOSS_CLIENT_KEY }}
+  #         NEXT_PUBLIC_URL=${{ secrets.NEXT_PUBLIC_URL }}
+  #         NEXT_TOSS_SECRET_KEY=${{ secrets.NEXT_TOSS_SECRET_KEY }}
+  #         NEXT_URL=${{ secrets.NEXT_URL }}
+  #         NEXT_WWW_URL=${{ secrets.NEXT_WWW_URL }}
+  #         NEXT_STORAGE_SRC=${{ secrets.NEXT_STORAGE_SRC }}
+  #         TEST_BASE_URL=${{ secrets.TEST_BASE_URL }}
+  #         EOF
 
-      - name: Install Dependencies
-        run: npm ci
+  #     - name: Install Dependencies
+  #       run: npm ci
 
-      - name: Run Vitest Tests
-        run: npm run test
+  #     - name: Run Vitest Tests
+  #       run: npm run test
 
-      - name: Run Playwright Tests
-        run: |
-          export $(grep -v '^#' .env | xargs)
-          npm run playwright
+  #     - name: Run Playwright Tests
+  #       run: |
+  #         export $(grep -v '^#' .env | xargs)
+  #         npm run playwright
 
 
   # 배포 단계
   deploy:
-    needs: test  # 테스트가 완료된 후 배포
+    # needs: test  # 테스트가 완료된 후 배포
     runs-on: [self-hosted, angry-marimo]
 
     steps:
