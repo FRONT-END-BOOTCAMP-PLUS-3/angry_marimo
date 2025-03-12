@@ -24,9 +24,7 @@ export interface ObjectRepository {
 
   update(
     id: number,
-    marimoId: number,
     isActive: boolean,
-    updateAt: Date,
   ): Promise<Omit<ObjectItem, "id">>
 
   findById(id: number): Promise<ObjectItem | null>

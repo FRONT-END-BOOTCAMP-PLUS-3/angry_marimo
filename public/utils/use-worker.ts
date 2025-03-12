@@ -69,8 +69,6 @@ export const useWorker = () => {
           isActive: true,
           type: "trash",
         }
-
-        console.log("newTrashItem 확인용", newTrashItem)
         addTrashItem(newTrashItem)
       }
 

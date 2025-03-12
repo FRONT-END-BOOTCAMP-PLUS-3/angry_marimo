@@ -12,11 +12,12 @@ export type TTrash = {
 }
 
 export interface TTrashSlice {
+  // TODO: 새로생기는 trashItem 이 id 가 1부터 시작하는 문제가 있음
   trashItems: Omit<TTrash, "id">[] | null
 
   setTrashItems: (trashItems: Omit<TTrash, "id">[]) => void
-  addTrashItem: (item: Omit<TTrash, "id">) => void
-  deleteItem: (id: number) => void
+  addTrashItem: (trashItems: Omit<TTrash, "id">) => void
+  deleteItem: (trashItems: TTrash) => void
 }
 
 export const useTrashStore: StateCreator<
@@ -52,12 +53,12 @@ export const useTrashStore: StateCreator<
     })
   },
 
-  deleteItem: (id: number) => {
+  deleteItem: (trashItems: TTrash) => {
     set((state) => {
       const updatedTrashItems = [...(state.trashItems ?? [])]
       // trashItems 에 id 가 없음. id 를 어떻게 넣어줘야 하는지 고민해보기
       const index = updatedTrashItems.findIndex(
-        (item) => item.id === id && item.isActive,
+        (trashItems) => trashItems.id === id && trashItems.isActive,
       )
 
       if (index !== -1) {
