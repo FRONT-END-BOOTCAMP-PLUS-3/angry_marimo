@@ -1,0 +1,81 @@
+.container {
+    width: 100%;
+    min-width: 300px;
+
+    padding: 1rem;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 1rem;
+}
+
+.recommend__header {
+    display: flex;
+    flex-direction: row;
+
+    gap: 0.5rem;
+}
+
+.refresh__button {
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+
+    font-size: small;
+    font-weight: 600;
+
+    color: var(--secondary-color);
+}
+
+.refresh__button:hover {
+    color: var(--primary-color);
+}
+
+.user__ul {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 0.5rem;
+}
+
+.user__button {
+    width: 100%;
+    height: fit-content;
+
+    padding: 0.3rem 1rem;
+    border-radius: 1rem;
+
+    border: 0.1rem solid var(--olive-green);
+
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+}
+
+.user__button:hover {
+    background: var(--olive-green);
+}
+
+.user_marimo {
+    width: 30%;
+    height: 2.5rem;
+
+    position: relative;
+}
+
+.user_name {
+    width: 100%;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

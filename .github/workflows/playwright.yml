@@ -151,6 +151,6 @@ jobs:
               pm2 restart angry-marimo
             else
               echo "프로세스가 실행 중이 아닙니다. 새로 실행합니다..."
-              pm2 start npm --name "angry-marimo" -- run start -- -p 3008
+              pm2 start npm --name "angry-marimo" -- run start -- -p 3080
               pm2 save
             fi

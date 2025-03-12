@@ -9,7 +9,7 @@ import { useStore } from "@marimo/stores/use-store"
 const url = process.env.NEXT_PUBLIC_URL
 
 export const GetUser = () => {
-  const { setUser, clearUser } = useStore()
+  const { setUser, clearUser, setMarimo } = useStore()
 
   const logoutHandler = async () => {
     await fetch("/api/logout", {
@@ -24,26 +24,41 @@ export const GetUser = () => {
   }
 
   const fetchedUser = async () => {
-    const response = await fetch(`${url}/api/user`, {
-      method: "GET",
-      mode: "cors",
-      credentials: "same-origin",
-    })
+    try {
+      const userResponse = await fetch(`${url}/api/user`, {
+        method: "GET",
+        mode: "cors",
+        credentials: "same-origin",
+      })
 
-    if (response.status !== 200) {
-      clearUser()
-      logoutHandler()
-      redirect("/login")
+      if (!userResponse.ok) {
+        clearUser()
+        logoutHandler()
+        redirect("/login")
+      }
+
+      const { user } = await userResponse.json()
+
+      if (!user || !user.id) {
+        logoutHandler()
+        redirect("/login")
+      }
+
+      const marimoResponse = await fetch(`${url}/api/marimo/${user.id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}),
+      }).then((res) => res.json())
+
+      const marimo = marimoResponse.user
+
+      setUser(user)
+      if (marimo) setMarimo(marimo)
+    } catch (error) {
+      console.error("get-user error --->", error)
     }
-
-    const { user } = await response.json()
-
-    if (!user || !user.id) {
-      logoutHandler()
-      redirect("/login")
-    }
-
-    setUser(user)
   }
 
   useEffect(() => {

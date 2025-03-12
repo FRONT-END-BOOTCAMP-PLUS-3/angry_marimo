@@ -1,32 +1,51 @@
-import { PrismaClient, User } from "@prisma/client"
+import { Marimo, PrismaClient, User } from "@prisma/client"
 import { UserRepository } from "@marimo/domain/repositories"
 
 export class PgUserRepository implements UserRepository {
+  constructor(private prisma: PrismaClient) {}
+
   async findByEmail(email: string): Promise<User | null> {
-    const prisma = new PrismaClient()
     try {
-      const user = await prisma.user.findUnique({
+      const user = await this.prisma.user.findUnique({
         where: {
           email,
         },
       })
       return user ?? null
     } finally {
-      await prisma.$disconnect()
+      await this.prisma.$disconnect()
     }
   }
 
   async findById(id: number): Promise<User | null> {
-    const prisma = new PrismaClient()
     try {
-      const user = await prisma.user.findUnique({
+      const user = await this.prisma.user.findUnique({
         where: {
           id,
         },
       })
       return user ?? null
     } finally {
-      await prisma.$disconnect()
+      await this.prisma.$disconnect()
+    }
+  }
+
+  async findUsersWithoutId(
+    id: number,
+  ): Promise<(User & { marimos: Marimo[] })[] | null> {
+    try {
+      const users = await this.prisma.user.findMany({
+        where: {
+          NOT: { id },
+        },
+        include: {
+          marimos: { where: { status: { not: "dead" } } },
+        },
+      })
+
+      return users.length > 0 ? users : null
+    } finally {
+      await this.prisma.$disconnect()
     }
   }
 }

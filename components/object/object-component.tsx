@@ -1,6 +1,8 @@
 "use client"
 import dynamic from "next/dynamic"
 
+import { Loading } from "@marimo/components/loading"
+
 import { useInterval } from "@marimo/hooks/use-interval"
 
 import { useWorker } from "@marimo/public/utils/use-worker"
@@ -48,7 +50,7 @@ export const useObjectComponent = () => {
 const DynamicTrashComponent = dynamic(
   () => Promise.resolve(useObjectComponent),
   {
-    loading: () => <p>Loading...</p>,
+    loading: () => <Loading />,
     ssr: false,
   },
 )

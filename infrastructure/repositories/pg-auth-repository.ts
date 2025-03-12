@@ -15,6 +15,10 @@ export class PgAuthRepository implements AuthRepository {
         data: { email, password: hashedPassword },
       })
 
+      await prisma.coupon.create({
+        data: { userId: user.id, code: "signup", isUsed: false },
+      })
+
       return user
     } catch (error: any) {
       if (error.code === "P2002") {

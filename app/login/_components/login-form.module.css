@@ -1,7 +1,6 @@
 .input__gap {
     display: flex;
     flex-direction: column; 
-    justify-content: center;
 
     gap: 1.25rem;
 }
@@ -30,4 +29,21 @@
 .button:disabled {
     background: var(--disabled);
     color: var(--base-white);
+}
+
+
+.info {
+    width: 100%;
+    max-width: 400px;
+
+    font-size: medium;
+    line-height: 1.5rem;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+
+    gap: 0.1rem;
 }
