@@ -1,6 +1,8 @@
 "use client"
 import dynamic from "next/dynamic"
 
+import { useEffect, useState } from "react"
+
 import { Loading } from "@marimo/components/loading"
 
 import { useInterval } from "@marimo/hooks/use-interval"
@@ -24,6 +26,8 @@ export const useObjectComponent = () => {
 
   useWindowEvents(worker)
 
+  const [second, setSecond] = useState<number>(2000)
+
   useInterval(() => {
     if (!isWorkerRunning) return
     if (!worker.current) return
@@ -42,7 +46,13 @@ export const useObjectComponent = () => {
       terminateWorker()
       setIsWorkerRunning(false)
     }
-  }, 2000)
+  }, second)
+
+  useEffect(() => {
+    if (!trashItems || trashItems?.length < 16) setSecond(2000)
+
+    setSecond(20000)
+  }, [trashItems])
 
   return <></>
 }
