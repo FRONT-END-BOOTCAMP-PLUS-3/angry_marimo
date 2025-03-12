@@ -151,7 +151,7 @@ body {
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #3a3a3a;
     --foreground: #ededed;
   }
 }
