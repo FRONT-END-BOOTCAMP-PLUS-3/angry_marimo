@@ -43,14 +43,12 @@ const Canvas = () => {
     marimoImgSrc,
     updateMarimoStatusAndImgSrc,
     resetMarimoPosition,
+    fetchMarimoStatus,
+    adoptMarimo,
   } = useStore()
   const [marimoSizePx, setMarimoSizePx] = useState(80)
 
   const [isEscape, setIsEscape] = useState<boolean>(false)
-
-  // 마리모의 포지션이 어디있는 지 확인한다
-  // 마리모가 화면의 밖에 있다면, 화면 가운데 마리모 불러오기 버튼을 보여준다
-  // 버튼 클릭 시 마리모의 포지션이 50, 50으로 초기화 된다
 
   useEffect(() => {
     window.addEventListener("resize", handleCanvasResize)
@@ -71,6 +69,11 @@ const Canvas = () => {
   }
 
   const animateMarimo = () => {
+    if (marimo?.status === "dead") {
+      setBounce(0) // 죽은 상태일 때 bounce 제거
+      return
+    }
+
     if (!isDragging && canvasRef.current) {
       const newBounce = bounce + velocity
       if (newBounce > 12 || newBounce < -12) {
@@ -85,6 +88,7 @@ const Canvas = () => {
 
   useEffect(() => {
     updateMarimoStatusAndImgSrc()
+    fetchMarimoStatus()
   }, [trashItems?.length])
 
   useEffect(() => {
@@ -197,8 +201,8 @@ const Canvas = () => {
     const rect = canvasRef.current?.getBoundingClientRect()
     if (!rect || !marimo) return
 
-    const x = event.clientX - rect.left // 클릭한 x 좌표를 캔버스 상대 좌표로 변환
-    const y = event.clientY - rect.top //클릭한 y 좌표를 캔버스 상대 좌표로 변환
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
     if (
       x > marimoPosition.x &&
       x < marimoPosition.x + marimoSizePx &&
@@ -206,7 +210,7 @@ const Canvas = () => {
       y < marimoPosition.y + marimoSizePx
     ) {
       setIsDragging(true)
-      setStartPosition({ x: x - marimoPosition.x, y: y - marimoPosition.y }) // 드래그 시작 위치를 저장
+      setStartPosition({ x: x - marimoPosition.x, y: y - marimoPosition.y })
     }
   }
 
@@ -228,7 +232,6 @@ const Canvas = () => {
       canvas.style.cursor = "default"
     }
 
-    // 드래그 상태일 때만 위치 업데이트
     if (isDragging) {
       const newX = Math.min(
         Math.max(0, x - startPosition.x),
@@ -236,7 +239,7 @@ const Canvas = () => {
       )
       const newY = Math.min(
         Math.max(0, y - startPosition.y),
-        canvasHeight - 200, //마리모 size + 100 (헤더 사이즈)
+        canvasHeight - 200,
       )
       setMarimoPosition({ x: newX, y: newY })
     }
@@ -254,11 +257,10 @@ const Canvas = () => {
     }
     try {
       const response = await fetch(`/api/marimo/${user.id}`, {
-        method: "POST",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({}),
       })
       if (!response.ok) {
         throw new Error("Failed to fetch data")
@@ -268,7 +270,8 @@ const Canvas = () => {
       setMarimo({
         ...data.user,
       })
-      console.log("marimo를 잘 데려왔습니다.", data.user)
+      updateMarimoStatusAndImgSrc()
+      fetchMarimoStatus()
     } catch (error) {
       console.error("API Error:", error)
     }
@@ -304,8 +307,8 @@ const Canvas = () => {
     const touch = event.touches[0]
     const rect = canvasRef.current?.getBoundingClientRect()
     if (!rect || !marimo) return
-    const x = touch.clientX - rect.left // 클릭한 x 좌표를 캔버스 상대 좌표로 변환
-    const y = touch.clientY - rect.top // 클릭한 y 좌표를 캔버스 상대 좌표로 변환
+    const x = touch.clientX - rect.left
+    const y = touch.clientY - rect.top
 
     if (
       x > marimoPosition.x &&
@@ -314,7 +317,7 @@ const Canvas = () => {
       y < marimoPosition.y + marimoSizePx
     ) {
       setIsDragging(true)
-      setStartPosition({ x: x - marimoPosition.x, y: y - marimoPosition.y }) // 드래그 시작 위치를 저장
+      setStartPosition({ x: x - marimoPosition.x, y: y - marimoPosition.y })
     }
   }
 
@@ -339,7 +342,6 @@ const Canvas = () => {
 
   useEffect(() => {
     const handleBeforeUnload = async () => {
-      // 이벤트의 기본 동작을 막지 않고 업데이트 함수를 바로 호출합니다.
       await updateMarimo()
     }
 
@@ -367,8 +369,23 @@ const Canvas = () => {
 
   return (
     <div>
+      {marimo?.status === "dead" && (
+        <div className={styles.button__div}>
+          <button
+            onClick={(event) => {
+              event.preventDefault()
+
+              adoptMarimo()
+            }}
+            className={styles.common_button}
+          >
+            새 마리모 입양하기
+          </button>
+        </div>
+      )}
+
       {isEscape && (
-        <div className={styles.escape__div}>
+        <div className={styles.button__div}>
           <button
             onClick={(event) => {
               event.preventDefault()
@@ -376,7 +393,7 @@ const Canvas = () => {
               setIsEscape(false)
               resetMarimoPosition()
             }}
-            className={styles.escape__button}
+            className={styles.common_button}
           >
             마리모 중앙으로 불러오기
           </button>
