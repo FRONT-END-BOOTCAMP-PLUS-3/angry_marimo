@@ -37,7 +37,6 @@ export const useWorker = () => {
       console.error("❌ Web Workers를 지원하지 않는 환경입니다.")
       return
     }
-
     try {
       worker.current = new Worker(
         new URL("/public/workers/object-worker", import.meta.url),

@@ -47,4 +47,18 @@ export class TrashToObjectUseCase {
       throw new Error(`TrashToObjectUseCase.execute error: ${error}`)
     }
   }
+
+  async executeAll(marimoId: number, trashItems: IObjectDto[]) {
+    if (!Array.isArray(trashItems) || trashItems.length === 0) {
+      throw new Error("Invalid trashItems array")
+    }
+
+    const formattedItems = trashItems.map((item) => ({
+      ...item,
+      marimoId,
+      rect: item.rect as InputJsonValue,
+    }))
+
+    return this.objectRepository.createAll(formattedItems)
+  }
 }

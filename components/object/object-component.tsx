@@ -40,7 +40,7 @@ export const useObjectComponent = () => {
       terminateWorker()
       setIsWorkerRunning(false)
     }
-  }, 20000)
+  }, 2000)
 
   return <></>
 }

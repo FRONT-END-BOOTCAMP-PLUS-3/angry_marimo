@@ -5,11 +5,25 @@ import { PgObjectRepository } from "@marimo/infrastructure/repositories/pg-objec
 import { PrismaClient } from "@prisma/client"
 import { TrashToObjectUseCase } from "@marimo/application/usecases/object/trash-object-usecase"
 
-export async function GET() {
-  const response = NextResponse.json({ message: "쓰레기를 생성합니다." })
-  response.ok
-}
+export async function GET(request: NextRequest) {
+  try {
+    const marimoId = Number(request.nextUrl.searchParams.get("marimoId"))
 
+    if (!marimoId) {
+      return NextResponse.json(
+        { error: "Missing marimoID data" },
+        { status: 404 },
+      )
+    }
+    const objectRepository = new PgObjectRepository(new PrismaClient())
+    const activeObject = await objectRepository.findAllByMarimoId(marimoId)
+
+    return NextResponse.json({ activeObject }, { status: 200 })
+  } catch (error) {
+    console.error("❌ [오류 발생] Error handling request:", error)
+    return NextResponse.json({ error: "Invalid JSON format" }, { status: 400 })
+  }
+}
 export async function POST(request: NextRequest) {
   try {
     if (request.headers.get("Content-type") !== "application/json") {
@@ -60,20 +74,15 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    if (request.headers.get("content-type") !== "application/json") {
-      return NextResponse.json(
-        { error: "Invalid Content-Type" },
-        { status: 400 },
-      )
-    }
-
     const body = await request.json()
+
     if (!body) {
       return NextResponse.json({ error: "Empty request body" }, { status: 400 })
     }
 
-    const { id, marimoId, isActive, updatedAt } = body
-    if (!id || !marimoId || !updatedAt || !isActive) {
+    const { id } = body
+
+    if (!id) {
       return NextResponse.json(
         { error: "Invalid data format" },
         { status: 400 },
@@ -81,16 +90,14 @@ export async function PUT(request: NextRequest) {
     }
 
     const repository = new PgObjectRepository(new PrismaClient())
-    const existingObject = await repository.findById(id)
+    const existingObject = await repository.update(id)
 
     if (!existingObject) {
       return NextResponse.json({ error: "Object not found" }, { status: 404 })
     }
-    await repository.update(marimoId, isActive, updatedAt)
 
     return NextResponse.json({ success: true }, { status: 200 })
   } catch (error) {
-    console.error("❌ Update error:", error)
     return NextResponse.json(
       { error: "Failed to update object" },
       { status: 500 },
