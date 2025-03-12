@@ -52,11 +52,7 @@ export const createMarimoSlice: StateCreator<
   leftTwerkingMarimoSrc: "/images/left-twerking-marimo.svg",
   rightTwerkingMarimoSrc: "/images/right-twerking-marimo.svg",
 
-  setMarimo: (marimo: TMarimo) => {
-    console.log("marimo ---> ", marimo)
-    set({ marimo, trashItems: marimo.objects })
-  },
-
+  setMarimo: (marimo: TMarimo) => set({ marimo, trashItems: marimo.objects }),
   setImages: (
     marimoSrc,
     deadMarimoSrc,
