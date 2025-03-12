@@ -35,6 +35,7 @@ export type TMarimoSlice = {
     leftTwerkingMarimoSrc: string,
     rightTwerkingMarimoSrc: string,
   ) => void
+  resetImages: () => void
   updateMarimoStatusAndImgSrc: () => void
 }
 
@@ -68,6 +69,15 @@ export const createMarimoSlice: StateCreator<
       deadMarimoSrc,
       leftTwerkingMarimoSrc,
       rightTwerkingMarimoSrc,
+    }),
+
+  resetImages: () =>
+    set({
+      marimoImgSrc: "/images/marimo.svg",
+      marimoSrc: "/images/marimo.svg",
+      deadMarimoSrc: "/images/dead-marimo.svg",
+      leftTwerkingMarimoSrc: "/images/left-twerking-marimo.svg",
+      rightTwerkingMarimoSrc: "/images/right-twerking-marimo.svg",
     }),
 
   updateMarimoStatusAndImgSrc: () => {

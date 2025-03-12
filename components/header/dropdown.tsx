@@ -11,7 +11,7 @@ import { useStore } from "@marimo/stores/use-store"
 export const Dropdown = () => {
   const route = useRouter()
 
-  const { user } = useStore()
+  const { user, resetImages } = useStore()
 
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -32,6 +32,7 @@ export const Dropdown = () => {
     document.cookie = `token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`
 
     setIsOpen(false)
+    resetImages()
 
     route.push("/login")
   }

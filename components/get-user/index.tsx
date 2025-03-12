@@ -9,7 +9,7 @@ import { useStore } from "@marimo/stores/use-store"
 const url = process.env.NEXT_PUBLIC_URL
 
 export const GetUser = () => {
-  const { setUser, clearUser, setMarimo } = useStore()
+  const { setUser, clearUser, setMarimo, resetImages } = useStore()
 
   const logoutHandler = async () => {
     await fetch("/api/logout", {
@@ -19,6 +19,8 @@ export const GetUser = () => {
     })
 
     document.cookie = `token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`
+
+    resetImages()
 
     redirect("/login")
   }
