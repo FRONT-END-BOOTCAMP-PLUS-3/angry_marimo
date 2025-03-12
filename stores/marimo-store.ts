@@ -165,7 +165,6 @@ export const createMarimoSlice: StateCreator<
 
     const marimo = await response.json()
 
-    console.log("changeMarimo marimo ----> ", marimo)
     set({
       marimo,
       trashItems: [],
