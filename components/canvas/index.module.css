@@ -1,3 +1,28 @@
 .canvas {
   background-color: var(--background);
 }
+
+.escape__div {
+  width: 100%;
+  height: 100%;
+
+  position: fixed;
+}
+
+.escape__button {
+  padding: 1rem;
+  border-radius: 1rem;
+
+  position: absolute;
+  top: 40%;
+  left: 40%;
+
+  background: var(--secondary-color);
+
+  cursor: pointer;
+}
+
+.escape__button:hover {
+  background: var(--primary-color);
+  color: var(--base-white);
+}

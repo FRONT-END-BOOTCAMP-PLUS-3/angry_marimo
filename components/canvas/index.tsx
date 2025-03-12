@@ -42,8 +42,15 @@ const Canvas = () => {
     closeActive,
     marimoImgSrc,
     updateMarimoStatusAndImgSrc,
+    resetMarimoPosition,
   } = useStore()
   const [marimoSizePx, setMarimoSizePx] = useState(80)
+
+  const [isEscape, setIsEscape] = useState<boolean>(false)
+
+  // 마리모의 포지션이 어디있는 지 확인한다
+  // 마리모가 화면의 밖에 있다면, 화면 가운데 마리모 불러오기 버튼을 보여준다
+  // 버튼 클릭 시 마리모의 포지션이 50, 50으로 초기화 된다
 
   useEffect(() => {
     window.addEventListener("resize", handleCanvasResize)
@@ -162,6 +169,19 @@ const Canvas = () => {
     )
   }
   useEffect(() => {
+    if (!canvasWidth || !canvasHeight || !marimoPosition) return
+
+    if (
+      marimoPosition.x < -marimoSizePx ||
+      marimoPosition.x > canvasWidth ||
+      marimoPosition.y < -marimoSizePx ||
+      marimoPosition.y > canvasHeight - marimoSizePx
+    ) {
+      setIsEscape(true)
+    } else {
+      setIsEscape(false)
+    }
+
     drawOnCanvas()
   }, [
     marimoPosition,
@@ -347,6 +367,21 @@ const Canvas = () => {
 
   return (
     <div>
+      {isEscape && (
+        <div className={styles.escape__div}>
+          <button
+            onClick={(event) => {
+              event.preventDefault()
+
+              setIsEscape(false)
+              resetMarimoPosition()
+            }}
+            className={styles.escape__button}
+          >
+            마리모 중앙으로 불러오기
+          </button>
+        </div>
+      )}
       <canvas
         ref={canvasRef}
         className={styles.canvas}

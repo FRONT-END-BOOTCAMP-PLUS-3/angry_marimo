@@ -23,6 +23,8 @@ export type TMarimoSlice = {
   leftTwerkingMarimoSrc: string
   rightTwerkingMarimoSrc: string
 
+  resetMarimoPosition: () => void
+
   setImages: (
     marimoSrc: string,
     deadMarimoSrc: string,
@@ -95,6 +97,17 @@ export const createMarimoSlice: StateCreator<
       marimoImgSrc: get().marimoSrc,
     })
   },
+
+  resetMarimoPosition: () =>
+    set({
+      marimo: {
+        ...get().marimo,
+        rect: JSON.stringify({
+          x: 50,
+          y: 50,
+        }),
+      } as TMarimo,
+    }),
 
   changeMarimo: async () => {
     // 기존 마리모의 상태를 dead로 업데이트 한다
