@@ -25,21 +25,17 @@ export class MarimoUsecase {
     }
   }
 
-  private async createDefaultMarimo(userId: number): Promise<Marimo> {
+  async createDefaultMarimo(userId: number): Promise<Marimo> {
     const defaultMarimo = {
       name: "marimo",
       userId: userId,
-      size: 80,
+      size: 5,
       rect: JSON.stringify({ x: 50, y: 50 }),
-      color: "#89a45f", // Default color
-      status: "angry", // Default status
+      color: "#89a45f",
+      status: "angry",
     }
 
     return this.marimoRepository.createDefaultMarimo(defaultMarimo)
-
-    // return this.prisma.marimo.create({
-    //   data: defaultMarimo,
-    // })
   }
 
   async updateMarimo(marimoData: Marimo) {
