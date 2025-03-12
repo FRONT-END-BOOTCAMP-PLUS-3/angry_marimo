@@ -407,10 +407,12 @@ const Canvas = () => {
       {marimo?.status === "dead" && (
         <div className={styles.button__div}>
           <button
-            onClick={(event) => {
+            onClick={async (event) => {
               event.preventDefault()
 
-              adoptMarimo()
+              setIsLoading(true)
+              await adoptMarimo()
+              setIsLoading(false)
             }}
             className={styles.common_button}
           >

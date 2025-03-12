@@ -20,12 +20,9 @@ export interface ObjectRepository {
       url: string
       level: number
     }[],
-  ): Promise<void>
+  ): Promise<ObjectItem[]>
 
-  update(
-    id: number,
-    isActive: boolean,
-  ): Promise<Omit<ObjectItem, "id">>
+  update(id: number, isActive: boolean): Promise<Omit<ObjectItem, "id">>
 
   findById(id: number): Promise<ObjectItem | null>
 

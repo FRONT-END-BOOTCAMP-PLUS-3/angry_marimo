@@ -27,7 +27,7 @@ export type TMarimoSlice = {
 
   resetMarimoPosition: () => void
   fetchMarimoStatus: () => void
-  adoptMarimo: () => void
+  adoptMarimo: () => Promise<void>
 
   setImages: (
     marimoSrc: string,
@@ -181,12 +181,12 @@ export const createMarimoSlice: StateCreator<
 
     set({
       marimo,
+      trashItems: marimo.objects,
       marimoImgSrc: "/images/marimo.svg",
       marimoSrc: "/images/marimo.svg",
       deadMarimoSrc: "/images/dead-marimo.svg",
       leftTwerkingMarimoSrc: "/images/left-twerking-marimo.svg",
       rightTwerkingMarimoSrc: "/images/right-twerking-marimo.svg",
-      trashItems: [],
     })
   },
 })

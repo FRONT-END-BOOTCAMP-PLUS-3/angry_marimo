@@ -1,8 +1,8 @@
 import { getTrashImage } from "@marimo/public/utils/level-image"
 import { randomLocation } from "@marimo/public/utils/random-location"
 
-import { PrismaClient, Marimo } from "@prisma/client"
 import { InputJsonValue } from "@prisma/client/runtime/client"
+import { PrismaClient, Marimo, Object as IObject } from "@prisma/client"
 import { MarimoRepository, ObjectRepository } from "@marimo/domain/repositories"
 
 export class MarimoUsecase {
@@ -32,7 +32,9 @@ export class MarimoUsecase {
     }
   }
 
-  async createDefaultMarimo(userId: number): Promise<Marimo> {
+  async createDefaultMarimo(
+    userId: number,
+  ): Promise<Marimo & { objects: IObject[] }> {
     const defaultMarimo = {
       name: "marimo",
       userId: userId,
@@ -42,22 +44,8 @@ export class MarimoUsecase {
       status: "angry",
     }
 
-    return this.marimoRepository.createDefaultMarimo(defaultMarimo)
-  }
-
-  async updateMarimo(marimoData: Marimo) {
-    const { id, userId, name, size, rect, color, src, status } = marimoData
-
-    const newMarimo = await this.marimoRepository.updateMarimo(id, {
-      id,
-      userId,
-      name,
-      src,
-      size,
-      rect,
-      color,
-      status,
-    })
+    const newMarimo =
+      await this.marimoRepository.createDefaultMarimo(defaultMarimo)
 
     if (!newMarimo) throw new Error("마리모 생성 실패")
 
@@ -92,5 +80,20 @@ export class MarimoUsecase {
       ...newMarimo,
       objects: trashItems,
     }
+  }
+
+  async updateMarimo(marimoData: Marimo) {
+    const { id, userId, name, size, rect, color, src, status } = marimoData
+
+    return this.marimoRepository.updateMarimo(id, {
+      id,
+      userId,
+      name,
+      src,
+      size,
+      rect,
+      color,
+      status,
+    })
   }
 }
