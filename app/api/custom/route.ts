@@ -4,9 +4,12 @@ import { NextRequest, NextResponse } from "next/server"
 import { PgCouponRepository } from "@marimo/infrastructure/repositories/pg-coupon-repository"
 
 import { PrismaClient } from "@prisma/client"
-import { PgMarimoRepository } from "@marimo/infrastructure/repositories"
 import { UserUsecase } from "@marimo/application/usecases/auth/user-usecase"
 import { CustomUsecase } from "@marimo/application/usecases/custom/custom-usecase"
+import {
+  PgMarimoRepository,
+  PgUserRepository,
+} from "@marimo/infrastructure/repositories"
 
 export async function GET() {
   const cookieStore = await cookies()
@@ -18,7 +21,9 @@ export async function GET() {
     if (!token)
       return NextResponse.json({ message: "login failed" }, { status: 401 })
 
-    const userUsecase = new UserUsecase()
+    const userUsecase = new UserUsecase(
+      new PgUserRepository(new PrismaClient()),
+    )
     const user = await userUsecase.getUser(token)
 
     if (!user)
@@ -84,7 +89,9 @@ export async function PUT(request: NextRequest) {
     if (!token)
       return NextResponse.json({ message: "login failed" }, { status: 401 })
 
-    const userUsecase = new UserUsecase()
+    const userUsecase = new UserUsecase(
+      new PgUserRepository(new PrismaClient()),
+    )
     const user = await userUsecase.getUser(token)
 
     if (!user)

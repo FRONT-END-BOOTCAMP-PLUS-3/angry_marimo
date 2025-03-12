@@ -88,6 +88,20 @@ export const Dropdown = () => {
             마리모팀 후원하기
           </button>
           <hr className={hr} />
+          <button
+            className={button}
+            onClick={(event) => {
+              event.stopPropagation()
+
+              if (!user) return
+
+              setIsOpen(false)
+              route.push(`/guest-book/${user.id}`)
+            }}
+          >
+            나의 방명록
+          </button>
+          <hr className={hr} />
           <button className={button} onClick={logoutHandler}>
             로그아웃
           </button>

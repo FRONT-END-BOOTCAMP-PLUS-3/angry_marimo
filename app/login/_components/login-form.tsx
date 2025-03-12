@@ -14,7 +14,7 @@ import styles from "@marimo/app/login/_components/login-form.module.css"
 import { useStore } from "@marimo/stores/use-store"
 import { LOGIN_TEXT, EMAIL_TEXT, PASSWORD_TEXT } from "@marimo/constants"
 
-const { button, input__gap } = styles
+const { button, input__gap, info, info__div } = styles
 
 const LoginForm = () => {
   const searchParams = useSearchParams()
@@ -48,6 +48,10 @@ const LoginForm = () => {
 
   return (
     <div className={input__gap}>
+      <div className={info}>
+        <p>🌱 환영합니다!</p>
+        <p>당신의 마리모는 이미 화가 나 있어요. 잘 달래서 키워볼까요?</p>
+      </div>
       <Input label={EMAIL_TEXT} setState={setEmail} />
       <Input label={PASSWORD_TEXT} setState={setPassword} />
       <button
@@ -57,6 +61,7 @@ const LoginForm = () => {
       >
         {LOGIN_TEXT}
       </button>
+      <p>아이디와 비밀번호를 입력하면 자동 회원가입 후 로그인됩니다.</p>
     </div>
   )
 }
