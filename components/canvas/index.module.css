@@ -2,14 +2,14 @@
   background-color: var(--background);
 }
 
-.escape__div {
+.button__div {
   width: 100%;
   height: 100%;
 
   position: fixed;
 }
 
-.escape__button {
+.common_button {
   padding: 1rem;
   border-radius: 1rem;
 
@@ -22,7 +22,7 @@
   cursor: pointer;
 }
 
-.escape__button:hover {
+.common_button:hover {
   background: var(--primary-color);
   color: var(--base-white);
 }

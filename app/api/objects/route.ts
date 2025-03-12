@@ -36,7 +36,6 @@ export async function POST(request: NextRequest) {
     if (!body) {
       return NextResponse.json({ error: "Empty request body" }, { status: 400 })
     }
-
     const { marimoId, trashData } = body
     if (!marimoId || !trashData) {
       return NextResponse.json(

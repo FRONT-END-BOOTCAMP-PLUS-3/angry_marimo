@@ -1,6 +1,7 @@
 import type { StateCreator } from "zustand"
 
 import { State } from "@marimo/stores/use-store"
+import { Object as IObject } from "@prisma/client"
 
 export type TMarimo = {
   id: number
@@ -11,6 +12,7 @@ export type TMarimo = {
   rect: string
   color: string
   status: string
+  object: IObject[]
 }
 
 export type TMarimoSlice = {
@@ -24,6 +26,8 @@ export type TMarimoSlice = {
   rightTwerkingMarimoSrc: string
 
   resetMarimoPosition: () => void
+  fetchMarimoStatus: () => void
+  adoptMarimo: () => void
 
   setImages: (
     marimoSrc: string,
@@ -48,7 +52,7 @@ export const createMarimoSlice: StateCreator<
   leftTwerkingMarimoSrc: "/images/left-twerking-marimo.svg",
   rightTwerkingMarimoSrc: "/images/right-twerking-marimo.svg",
 
-  setMarimo: (marimo: TMarimo) => set({ marimo }),
+  setMarimo: (marimo: TMarimo) => set({ marimo, trashItems: marimo.object }),
 
   setImages: (
     marimoSrc,
@@ -67,14 +71,24 @@ export const createMarimoSlice: StateCreator<
     if (!get().trashItems) return
 
     if (get().trashItems?.length === 0) {
-      return set({
+      set({
         marimo: {
           ...(get().marimo as TMarimo),
           status: "happy",
         },
-
-        marimoImgSrc: get().leftTwerkingMarimoSrc,
       })
+
+      let toggle = false
+      const intervalId = setInterval(() => {
+        set({
+          marimoImgSrc: toggle
+            ? get().leftTwerkingMarimoSrc
+            : get().rightTwerkingMarimoSrc,
+        })
+        toggle = !toggle
+      }, 500)
+
+      return
     }
 
     if ((get().trashItems?.length as number) > 30) {
@@ -98,6 +112,31 @@ export const createMarimoSlice: StateCreator<
     })
   },
 
+  fetchMarimoStatus: async () => {
+    const marimo = get().marimo
+
+    if (!marimo) return
+
+    const response = await fetch(`/api/marimo/update/${marimo.id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ...marimo }),
+    })
+
+    if (!response.ok) {
+      console.error("Failed to update marimo.")
+      return
+    }
+
+    const updatedData = await response.json()
+
+    return set({
+      marimo: updatedData,
+    })
+  },
+
   resetMarimoPosition: () =>
     set({
       marimo: {
@@ -109,15 +148,29 @@ export const createMarimoSlice: StateCreator<
       } as TMarimo,
     }),
 
-  changeMarimo: async () => {
-    // 기존 마리모의 상태를 dead로 업데이트 한다
-    // const fetchedMarimo = await fetch('/api/marimo', { method : "PUT", data : {status : 'dead'}})
+  adoptMarimo: async () => {
+    const user = get().user
+
+    if (!user) return
+
     // 새로운 마리모를 생성한다
-    // const response = await fetch('/api/marimo', { method : "POST", data : {status : 'angry'}})
-    // 새로운 마리모가 잘 만들어졌는 지 확인한다
-    // if(!response.ok) alert("다시 시도해주세요?")
-    // 두 패치가 잘 됐으면 주스탄드 업데이트
-    // const marimo = await response.json()
-    // set({ marimo, trashItems : [] })
+    const response = await fetch(`/api/marimo/${user.id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch create data")
+    }
+
+    const marimo = await response.json()
+
+    console.log("changeMarimo marimo ----> ", marimo)
+    set({
+      marimo,
+      trashItems: [],
+    })
   },
 })
