@@ -24,6 +24,7 @@ export type TMarimoSlice = {
   deadMarimoSrc: string
   leftTwerkingMarimoSrc: string
   rightTwerkingMarimoSrc: string
+  intervalId: NodeJS.Timeout | null
 
   resetMarimoPosition: () => void
   fetchMarimoStatus: () => void
@@ -52,8 +53,10 @@ export const createMarimoSlice: StateCreator<
   deadMarimoSrc: "/images/dead-marimo.svg",
   leftTwerkingMarimoSrc: "/images/left-twerking-marimo.svg",
   rightTwerkingMarimoSrc: "/images/right-twerking-marimo.svg",
+  intervalId: null as NodeJS.Timeout | null,
 
   setMarimo: (marimo: TMarimo) => set({ marimo, trashItems: marimo.objects }),
+
   setImages: (
     marimoSrc,
     deadMarimoSrc,
@@ -83,6 +86,12 @@ export const createMarimoSlice: StateCreator<
   updateMarimoStatusAndImgSrc: () => {
     if (!get().trashItems) return
 
+    const interval = get().intervalId
+    if (interval !== null && interval !== undefined) {
+      clearInterval(interval)
+      set({ intervalId: null })
+    }
+
     if (get().trashItems?.length === 0) {
       set({
         marimo: {
@@ -92,14 +101,16 @@ export const createMarimoSlice: StateCreator<
       })
 
       let toggle = false
-      // intervalId = setInterval(() => {
-      set({
-        marimoImgSrc: toggle
-          ? get().leftTwerkingMarimoSrc
-          : get().rightTwerkingMarimoSrc,
-      })
-      toggle = !toggle
-      // }, 500)
+      const newIntervalId = setInterval(() => {
+        set({
+          marimoImgSrc: toggle
+            ? get().leftTwerkingMarimoSrc
+            : get().rightTwerkingMarimoSrc,
+        })
+        toggle = !toggle
+      }, 500)
+
+      set({ intervalId: newIntervalId })
       return
     }
 
@@ -149,7 +160,13 @@ export const createMarimoSlice: StateCreator<
     })
   },
 
-  resetMarimoPosition: () =>
+  resetMarimoPosition: () => {
+    const interval = get().intervalId
+    if (interval !== null && interval !== undefined) {
+      clearInterval(interval)
+      set({ intervalId: null })
+    }
+
     set({
       marimo: {
         ...get().marimo,
@@ -158,7 +175,8 @@ export const createMarimoSlice: StateCreator<
           y: 50,
         }),
       } as TMarimo,
-    }),
+    })
+  },
 
   adoptMarimo: async () => {
     const user = get().user
