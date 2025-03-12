@@ -43,10 +43,10 @@ export class CustomUsecase {
   }
 
   async updateCustom(
-    marimo: Marimo & { object: TObject[] },
+    marimo: Marimo & { objects: TObject[] },
     coupon: Coupon,
   ): Promise<UpdateCustomDto> {
-    const { createdAt, updatedAt, object, ...customMarimo } = marimo
+    const { createdAt, updatedAt, objects, ...customMarimo } = marimo
 
     const updatedMarimo = await this.marimoRepository.updateMarimo(
       marimo.id,
