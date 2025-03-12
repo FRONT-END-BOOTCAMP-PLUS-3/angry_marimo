@@ -12,13 +12,12 @@ export class PgMarimoRepository implements MarimoRepository {
           userId: userId,
         },
         include: {
-          object: true, // 관련된 object 정보도 함께 가져옵니다.
+          objects: true, // 관련된 object 정보도 함께 가져옵니다.
         },
         orderBy: {
           createdAt: "desc",
         },
       })
-
       return AliveMarimo
     } catch (error) {
       console.error("Error fetching alive marimos:", error)
@@ -52,6 +51,7 @@ export class PgMarimoRepository implements MarimoRepository {
     status: string
   }): Promise<Marimo> {
     try {
+      console.log("her??????????")
       const newMarimo = await prisma.marimo.create({
         data: defaultMarimo,
       })

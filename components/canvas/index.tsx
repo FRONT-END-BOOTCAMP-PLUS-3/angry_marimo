@@ -106,6 +106,7 @@ const Canvas = () => {
   }
   const loadTrashImages = () => {
     if (!trashItems) return
+    setLoadedTrashImages([])
     trashItems.forEach((item) => {
       const img = new Image()
       img.src = item.url
@@ -125,6 +126,7 @@ const Canvas = () => {
   useEffect(() => {
     console.log("로드된 쓰레기 이미지 객체는", loadedTrashImages)
   }, [loadedTrashImages])
+
   const drawOnCanvas = () => {
     if (canvasRef.current) {
       const canvas = canvasRef.current

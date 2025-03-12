@@ -36,7 +36,7 @@ model Marimo {
   src       String    @default("/images/marimo.svg")
   history   History[]
   user      User      @relation(fields: [userId], references: [id])
-  object    Object[]
+  objects   Object[]  @relation("MarimoToObjectRelation")
   orders    Order[]
 
   @@map("marimos")
@@ -52,7 +52,7 @@ model Object {
   updatedAt DateTime @updatedAt
   level     Int
   url       String
-  marimo    Marimo   @relation(fields: [marimoId], references: [id])
+  marimo    Marimo   @relation("MarimoToObjectRelation", fields: [marimoId], references: [id])
 
   @@map("objects")
 }

@@ -45,17 +45,19 @@ export const GetUser = () => {
       }
 
       const marimoResponse = await fetch(`${url}/api/marimo/${user.id}`, {
-        method: "POST",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({}),
-      }).then((res) => res.json())
+      })
 
-      const marimo = marimoResponse.user
+      if (marimoResponse.ok) {
+        const result = await marimoResponse.json()
+        const marimo = result.user
+        setMarimo(marimo)
+      }
 
       setUser(user)
-      if (marimo) setMarimo(marimo)
     } catch (error) {
       console.error("get-user error --->", error)
     }
