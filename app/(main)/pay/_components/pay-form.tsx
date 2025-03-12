@@ -62,7 +62,7 @@ export const PayForm = () => {
     if (user === null) return
 
     const response = await fetch(`/api/marimo/${user.id}`, {
-      method: "POST",
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
