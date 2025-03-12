@@ -17,7 +17,7 @@ const FeedbackButton = () => {
     isVisible && (
       <div aria-label="feedback_id" className={container}>
         <button onClick={() => setIsVisible(false)} className={buttonHidden}>
-          x
+          X
         </button>
         <Link href={FEED_BACK_BUTTON} target="_blank">
           <div className={balloon}>

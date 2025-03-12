@@ -9,13 +9,14 @@
 }
 .buttonHidden {
   background-color: #9999;
-  padding: 2px 4px;
+  padding: 4px 6px;
   position: absolute;
   top: -8px;
   right: -6px;
   z-index: 9999;
   cursor: pointer;
   border-radius: 10px;
+  font-size: 10px;
 } 
 .button {
   animation: bounce 1.5s infinite;
