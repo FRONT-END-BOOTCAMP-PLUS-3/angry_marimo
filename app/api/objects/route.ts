@@ -71,6 +71,62 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// export async function POST(request: NextRequest) {
+//   /*
+//   { 이런식으로 데이터 보내면 됨. - 확인 완료
+//   "marimoId": 29,
+//   "trashItems": [
+//     {
+//       "type": "trash",
+//       "rect": { "x": 100, "y": 200 },
+//       "isActive": true,
+//       "url": "image1.jpeg",
+//       "level": 1
+//     },
+//     {
+//       "type": "trash",
+//       "rect": { "x": 300, "y": 400 },
+//       "isActive": true,
+//       "url": "image2.jpeg",
+//       "level": 2
+//     }
+//   ]
+// }
+//    */
+//   try {
+//     if (request.headers.get("Content-type") !== "application/json") {
+//       return NextResponse.json(
+//         { error: "Invalid Content-Type" },
+//         { status: 400 },
+//       )
+//     }
+
+//     const body = await request.json()
+//     if (!body) {
+//       return NextResponse.json({ error: "Empty request body" }, { status: 400 })
+//     }
+
+//     const { marimoId, trashItems } = body
+//     if (!marimoId || !Array.isArray(trashItems) || trashItems.length === 0) {
+//       return NextResponse.json(
+//         { error: "Missing or invalid trashItems array" },
+//         { status: 400 },
+//       )
+//     }
+
+//     const usecase = new TrashToObjectUseCase(
+//       new PgObjectRepository(new PrismaClient()),
+//     )
+
+//     const objectItems = await usecase.executeAll(marimoId, trashItems)
+
+//     return NextResponse.json({ objectItems }, { status: 200 })
+//   } catch (error) {
+//     console.error("Error handling request:", error)
+//     return NextResponse.json({ error: "Server error" }, { status: 400 })
+//   }
+// }
+
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json()
