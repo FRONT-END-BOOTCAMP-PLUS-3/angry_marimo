@@ -10,14 +10,15 @@ export class PgMarimoRepository implements MarimoRepository {
       const AliveMarimo = await prisma.marimo.findFirst({
         where: {
           userId: userId,
-          status: {
-            not: "dead",
-          },
         },
         include: {
           object: true, // 관련된 object 정보도 함께 가져옵니다.
         },
+        orderBy: {
+          createdAt: "desc",
+        },
       })
+
       return AliveMarimo
     } catch (error) {
       console.error("Error fetching alive marimos:", error)
