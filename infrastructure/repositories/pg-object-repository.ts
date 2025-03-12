@@ -84,19 +84,18 @@ export class PgObjectRepository implements ObjectRepository {
     }
   }
 
-  async update(
-    id: number,
-    isActive: boolean,
-  ): Promise<Omit<ObjectItem, "id">> {
-
+  async update(id: number): Promise<ObjectItem> {
     try {
       const updateObject = await this.prisma.object.update({
         where: {
-          id: id,
+          id,
         },
-        data: { isActive },
+        data: {
+          isActive: false,
+        },
       })
-      return updateObject || null
+
+      return updateObject
     } catch (error) {
       throw new Error(`PgObjectRepository.update.error =========> \n ${error}`)
     } finally {

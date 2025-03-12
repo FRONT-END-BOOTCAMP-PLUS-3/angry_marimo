@@ -10,7 +10,7 @@ import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto"
 
 export const useWorker = () => {
   const worker = useRef<Worker>(null)
-  const { addTrashItem, marimo } = useStore()
+  const { addTrashItems, marimo } = useStore()
   const [isWorkerRunning, setIsWorkerRunning] = useState(true)
   const headerHeight = HEADER_HEIGHT
 
@@ -69,7 +69,30 @@ export const useWorker = () => {
           isActive: true,
           type: "trash",
         }
-        addTrashItem(newTrashItem)
+
+        try {
+          const response = await fetch(`/api/objects`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              marimoId: marimo.id,
+              trashData: newTrashItem,
+            }),
+          })
+
+          if (!response.ok) {
+            const errorText = await response.text()
+            throw new Error(
+              `🚨 API 요청 실패: ${response.status} - ${errorText}`,
+            )
+          }
+          const data = await response.json()
+          addTrashItems(data.objectItem)
+        } catch (error) {
+          console.error("❌ API 전송 중 오류 발생:", error)
+        }
       }
 
       worker.current.onerror = (error) => {
