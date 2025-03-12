@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { PgMarimoRepository } from "@marimo/infrastructure/repositories"
+import { PrismaClient } from "@prisma/client"
 import { MarimoUsecase } from "@marimo/application/usecases/marimo/marimo-usecase"
+import {
+  PgMarimoRepository,
+  PgObjectRepository,
+} from "@marimo/infrastructure/repositories"
 
 // 기존 마리모를 확인하고 있으면 반환, 아무 마리모도 없는 경우 새 마리모 생성
 export async function GET(
@@ -17,7 +21,10 @@ export async function GET(
   if (!token)
     return NextResponse.json({ message: "login failed" }, { status: 401 })
 
-  const usecase = new MarimoUsecase(new PgMarimoRepository())
+  const usecase = new MarimoUsecase(
+    new PgMarimoRepository(),
+    new PgObjectRepository(new PrismaClient()),
+  )
   const user = await usecase.ensureAliveMarimo(userId)
 
   if (!user || user === null)
@@ -40,7 +47,10 @@ export async function POST(
   if (!token)
     return NextResponse.json({ message: "login failed" }, { status: 401 })
 
-  const usecase = new MarimoUsecase(new PgMarimoRepository())
+  const usecase = new MarimoUsecase(
+    new PgMarimoRepository(),
+    new PgObjectRepository(new PrismaClient()),
+  )
   const marimo = await usecase.createDefaultMarimo(userId)
 
   return NextResponse.json(marimo, { status: 200 })

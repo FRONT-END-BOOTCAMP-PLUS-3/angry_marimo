@@ -1,11 +1,18 @@
 import { NextResponse, NextRequest } from "next/server"
 
-import { MarimoRepository } from "@marimo/domain/repositories"
-import { PgMarimoRepository } from "@marimo/infrastructure/repositories"
+import { PrismaClient } from "@prisma/client"
+import { MarimoRepository, ObjectRepository } from "@marimo/domain/repositories"
 import { MarimoUsecase } from "@marimo/application/usecases/marimo/marimo-usecase"
+import {
+  PgMarimoRepository,
+  PgObjectRepository,
+} from "@marimo/infrastructure/repositories"
 
 const marimoRepository: MarimoRepository = new PgMarimoRepository()
-const marimoUsecase = new MarimoUsecase(marimoRepository)
+const objectRepository: ObjectRepository = new PgObjectRepository(
+  new PrismaClient(),
+)
+const marimoUsecase = new MarimoUsecase(marimoRepository, objectRepository)
 
 export async function POST(req: NextRequest) {
   const marimoData = await req.json()

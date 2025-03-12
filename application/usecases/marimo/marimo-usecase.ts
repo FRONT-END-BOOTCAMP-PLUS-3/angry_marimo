@@ -1,10 +1,17 @@
+import { getTrashImage } from "@marimo/public/utils/level-image"
+import { randomLocation } from "@marimo/public/utils/random-location"
+
 import { PrismaClient, Marimo } from "@prisma/client"
-import { MarimoRepository } from "@marimo/domain/repositories"
+import { InputJsonValue } from "@prisma/client/runtime/client"
+import { MarimoRepository, ObjectRepository } from "@marimo/domain/repositories"
 
 export class MarimoUsecase {
   private prisma: PrismaClient
 
-  constructor(private marimoRepository: MarimoRepository) {
+  constructor(
+    private marimoRepository: MarimoRepository,
+    private objectRepository: ObjectRepository,
+  ) {
     this.prisma = new PrismaClient()
   }
 
@@ -41,7 +48,7 @@ export class MarimoUsecase {
   async updateMarimo(marimoData: Marimo) {
     const { id, userId, name, size, rect, color, src, status } = marimoData
 
-    return this.marimoRepository.updateMarimo(id, {
+    const newMarimo = await this.marimoRepository.updateMarimo(id, {
       id,
       userId,
       name,
@@ -51,5 +58,39 @@ export class MarimoUsecase {
       color,
       status,
     })
+
+    if (!newMarimo) throw new Error("마리모 생성 실패")
+
+    const points = randomLocation(5)
+
+    const newTrashItems = points.map((point) => {
+      const level = Math.floor(Math.random() * 3) + 1
+
+      return {
+        marimoId: newMarimo.id,
+        level,
+        url: getTrashImage(level),
+        rect: {
+          x: point.x * 70,
+          y: point.y * 70,
+        },
+        isActive: true,
+        type: "trash",
+      }
+    }) as {
+      marimoId: number
+      type: string
+      rect: InputJsonValue
+      isActive: boolean
+      url: string
+      level: number
+    }[]
+
+    const trashItems = await this.objectRepository.createAll(newTrashItems)
+
+    return {
+      ...newMarimo,
+      objects: trashItems,
+    }
   }
 }

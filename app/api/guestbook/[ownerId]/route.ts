@@ -8,6 +8,7 @@ import { MarimoUsecase } from "@marimo/application/usecases/marimo/marimo-usecas
 import { GuestBookUsecase } from "@marimo/application/usecases/guest-book/guestbook-usecase"
 import {
   PgMarimoRepository,
+  PgObjectRepository,
   PgUserRepository,
 } from "@marimo/infrastructure/repositories"
 
@@ -71,7 +72,10 @@ export async function GET(
     if (!owner)
       return NextResponse.json({ message: "owner not found" }, { status: 400 })
 
-    const marimoUsecase = new MarimoUsecase(new PgMarimoRepository())
+    const marimoUsecase = new MarimoUsecase(
+      new PgMarimoRepository(),
+      new PgObjectRepository(new PrismaClient()),
+    )
 
     const marimo = await marimoUsecase.ensureAliveMarimo(owner.id)
 
