@@ -60,6 +60,10 @@ export const createMarimoSlice: StateCreator<
     rightTwerkingMarimoSrc,
   ) =>
     set({
+      marimo: {
+        ...(get().marimo as TMarimo),
+        src: marimoSrc,
+      },
       marimoSrc,
       deadMarimoSrc,
       leftTwerkingMarimoSrc,

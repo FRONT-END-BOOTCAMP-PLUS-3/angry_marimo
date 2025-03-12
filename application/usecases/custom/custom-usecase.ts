@@ -67,15 +67,21 @@ export class CustomUsecase {
     imageData: Omit<MarimoImage, "id" | "createdAt" | "updatedAt">,
     coupon: Coupon,
   ): Promise<UpdateCustomDto> {
+    const { createdAt, updatedAt, ...newMarimo } = marimo
     const newImages = {
       ...imageData,
       marimoId: marimo.id,
     }
 
+    await this.marimoRepository.updateMarimo(marimo.id, {
+      ...newMarimo,
+      src: imageData.angry,
+    })
+
     const createdImages =
       await this.marimoImageRepository.createImages(newImages)
 
-    // await this.couponRepository.update(coupon.id)
+    await this.couponRepository.update(coupon.id)
 
     return { images: createdImages }
   }
