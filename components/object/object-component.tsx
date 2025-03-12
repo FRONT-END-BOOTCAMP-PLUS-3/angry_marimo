@@ -43,8 +43,7 @@ export const useObjectComponent = () => {
       terminateWorker()
       setIsWorkerRunning(false)
     } else {
-      terminateWorker()
-      setIsWorkerRunning(false)
+      worker.current.postMessage(1)
     }
   }, second)
 
