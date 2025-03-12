@@ -2,15 +2,15 @@
 
 import { redirect } from "next/navigation"
 
-import { useRef, useState } from "react"
+import { RefObject, useRef, useState } from "react"
 
 import ChangeColor from "@marimo/app/(main)/custom/_components/change-color"
 
 import styles from "@marimo/app/(main)/custom/_components/custom-form.module.css"
 
 import html2canvas from "html2canvas"
-import { Coupon, Marimo } from "@prisma/client"
 import { useStore } from "@marimo/stores/use-store"
+import { Coupon, Marimo, MarimoImage } from "@prisma/client"
 
 interface CustomFormProps {
   marimo: Marimo
@@ -28,9 +28,12 @@ const CustomForm = ({
   initialName,
   initialColor,
 }: CustomFormProps) => {
-  const { user } = useStore()
+  const { user, setImages } = useStore()
 
-  const captureRef = useRef<HTMLDivElement>(null)
+  const angryRef = useRef<HTMLDivElement>(null)
+  const leftTwerkRef = useRef<HTMLDivElement>(null)
+  const rightTwerkRef = useRef<HTMLDivElement>(null)
+  const deadRef = useRef<HTMLDivElement>(null)
 
   const {
     title_container,
@@ -48,26 +51,54 @@ const CustomForm = ({
   const [color, setColor] = useState<string>(initialColor)
 
   const captureImage = async () => {
-    if (captureRef.current) {
-      const canvas = await html2canvas(captureRef.current, {
-        backgroundColor: null,
-      })
+    if (
+      angryRef.current &&
+      leftTwerkRef.current &&
+      rightTwerkRef.current &&
+      deadRef.current
+    ) {
+      const refArr = [
+        { key: "angry", ref: angryRef },
+        { key: "leftTwerk", ref: leftTwerkRef },
+        { key: "rightTwerk", ref: rightTwerkRef },
+        { key: "dead", ref: deadRef },
+      ]
 
-      const imgData = canvas.toDataURL("image/png")
-
-      const fileName = `user${user?.id}marimo${new Date().getTime()}.png`
-
-      const byteString = atob(imgData.split(",")[1])
-      const arrayBuffer = new ArrayBuffer(byteString.length)
-      const uintArray = new Uint8Array(arrayBuffer)
-
-      for (let i = 0; i < byteString.length; i++) {
-        uintArray[i] = byteString.charCodeAt(i)
-      }
-
-      const blob = new Blob([uintArray], { type: "image/png" })
       const formData = new FormData()
-      formData.append("image", blob, fileName)
+
+      await Promise.all(
+        refArr.map(
+          async ({
+            key,
+            ref,
+          }: {
+            key: string
+            ref: RefObject<HTMLDivElement | null>
+          }) => {
+            if (!ref || !ref.current) return
+
+            const canvas = await html2canvas(ref.current, {
+              backgroundColor: null,
+            })
+
+            const imgData = canvas.toDataURL("image/png")
+
+            const fileName = `user${user?.id}${key}marimo${new Date().getTime()}.png`
+
+            const byteString = atob(imgData.split(",")[1])
+            const arrayBuffer = new ArrayBuffer(byteString.length)
+            const uintArray = new Uint8Array(arrayBuffer)
+
+            for (let i = 0; i < byteString.length; i++) {
+              uintArray[i] = byteString.charCodeAt(i)
+            }
+
+            const blob = new Blob([uintArray], { type: "image/png" })
+
+            formData.append(key, blob, fileName)
+          },
+        ),
+      )
 
       try {
         const response = await fetch("/api/custom", {
@@ -83,7 +114,7 @@ const CustomForm = ({
 
         const result = await response.json()
 
-        return result.src
+        return result
       } catch (error) {
         console.error("Error uploading image:", error)
       }
@@ -93,11 +124,9 @@ const CustomForm = ({
   const handleSubmit = async () => {
     if (!user || !user.id) return
 
-    const src: string = await captureImage()
+    const src: Partial<MarimoImage> = await captureImage()
 
-    console.log(src)
-
-    if (!src || typeof src !== "string") {
+    if (!src) {
       alert("마리모 저장에 실패했습니다, 다시 시도해주세요!")
       return
     }
@@ -110,18 +139,20 @@ const CustomForm = ({
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        marimo: {
-          ...marimo,
-          src,
-          name,
-          color,
-        },
+        marimo,
+        marimoImages: src,
         coupon: coupon.coupons[0],
       }),
     })
 
     if (!response.ok)
       return alert("업데이트에 실패했습니다! 다시 시도해주세요!")
+
+    const images = await response.json()
+
+    const { angry, dead, leftTwerk, rightTwerk } = images
+
+    setImages(angry, dead, leftTwerk, rightTwerk)
 
     redirect("/")
   }
@@ -155,7 +186,10 @@ const CustomForm = ({
             <button onClick={() => setColor(initialColor)}>되돌리기</button>
           </div>
           <ChangeColor
-            captureRef={captureRef}
+            angryRef={angryRef}
+            leftTwerkRef={leftTwerkRef}
+            rightTwerkRef={rightTwerkRef}
+            deadRef={deadRef}
             name={name}
             color={color}
             setColor={setColor}

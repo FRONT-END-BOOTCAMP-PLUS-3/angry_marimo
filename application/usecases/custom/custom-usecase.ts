@@ -2,10 +2,14 @@ import { CouponRepository } from "@marimo/domain/repositories/coupon-repository"
 
 import path from "path"
 import fs from "fs/promises"
-import { MarimoRepository } from "@marimo/domain/repositories"
-import { Coupon, Marimo, Object as TObject } from "@prisma/client"
+import { Coupon, Marimo, MarimoImage } from "@prisma/client"
+import {
+  MarimoImageRepository,
+  MarimoRepository,
+} from "@marimo/domain/repositories"
 import {
   GetDataDto,
+  PostImagesDto,
   UpdateCustomDto,
 } from "@marimo/application/usecases/custom/dto"
 
@@ -13,6 +17,7 @@ export class CustomUsecase {
   constructor(
     private couponRepository: CouponRepository,
     private marimoRepository: MarimoRepository,
+    private marimoImageRepository: MarimoImageRepository,
   ) {}
 
   async getData(userId: number): Promise<GetDataDto> {
@@ -27,34 +32,51 @@ export class CustomUsecase {
     }
   }
 
-  async saveMarimoImage(file: File): Promise<string> {
-    console.log("-------- saveMarimoImage --------")
+  async saveMarimoImage(
+    angry: File,
+    leftTwerk: File,
+    rightTwerk: File,
+    dead: File,
+  ): Promise<PostImagesDto> {
     const storageDir = process.env.NEXT_STORAGE_SRC ?? "../storage"
     const resolvedPath = path.resolve(storageDir)
 
     await fs.mkdir(resolvedPath, { recursive: true })
 
-    const filePath = path.join(storageDir, file.name)
+    const imageFileArr = [angry, leftTwerk, rightTwerk, dead]
 
-    const buffer = Buffer.from(await file.arrayBuffer())
-    await fs.writeFile(filePath, buffer)
+    await Promise.all(
+      imageFileArr.map(async (file) => {
+        const filePath = path.join(storageDir, file.name)
+        const buffer = Buffer.from(await file.arrayBuffer())
 
-    return `${process.env.NEXT_URL}/storage/${file.name}`
+        await fs.writeFile(filePath, buffer)
+      }),
+    )
+
+    return {
+      angry: `${process.env.NEXT_URL}/storage/${angry.name}`,
+      leftTwerk: `${process.env.NEXT_URL}/storage/${leftTwerk.name}`,
+      rightTwerk: `${process.env.NEXT_URL}/storage/${rightTwerk.name}`,
+      dead: `${process.env.NEXT_URL}/storage/${dead.name}`,
+    }
   }
 
   async updateCustom(
-    marimo: Marimo & { objects: TObject[] },
+    marimo: Marimo,
+    imageData: Omit<MarimoImage, "id" | "createdAt" | "updatedAt">,
     coupon: Coupon,
   ): Promise<UpdateCustomDto> {
-    const { createdAt, updatedAt, objects, ...customMarimo } = marimo
+    const newImages = {
+      ...imageData,
+      marimoId: marimo.id,
+    }
 
-    const updatedMarimo = await this.marimoRepository.updateMarimo(
-      marimo.id,
-      customMarimo,
-    )
+    const createdImages =
+      await this.marimoImageRepository.createImages(newImages)
 
-    await this.couponRepository.update(coupon.id)
+    // await this.couponRepository.update(coupon.id)
 
-    return { marimo: updatedMarimo }
+    return { images: createdImages }
   }
 }

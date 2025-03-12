@@ -47,6 +47,7 @@ const Canvas = () => {
     resetMarimoPosition,
     fetchMarimoStatus,
     adoptMarimo,
+    setImages,
   } = useStore()
   const [marimoSizePx, setMarimoSizePx] = useState(80)
 
@@ -273,6 +274,27 @@ const Canvas = () => {
         throw new Error("Failed to fetch data")
       }
       const data = await response.json()
+
+      const marimoImageResponse = await fetch(
+        `/api/marimo/images/${data.user.id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      )
+
+      if (!marimoImageResponse.ok) {
+        throw new Error("Failed to marimoImageResponse fetch data")
+      }
+
+      const images = await marimoImageResponse.json()
+
+      if (images) {
+        const { angry, dead, leftTwerk, rightTwerk } = images
+        setImages(angry, dead, leftTwerk, rightTwerk)
+      }
 
       setMarimo({
         ...data.user,

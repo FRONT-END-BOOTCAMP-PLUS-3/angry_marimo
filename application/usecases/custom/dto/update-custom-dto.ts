@@ -1,5 +1,5 @@
-import { Marimo } from "@prisma/client"
+import { MarimoImage } from "@prisma/client"
 
 export interface UpdateCustomDto {
-  marimo: Marimo | null
+  images: MarimoImage | null
 }

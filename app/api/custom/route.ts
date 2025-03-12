@@ -2,6 +2,7 @@ import { cookies } from "next/headers"
 import { NextRequest, NextResponse } from "next/server"
 
 import { PgCouponRepository } from "@marimo/infrastructure/repositories/pg-coupon-repository"
+import { PgMarimoImageRepository } from "@marimo/infrastructure/repositories/pg-marimo-image-repository"
 
 import { PrismaClient } from "@prisma/client"
 import { UserUsecase } from "@marimo/application/usecases/auth/user-usecase"
@@ -14,8 +15,6 @@ import {
 export async function GET() {
   const cookieStore = await cookies()
   const token = cookieStore.get("token")?.value
-
-  const prisma = new PrismaClient()
 
   try {
     if (!token)
@@ -30,8 +29,9 @@ export async function GET() {
       return NextResponse.json({ message: "login failed" }, { status: 401 })
 
     const customUsecase = new CustomUsecase(
-      new PgCouponRepository(prisma),
+      new PgCouponRepository(new PrismaClient()),
       new PgMarimoRepository(),
+      new PgMarimoImageRepository(new PrismaClient()),
     )
 
     const data = await customUsecase.getData(user.id)
@@ -49,9 +49,13 @@ export async function POST(request: NextRequest) {
   const prisma = new PrismaClient()
 
   const formData = await request.formData()
-  const file = formData.get("image") as File | null
 
-  if (!file) {
+  const angry = formData.get("angry") as File | null
+  const leftTwerk = formData.get("leftTwerk") as File | null
+  const rightTwerk = formData.get("rightTwerk") as File | null
+  const dead = formData.get("dead") as File | null
+
+  if (!angry || !leftTwerk || !rightTwerk || !dead) {
     return NextResponse.json({ error: "파일이 없습니다." }, { status: 400 })
   }
 
@@ -65,11 +69,17 @@ export async function POST(request: NextRequest) {
     const customUsecase = new CustomUsecase(
       new PgCouponRepository(prisma),
       new PgMarimoRepository(),
+      new PgMarimoImageRepository(new PrismaClient()),
     )
 
-    const src = await customUsecase.saveMarimoImage(file)
+    const images = await customUsecase.saveMarimoImage(
+      angry,
+      leftTwerk,
+      rightTwerk,
+      dead,
+    )
 
-    return NextResponse.json({ src }, { status: 200 })
+    return NextResponse.json(images, { status: 200 })
   } catch (error) {
     console.error(error)
     return NextResponse.json(
@@ -97,7 +107,7 @@ export async function PUT(request: NextRequest) {
     if (!user)
       return NextResponse.json({ message: "login failed" }, { status: 401 })
 
-    const { marimo, coupon } = await request.json()
+    const { marimo, marimoImages, coupon } = await request.json()
 
     if (user.id !== marimo.userId)
       return NextResponse.json({ message: "user not matched" }, { status: 400 })
@@ -105,14 +115,16 @@ export async function PUT(request: NextRequest) {
     const customUsecase = new CustomUsecase(
       new PgCouponRepository(prisma),
       new PgMarimoRepository(),
+      new PgMarimoImageRepository(new PrismaClient()),
     )
 
-    const { marimo: updatedMarimo } = await customUsecase.updateCustom(
+    const { images } = await customUsecase.updateCustom(
       marimo,
+      marimoImages,
       coupon,
     )
 
-    return NextResponse.json(updatedMarimo, { status: 200 })
+    return NextResponse.json(images, { status: 200 })
   } catch (error) {
     console.error(error)
     return NextResponse.json(

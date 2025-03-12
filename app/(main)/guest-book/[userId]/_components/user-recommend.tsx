@@ -51,8 +51,6 @@ export const UserRecommend = () => {
     setAllUser(data.recommendedUsers)
     setRecommendedUsers(newRecommendUsers)
 
-    console.log(newRecommendUsers)
-
     setIsLoading(false)
   }
 

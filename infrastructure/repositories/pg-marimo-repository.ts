@@ -53,7 +53,6 @@ export class PgMarimoRepository implements MarimoRepository {
     status: string
   }): Promise<Marimo> {
     try {
-      console.log("her??????????")
       const newMarimo = await prisma.marimo.create({
         data: defaultMarimo,
       })
