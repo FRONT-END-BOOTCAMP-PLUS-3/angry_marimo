@@ -126,10 +126,6 @@ const Canvas = () => {
     loadTrashImages()
   }, [trashItems])
 
-  useEffect(() => {
-    console.log("로드된 쓰레기 이미지 객체는", loadedTrashImages)
-  }, [loadedTrashImages])
-
   const drawOnCanvas = () => {
     if (canvasRef.current) {
       const canvas = canvasRef.current
@@ -265,8 +261,6 @@ const Canvas = () => {
       return
     }
 
-    console.log("fetchMarimo ---- start")
-
     try {
       const response = await fetch(`/api/marimo/${user.id}`, {
         method: "GET",
@@ -275,14 +269,11 @@ const Canvas = () => {
         },
       })
 
-      console.log("fetchMarimo ---- middle")
-
       if (!response.ok) {
         throw new Error("Failed to fetch data")
       }
       const data = await response.json()
 
-      console.log("fetchMarimo ---- bottom")
       setMarimo({
         ...data.user,
       })

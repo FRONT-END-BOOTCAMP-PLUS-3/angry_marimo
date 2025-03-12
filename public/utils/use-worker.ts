@@ -43,10 +43,7 @@ export const useWorker = () => {
         { type: "module" },
       )
 
-      if (!marimo || !marimo.id) {
-        console.log("⚠️ marimo 객체가 없거나 ID가 없습니다.")
-        return
-      }
+      if (!marimo || !marimo.id) return
 
       worker.current.onmessage = async (event) => {
         const points = event.data?.points
