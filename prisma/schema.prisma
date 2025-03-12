@@ -24,19 +24,20 @@ model User {
 }
 
 model Marimo {
-  id        Int       @id @default(autoincrement())
+  id        Int           @id @default(autoincrement())
   userId    Int
   size      Int
   rect      Json
   color     String
   status    String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  name      String    @default("marimo")
-  src       String    @default("/images/marimo.svg")
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  name      String        @default("marimo")
+  src       String        @default("/images/marimo.svg")
   history   History[]
-  user      User      @relation(fields: [userId], references: [id])
-  objects   Object[]  @relation("MarimoToObjectRelation")
+  images    MarimoImage[] @relation("MarimoImagesRelation")
+  user      User          @relation(fields: [userId], references: [id])
+  objects   Object[]      @relation("MarimoToObjectRelation")
   orders    Order[]
 
   @@map("marimos")
@@ -109,4 +110,18 @@ model GuestBook {
   owner     User     @relation("OwnerRelation", fields: [ownerId], references: [id])
 
   @@map("guestbooks")
+}
+
+model MarimoImage {
+  id         Int      @id @default(autoincrement())
+  marimoId   Int
+  angry      String
+  leftTwerk  String
+  rightTwerk String
+  dead       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  marimo     Marimo   @relation("MarimoImagesRelation", fields: [marimoId], references: [id])
+
+  @@map("marimo-images")
 }
