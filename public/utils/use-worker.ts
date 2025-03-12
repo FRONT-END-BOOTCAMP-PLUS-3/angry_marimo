@@ -63,8 +63,8 @@ export const useWorker = () => {
           level,
           url: getTrashImage(level),
           rect: {
-            x: point.x * 100,
-            y: point.y * 100 + (headerHeight / windowHeight) * 100,
+            x: point.x * 90,
+            y: point.y * 90 + (headerHeight / windowHeight) * 100,
           },
           isActive: true,
           type: "trash",
