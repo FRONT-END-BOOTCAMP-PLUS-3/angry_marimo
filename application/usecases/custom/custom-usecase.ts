@@ -2,7 +2,7 @@ import { CouponRepository } from "@marimo/domain/repositories/coupon-repository"
 
 import path from "path"
 import fs from "fs/promises"
-import { Coupon, Marimo, MarimoImage } from "@prisma/client"
+import { Coupon, Marimo, MarimoImage, Object as IObject } from "@prisma/client"
 import {
   MarimoImageRepository,
   MarimoRepository,
@@ -63,11 +63,11 @@ export class CustomUsecase {
   }
 
   async updateCustom(
-    marimo: Marimo,
+    marimo: Marimo & { objects: IObject[] },
     imageData: Omit<MarimoImage, "id" | "createdAt" | "updatedAt">,
     coupon: Coupon,
   ): Promise<UpdateCustomDto> {
-    const { createdAt, updatedAt, ...newMarimo } = marimo
+    const { createdAt, updatedAt, objects, ...newMarimo } = marimo
     const newImages = {
       ...imageData,
       marimoId: marimo.id,
