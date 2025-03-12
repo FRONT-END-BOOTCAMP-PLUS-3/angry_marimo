@@ -22,22 +22,6 @@ export const useObjectComponent = () => {
 
   useWindowEvents(worker)
 
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker
-      .register(
-        new URL("/public/workers/noti-service-worker", import.meta.url),
-        {
-          type: "module",
-        },
-      )
-      .then((registration) => {
-        console.log("Service Worker 등록 성공:", registration)
-      })
-      .catch((error) => {
-        console.log("Service Worker 등록 실패:", error)
-      })
-  }
-
   useInterval(() => {
     if (!isWorkerRunning) return
     if (!worker.current) return
@@ -56,7 +40,7 @@ export const useObjectComponent = () => {
       terminateWorker()
       setIsWorkerRunning(false)
     }
-  }, 20000)
+  }, 2000)
 
   return <></>
 }

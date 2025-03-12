@@ -12,10 +12,10 @@ export type TTrash = {
 }
 
 export interface TTrashSlice {
-  trashItems: TTrash[] | null
+  trashItems: Omit<TTrash, "id">[] | null
 
   setTrashItems: (trashItems: TTrash[]) => void
-  addTrashItem: (item: TTrash) => void
+  addTrashItem: (item: Omit<TTrash, "id">) => void
   // closeActive: (id: number) => void
   deleteItem: (id: number) => void
 }
@@ -28,7 +28,7 @@ export const useTrashStore: StateCreator<
 > = (set, get) => ({
   trashItems: [],
 
-  setTrashItems: (trashItems: TTrash[]) => set({ trashItems }),
+  setTrashItems: (trashItems: TTrash[]) => set({ ...trashItems, trashItems }),
 
   addTrashItem: (item) => {
     if (!item) return
@@ -40,7 +40,7 @@ export const useTrashStore: StateCreator<
     set({
       trashItems: [
         ...(get().trashItems ?? []).map((data) => {
-          if (data.id === id) {
+          if (data.isActive === true) {
             return {
               ...data,
               isActive: false,

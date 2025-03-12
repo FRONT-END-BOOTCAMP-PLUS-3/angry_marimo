@@ -5,18 +5,17 @@ import { PgObjectRepository } from "@marimo/infrastructure/repositories/pg-objec
 import { PrismaClient } from "@prisma/client"
 import { TrashToObjectUseCase } from "@marimo/application/usecases/object/trash-object-usecase"
 
-// get 에서 isActive 가 true 인 객체들만 가져옴.-> test 필요
 export async function GET(request: NextRequest) {
   try {
-    const response = NextResponse.json({ message: "쓰레기를 생성합니다." })
-    console.log("response.ok ", response.ok)
+    NextResponse.json({ message: "쓰레기를 생성합니다." })
+    const marimoId = Number(request.nextUrl.searchParams.get("marimoId"))
 
-    const body = await request.json()
-    if (!body) {
-      return NextResponse.json({ error: "Empty request body" }, { status: 400 })
+    if (!marimoId) {
+      return NextResponse.json(
+        { error: "Missing marimoID data" },
+        { status: 400 },
+      )
     }
-
-    const { marimoId } = body
     if (!marimoId) {
       return NextResponse.json(
         { error: "Missing marimoID data" },
@@ -24,15 +23,14 @@ export async function GET(request: NextRequest) {
       )
     }
     const objectRepository = new PgObjectRepository(new PrismaClient())
-    const activeObject = objectRepository.findAllByMarimoId(marimoId)
+    const activeObject = await objectRepository.findAllByMarimoId(marimoId)
 
     return NextResponse.json({ activeObject }, { status: 200 })
   } catch (error) {
-    console.error("Error handling request:", error)
+    console.error("❌ [오류 발생] Error handling request:", error)
     return NextResponse.json({ error: "Invalid JSON format" }, { status: 400 })
   }
 }
-
 // export async function POST(request: NextRequest) {
 //   try {
 //     if (request.headers.get("Content-type") !== "application/json") {
@@ -82,27 +80,6 @@ export async function GET(request: NextRequest) {
 // }
 
 export async function POST(request: NextRequest) {
-  /*
-  { 이런식으로 데이터 보내면 됨. - 확인 완료
-  "marimoId": 29,
-  "trashItems": [
-    {
-      "type": "trash",
-      "rect": { "x": 100, "y": 200 },
-      "isActive": true,
-      "url": "image1.jpeg",
-      "level": 1
-    },
-    {
-      "type": "trash",
-      "rect": { "x": 300, "y": 400 },
-      "isActive": true,
-      "url": "image2.jpeg",
-      "level": 2
-    }
-  ]
-}
-   */
   try {
     if (request.headers.get("Content-type") !== "application/json") {
       return NextResponse.json(
