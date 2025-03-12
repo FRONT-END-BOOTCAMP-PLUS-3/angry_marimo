@@ -12,7 +12,9 @@ export class PgMarimoRepository implements MarimoRepository {
           userId: userId,
         },
         include: {
-          objects: true, // 관련된 object 정보도 함께 가져옵니다.
+          objects: {
+            where: { isActive: true },
+          },
         },
         orderBy: {
           createdAt: "desc",
