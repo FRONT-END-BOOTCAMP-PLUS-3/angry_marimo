@@ -71,11 +71,19 @@ export class PgObjectRepository implements ObjectRepository {
       url: string
       level: number
     }[],
-  ): Promise<void> {
+  ): Promise<ObjectItem[]> {
     try {
       await this.prisma.object.createMany({
         data: objects,
       })
+
+      const newObjects = await this.prisma.object.findMany({
+        where: {
+          marimoId: objects[0].marimoId,
+        },
+      })
+
+      return newObjects
     } catch (error) {
       console.error("❌ Prisma 생성 error===> createMany:", error)
       throw new Error("Database insertion failed")
