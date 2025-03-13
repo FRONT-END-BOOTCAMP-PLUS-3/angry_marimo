@@ -1,18 +1,12 @@
 "use client"
 import { useEffect, useRef, useState } from "react"
 
-import { getTrashImage } from "@marimo/public/utils/level-image"
-
-import { HEADER_HEIGHT } from "@marimo/constants/trash-header"
-
 import { useStore } from "@marimo/stores/use-store"
-import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto"
 
 export const useWorker = () => {
   const worker = useRef<Worker>(null)
-  const { addTrashItems, marimo } = useStore()
+  const { trashItems, addTrashItems, marimo } = useStore()
   const [isWorkerRunning, setIsWorkerRunning] = useState(true)
-  const headerHeight = HEADER_HEIGHT
 
   useEffect(() => {
     if (!isWorkerRunning) return
@@ -37,66 +31,21 @@ export const useWorker = () => {
       console.error("❌ Web Workers를 지원하지 않는 환경입니다.")
       return
     }
-    try {
-      worker.current = new Worker(
-        new URL("/public/workers/object-worker", import.meta.url),
-        { type: "module" },
-      )
 
-      if (!marimo || !marimo.id) return
+    worker.current = new Worker(
+      new URL("/public/workers/object-worker", import.meta.url),
+      { type: "module" },
+    )
 
-      worker.current.onmessage = async (event) => {
-        const points = event.data?.points
-        if (!Array.isArray(points) || points.length === 0) {
-          console.log("⚠️ No points data received.")
-          return
-        }
+    if (!marimo || !marimo.id) return
 
-        const point = points[0]
-        const level = Math.floor(Math.random() * 3) + 1
+    worker.current.onmessage = async (event) => {
+      const { data: objectItem } = event
+      if ((trashItems?.length || 0) < 30) addTrashItems(objectItem)
+    }
 
-        const windowHeight = window.innerHeight || 1
-        const newTrashItem: Omit<ITrashDto, "id"> = {
-          level,
-          url: getTrashImage(level),
-          rect: {
-            x: point.x * 70,
-            y: point.y * 70 + (headerHeight / windowHeight) * 100,
-          },
-          isActive: true,
-          type: "trash",
-        }
-
-        try {
-          const response = await fetch(`/api/objects`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              marimoId: marimo.id,
-              trashData: newTrashItem,
-            }),
-          })
-
-          if (!response.ok) {
-            const errorText = await response.text()
-            throw new Error(
-              `🚨 API 요청 실패: ${response.status} - ${errorText}`,
-            )
-          }
-          const data = await response.json()
-          addTrashItems(data.objectItem)
-        } catch (error) {
-          console.error("❌ API 전송 중 오류 발생:", error)
-        }
-      }
-
-      worker.current.onerror = (error) => {
-        console.error("❌ Worker 오류 발생:", error)
-      }
-    } catch (error) {
-      console.error("❌ Worker 생성 오류:", error)
+    worker.current.onerror = (error) => {
+      console.error("❌ Worker 오류 발생:", error)
     }
   }
 

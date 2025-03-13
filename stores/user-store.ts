@@ -23,5 +23,5 @@ export const createUserSlice: StateCreator<
   user: null,
 
   setUser: (user: TUser) => set({ user }),
-  clearUser: () => set({ user: null }),
+  clearUser: () => set({ user: null, isMarimoLoading : false }),
 })

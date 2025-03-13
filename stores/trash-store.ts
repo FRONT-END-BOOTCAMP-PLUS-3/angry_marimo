@@ -29,12 +29,34 @@ export const useTrashStore: StateCreator<
 
   setTrashItems: (trashItems: TTrash[]) => set({ trashItems }),
 
-  addTrashItems: (item) => {
-    if (!item) return
+  addTrashItems: async (newTrashItem) => {
+    if (!get().marimo) return
 
-    const trashItems = [...(get().trashItems ?? []), item]
+    try {
+      const response = await fetch(`/api/objects`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          marimoId: get().marimo?.id,
+          trashData: newTrashItem,
+        }),
+      })
 
-    set({ trashItems })
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`🚨 API 요청 실패: ${response.status} - ${errorText}`)
+      }
+
+      const data = await response.json()
+      const objectItem = data.objectItem
+      const trashItems = [...(get().trashItems ?? []), objectItem]
+
+      set({ trashItems })
+    } catch (error) {
+      console.error("❌ API 전송 중 오류 발생:", error)
+    }
   },
 
   closeActive: async (id: number) => {
@@ -59,6 +81,8 @@ export const useTrashStore: StateCreator<
         id,
       }),
     })
+
+    console.log("response --> ", response)
 
     if (!response.ok) {
       set({ trashItems: [...(get().trashItems ?? []), prevItem] })

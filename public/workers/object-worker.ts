@@ -1,21 +1,49 @@
-import randomLocation, {
-  containerInside,
-} from "@marimo/public/utils/random-location"
+import { getTrashImage } from "@marimo/public/utils/level-image"
+import { randomLocation } from "@marimo/public/utils/random-location"
 
-self.addEventListener("message", (event: MessageEvent<number>) => {
-  if (typeof event.data !== "number" || event.data <= 0) {
-    console.error("[Worker] 잘못된 입력값:", event.data)
-    postMessage({ error: "잘못된 입력값입니다." })
-    return
-  }
+import { HEADER_HEIGHT } from "@marimo/constants/trash-header"
 
-  try {
-    const points = randomLocation(event.data)
-    const piValue = containerInside(points)
+import { Marimo } from "@prisma/client"
 
-    postMessage({ points, piValue })
-  } catch (error) {
-    console.error("[Worker] 연산 중 오류 발생:", error)
-    postMessage({ error: "연산 중 오류가 발생했습니다." })
-  }
-})
+self.addEventListener(
+  "message",
+  (
+    event: MessageEvent<{
+      itemCount: number
+      marimo: Marimo
+      windowHeight: number
+    }>,
+  ) => {
+    const { windowHeight } = event.data
+    const headerHeight = HEADER_HEIGHT
+
+    const second = 1440000
+    let interval: string | number | NodeJS.Timeout | undefined
+
+    clearInterval(interval)
+
+    const startInterval = () => {
+      clearInterval(interval)
+      interval = setInterval(async () => {
+
+        const point = randomLocation(1)[0]
+        const level = Math.floor(Math.random() * 3) + 1
+
+        const newTrashItem = {
+          level,
+          url: getTrashImage(level),
+          rect: {
+            x: point.x * 70,
+            y: point.y * 70 + (headerHeight / windowHeight) * 100,
+          },
+          isActive: true,
+          type: "trash",
+        }
+
+        postMessage(newTrashItem)
+      }, second)
+    }
+
+    startInterval()
+  },
+)

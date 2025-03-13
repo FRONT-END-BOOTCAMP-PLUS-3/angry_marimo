@@ -16,6 +16,7 @@ export type TMarimo = {
 }
 
 export type TMarimoSlice = {
+  isMarimoLoading: boolean
   marimo: TMarimo | null
   setMarimo: (marimo: TMarimo) => void
 
@@ -47,6 +48,7 @@ export const createMarimoSlice: StateCreator<
   [],
   TMarimoSlice
 > = (set, get) => ({
+  isMarimoLoading: false,
   marimo: null,
   marimoImgSrc: "/images/marimo.svg",
   marimoSrc: "/images/marimo.svg",
@@ -55,7 +57,8 @@ export const createMarimoSlice: StateCreator<
   rightTwerkingMarimoSrc: "/images/right-twerking-marimo.svg",
   intervalId: null as NodeJS.Timeout | null,
 
-  setMarimo: (marimo: TMarimo) => set({ marimo, trashItems: marimo.objects }),
+  setMarimo: (marimo: TMarimo) =>
+    set({ isMarimoLoading: true, marimo, trashItems: marimo.objects }),
 
   setImages: (
     marimoSrc,
@@ -93,6 +96,7 @@ export const createMarimoSlice: StateCreator<
     }
 
     if (get().trashItems?.length === 0) {
+      console.log("store --->", get().marimo)
       set({
         marimo: {
           ...(get().marimo as TMarimo),
