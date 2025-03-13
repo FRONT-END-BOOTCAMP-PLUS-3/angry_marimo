@@ -25,7 +25,6 @@ self.addEventListener(
     const startInterval = () => {
       clearInterval(interval)
       interval = setInterval(async () => {
-
         const point = randomLocation(1)[0]
         const level = Math.floor(Math.random() * 3) + 1
 

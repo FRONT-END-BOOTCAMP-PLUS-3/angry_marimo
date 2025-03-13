@@ -12,11 +12,13 @@ export type TTrash = {
 }
 
 export interface TTrashSlice {
-  trashItems: TTrash[] | null
+  trashItems: TTrash[]
+  closedItemIds: number[]
 
   setTrashItems: (trashItems: TTrash[]) => void
   addTrashItems: (item: TTrash) => void
   closeActive: (id: number) => void
+  fetchActive: () => Promise<void>
 }
 
 export const useTrashStore: StateCreator<
@@ -26,6 +28,7 @@ export const useTrashStore: StateCreator<
   TTrashSlice
 > = (set, get) => ({
   trashItems: [],
+  closedItemIds: [],
 
   setTrashItems: (trashItems: TTrash[]) => set({ trashItems }),
 
@@ -59,22 +62,19 @@ export const useTrashStore: StateCreator<
     }
   },
 
-  closeActive: async (id: number) => {
-    console.log("here --->", id)
-    console.log("here1 --->", get().trashItems)
+  closeActive: (id: number) => {
     if (!id) return
 
-    const prevItem = get().trashItems?.find((item) => item.id === id)
-
-    if (!prevItem) return
-
-    console.log("here2 --->", get().trashItems)
-
-    set({
+    set((state) => ({
+      closedItemIds: [...(state.closedItemIds ?? []), id],
       trashItems: [
-        ...(get().trashItems ?? []).filter((item) => item.id !== id),
+        ...(state.trashItems ?? []).filter((item) => item.id !== id),
       ],
-    })
+    }))
+  },
+
+  fetchActive: async () => {
+    const idList = get().closedItemIds
 
     const response = await fetch(`/api/objects`, {
       method: "PUT",
@@ -82,12 +82,19 @@ export const useTrashStore: StateCreator<
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        id,
+        idList,
       }),
     })
 
     if (!response.ok) {
-      set({ trashItems: [...(get().trashItems ?? []), prevItem] })
+      console.error("zustand trash-store fetchActive error")
     }
+
+    const failedObjects = await response.json()
+
+    set((state) => ({
+      closedItemIds: [],
+      trashItems: [...(state.trashItems ?? []), ...failedObjects],
+    }))
   },
 })

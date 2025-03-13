@@ -79,23 +79,22 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "Empty request body" }, { status: 400 })
     }
 
-    const { id } = body
+    const { idList } = body
 
-    if (!id) {
+    if (!idList) {
       return NextResponse.json(
         { error: "Invalid data format" },
         { status: 400 },
       )
     }
 
-    const repository = new PgObjectRepository(new PrismaClient())
-    const existingObject = await repository.update(id)
+    const objectUsecase = new TrashToObjectUseCase(
+      new PgObjectRepository(new PrismaClient()),
+    )
 
-    if (!existingObject) {
-      return NextResponse.json({ error: "Object not found" }, { status: 404 })
-    }
+    const failedObjects = await objectUsecase.updateMany(idList)
 
-    return NextResponse.json({ success: true }, { status: 200 })
+    return NextResponse.json(failedObjects, { status: 200 })
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to update object" },
