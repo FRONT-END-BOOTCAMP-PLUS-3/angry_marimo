@@ -7,20 +7,19 @@
   height: 100%;
 
   position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .common_button {
   padding: 1rem;
   border-radius: 1rem;
 
-  position: absolute;
-  top: 40%;
-  left: 40%;
-
   background: var(--secondary-color);
-
   cursor: pointer;
 }
+
 
 .common_button:hover {
   background: var(--primary-color);
