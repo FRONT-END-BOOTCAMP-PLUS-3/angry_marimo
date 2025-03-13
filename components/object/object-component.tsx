@@ -18,7 +18,7 @@ export const useObjectComponent = () => {
   useWindowEvents(worker)
 
   useEffect(() => {
-    if(!isMarimoLoading) return
+    if (!isMarimoLoading) return
     if (!window || !isWorkerRunning || !worker.current || !marimo) return
 
     const windowHeight = window.innerHeight || 1
