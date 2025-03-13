@@ -38,7 +38,22 @@ export const useTrashStore: StateCreator<
   loadedTrashImages: [],
   closedItemIds: [],
 
-  setTrashItems: (trashItems: TTrash[]) => set({ trashItems }),
+  setTrashItems: (trashItems: TTrash[]) => {
+    set({ trashItems })
+
+    trashItems.forEach((item) => {
+      const img = new Image()
+      img.src = item.url
+
+      img.onload = () =>
+        set((state) => ({
+          loadedTrashImages: [
+            ...(state.loadedTrashImages ?? []),
+            { ...item, image: img },
+          ],
+        }))
+    })
+  },
 
   addTrashItems: async (newTrashItem) => {
     if (!get().marimo) return
@@ -112,10 +127,12 @@ export const useTrashStore: StateCreator<
 
     const failedObjects = (await response.json()) as IObject[]
 
-    set((state) => ({
-      closedItemIds: [],
-      trashItems: [...(state.trashItems ?? []), ...failedObjects],
-    }))
+    set((state) => {
+      return {
+        closedItemIds: [],
+        trashItems: [...(state.trashItems ?? []), ...failedObjects],
+      }
+    })
 
     failedObjects.forEach((item) => {
       const img = new Image()

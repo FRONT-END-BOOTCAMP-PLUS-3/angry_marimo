@@ -57,27 +57,11 @@ export const createMarimoSlice: StateCreator<
   rightTwerkingMarimoSrc: "/images/right-twerking-marimo.svg",
   intervalId: null as NodeJS.Timeout | null,
 
-  setMarimo: (marimo: TMarimo) => {
-    const trashItems = marimo.objects ?? []
+  setMarimo: (marimo: TMarimo) =>
     set({
       isMarimoLoading: true,
       marimo,
-      trashItems,
-    })
-
-    trashItems.forEach((item) => {
-      const img = new Image()
-      img.src = item.url
-
-      img.onload = () =>
-        set((state) => ({
-          loadedTrashImages: [
-            ...(state.loadedTrashImages ?? []),
-            { ...item, image: img },
-          ],
-        }))
-    })
-  },
+    }),
 
   setImages: (
     marimoSrc = "/images/marimo.svg",
@@ -106,54 +90,57 @@ export const createMarimoSlice: StateCreator<
     }),
 
   updateMarimoStatusAndImgSrc: () => {
-    if (!get().trashItems) return
+    set((state) => {
+      console.log(state.trashItems)
+      const interval = state.intervalId
+      if (interval !== null && interval !== undefined) {
+        clearInterval(interval)
+      }
 
-    const interval = get().intervalId
-    if (interval !== null && interval !== undefined) {
-      clearInterval(interval)
-      set({ intervalId: null })
-    }
+      const length = state.trashItems?.length ?? 0
+      const marimo = state.marimo
 
-    if (get().trashItems?.length === 0) {
-      set({
+      if (!marimo) return { intervalId: null }
+
+      if (length === 0) {
+        let toggle = false
+        const newIntervalId = setInterval(() => {
+          set({
+            marimoImgSrc: toggle
+              ? get().leftTwerkingMarimoSrc
+              : get().rightTwerkingMarimoSrc,
+          })
+          toggle = !toggle
+        }, 500)
+
+        return {
+          marimo: {
+            ...marimo,
+            status: "happy",
+          },
+          intervalId: newIntervalId,
+        }
+      }
+
+      if (length > 30) {
+        return {
+          marimo: {
+            ...marimo,
+            status: "dead",
+          },
+          marimoImgSrc: state.deadMarimoSrc,
+          intervalId: null,
+        }
+      }
+
+      return {
         marimo: {
-          ...(get().marimo as TMarimo),
-          status: "happy",
+          ...marimo,
+          status: "angry",
         },
-      })
-
-      let toggle = false
-      const newIntervalId = setInterval(() => {
-        set({
-          marimoImgSrc: toggle
-            ? get().leftTwerkingMarimoSrc
-            : get().rightTwerkingMarimoSrc,
-        })
-        toggle = !toggle
-      }, 500)
-
-      set({ intervalId: newIntervalId })
-      return
-    }
-
-    if ((get().trashItems?.length as number) > 30) {
-      return set({
-        marimo: {
-          ...(get().marimo as TMarimo),
-          status: "dead",
-        },
-
-        marimoImgSrc: get().deadMarimoSrc,
-      })
-    }
-
-    return set({
-      marimo: {
-        ...(get().marimo as TMarimo),
-        status: "angry",
-      },
-
-      marimoImgSrc: get().marimoSrc,
+        marimoImgSrc: get().marimoSrc,
+        intervalId: null,
+      }
     })
   },
 
