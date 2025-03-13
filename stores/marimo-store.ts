@@ -20,11 +20,11 @@ export type TMarimoSlice = {
   marimo: TMarimo | null
   setMarimo: (marimo: TMarimo) => void
 
-  marimoImgSrc: string
-  marimoSrc: string
-  deadMarimoSrc: string
-  leftTwerkingMarimoSrc: string
-  rightTwerkingMarimoSrc: string
+  marimoImgSrc: string | null
+  marimoSrc: string | null
+  deadMarimoSrc: string | null
+  leftTwerkingMarimoSrc: string | null
+  rightTwerkingMarimoSrc: string | null
   intervalId: NodeJS.Timeout | null
 
   resetMarimoPosition: () => void
@@ -50,36 +50,55 @@ export const createMarimoSlice: StateCreator<
 > = (set, get) => ({
   isMarimoLoading: false,
   marimo: null,
-  marimoImgSrc: "/images/marimo.svg",
+  marimoImgSrc: null,
   marimoSrc: "/images/marimo.svg",
   deadMarimoSrc: "/images/dead-marimo.svg",
   leftTwerkingMarimoSrc: "/images/left-twerking-marimo.svg",
   rightTwerkingMarimoSrc: "/images/right-twerking-marimo.svg",
   intervalId: null as NodeJS.Timeout | null,
 
-  setMarimo: (marimo: TMarimo) =>
-    set({ isMarimoLoading: true, marimo, trashItems: marimo.objects }),
+  setMarimo: (marimo: TMarimo) => {
+    const trashItems = marimo.objects ?? []
+    set({
+      isMarimoLoading: true,
+      marimo,
+      trashItems,
+    })
+
+    trashItems.forEach((item) => {
+      const img = new Image()
+      img.src = item.url
+
+      img.onload = () =>
+        set((state) => ({
+          loadedTrashImages: [
+            ...(state.loadedTrashImages ?? []),
+            { ...item, image: img },
+          ],
+        }))
+    })
+  },
 
   setImages: (
-    marimoSrc,
-    deadMarimoSrc,
-    leftTwerkingMarimoSrc,
-    rightTwerkingMarimoSrc,
+    marimoSrc = "/images/marimo.svg",
+    deadMarimoSrc = "/images/dead-marimo.svg",
+    leftTwerkingMarimoSrc = "/images/left-twerking-marimo.svg",
+    rightTwerkingMarimoSrc = "/images/right-twerking-marimo.svg",
   ) =>
-    set({
+    set((state) => ({
       marimo: {
-        ...(get().marimo as TMarimo),
+        ...(state as TMarimo),
         src: marimoSrc,
       },
       marimoSrc,
       deadMarimoSrc,
       leftTwerkingMarimoSrc,
       rightTwerkingMarimoSrc,
-    }),
+    })),
 
   resetImages: () =>
     set({
-      marimoImgSrc: "/images/marimo.svg",
+      marimoImgSrc: null,
       marimoSrc: "/images/marimo.svg",
       deadMarimoSrc: "/images/dead-marimo.svg",
       leftTwerkingMarimoSrc: "/images/left-twerking-marimo.svg",
@@ -96,7 +115,6 @@ export const createMarimoSlice: StateCreator<
     }
 
     if (get().trashItems?.length === 0) {
-      console.log("store --->", get().marimo)
       set({
         marimo: {
           ...(get().marimo as TMarimo),
@@ -201,9 +219,24 @@ export const createMarimoSlice: StateCreator<
 
     const marimo = await response.json()
 
+    const trashItems = marimo.objects as IObject[]
+
+    trashItems.forEach((item) => {
+      const img = new Image()
+      img.src = item.url
+
+      img.onload = () =>
+        set((state) => ({
+          loadedTrashImages: [
+            ...(state.loadedTrashImages ?? []),
+            { ...item, image: img },
+          ],
+        }))
+    })
+
     set({
       marimo,
-      trashItems: marimo.objects,
+      trashItems,
       marimoImgSrc: "/images/marimo.svg",
       marimoSrc: "/images/marimo.svg",
       deadMarimoSrc: "/images/dead-marimo.svg",
