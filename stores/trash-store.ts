@@ -60,11 +60,15 @@ export const useTrashStore: StateCreator<
   },
 
   closeActive: async (id: number) => {
+    console.log("here --->", id)
+    console.log("here1 --->", get().trashItems)
     if (!id) return
 
     const prevItem = get().trashItems?.find((item) => item.id === id)
 
     if (!prevItem) return
+
+    console.log("here2 --->", get().trashItems)
 
     set({
       trashItems: [
@@ -81,8 +85,6 @@ export const useTrashStore: StateCreator<
         id,
       }),
     })
-
-    console.log("response --> ", response)
 
     if (!response.ok) {
       set({ trashItems: [...(get().trashItems ?? []), prevItem] })
