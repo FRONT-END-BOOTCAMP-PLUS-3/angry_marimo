@@ -27,7 +27,6 @@ const Canvas = () => {
 
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 })
   const imageRef = useRef(new Image())
-
   const [bounce, setBounce] = useState(0)
   const [velocity, setVelocity] = useState(0.5)
   const [marimoSizePx, setMarimoSizePx] = useState(80)
@@ -46,132 +45,32 @@ const Canvas = () => {
     updateMarimoStatusAndImgSrc,
     resetMarimoPosition,
     fetchMarimoStatus,
+    setTrashItems,
     adoptMarimo,
     setImages,
     resetImages,
     fetchActive,
   } = useStore()
 
-  // window가 새로고침 혹은 닫히기 전 현재 마리모 상태를 저장
-  useEffect(() => {
-    const handleBeforeUnload = async () => {
-      await updateMarimo()
-    }
-
-    window.addEventListener("beforeunload", handleBeforeUnload)
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload)
-      resetImages()
-    }
-  }, [])
-
   // canvas resize
+  const handleCanvasResize = () => {
+    setCanvasWidth(window.innerWidth)
+    setCanvasHeight(window.innerHeight)
+  }
   useEffect(() => {
-    const handleCanvasResize = () => {
-      setCanvasWidth(window.innerWidth)
-      setCanvasHeight(window.innerHeight)
-    }
-
     window.addEventListener("resize", handleCanvasResize)
     return () => {
+      resetImages()
       window.removeEventListener("resize", handleCanvasResize)
     }
   }, [])
 
-  // 화면이 mount 되기 전 marimo를 가져옴
-  useEffect(() => {
-    const fetchMarimo = async () => {
-      try {
-        const response = await fetch(`/api/marimo/`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch data")
-        }
-
-        const data = await response.json()
-
-        const marimoImageResponse = await fetch(
-          `/api/marimo/images/${data.id}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          },
-        )
-
-        if (!marimoImageResponse.ok) {
-          throw new Error("Failed to marimoImageResponse fetch data")
-        }
-
-        const images = await marimoImageResponse.json()
-
-        if (images) {
-          const { angry, dead, leftTwerk, rightTwerk } = images
-          setImages(angry, dead, leftTwerk, rightTwerk)
-        }
-
-        setMarimo({
-          ...data,
-        })
-
-        updateMarimoStatusAndImgSrc()
-        fetchMarimoStatus()
-      } catch (error) {
-        console.error("API Error:", error)
-      }
-    }
-
-    fetchMarimo()
-  }, [])
-
   // marimo size
   useEffect(() => {
-    if (marimo) {
-      const newSize = remToPx(marimo.size, canvasWidth)
-      if (newSize !== marimoSizePx) setMarimoSizePx(newSize)
-    }
+    if (!marimo || !marimo.size) return
+    const newSize = remToPx(marimo.size, canvasWidth)
+    setMarimoSizePx(newSize)
   }, [marimo?.size, canvasWidth])
-
-  // set marimo position
-  useEffect(() => {
-    if (marimo && marimo.rect) {
-      const rectObject = JSON.parse(marimo.rect)
-      const percentagedX = (canvasWidth * rectObject.x) / 100
-      const percentagedY = (canvasHeight * rectObject.y) / 100
-      setMarimoPosition({ x: percentagedX, y: percentagedY })
-    }
-  }, [marimo])
-
-  // marimo image load
-  useEffect(() => {
-    if (!marimoImgSrc) return
-
-    const loadMarimoImage = () => {
-      const marimoImage = imageRef.current
-      marimoImage.src = marimoImgSrc
-      marimoImage.onload = () => setMarimoImageLoaded(true)
-      marimoImage.onerror = () => console.error("Failed to load image")
-    }
-
-    loadMarimoImage()
-  }, [marimoImgSrc])
-
-  // trashItems
-  useEffect(() => {
-    if (!marimo) return
-    // trashItems 개수에 따라 marimo의 상태와 이미지 변경
-    if (trashItems.length === 30 || trashItems.length === 0) {
-      updateMarimoStatusAndImgSrc()
-      fetchMarimoStatus()
-    }
-  }, [trashItems.length])
 
   // marimo bounce animation
   const animateMarimo = () => {
@@ -191,7 +90,6 @@ const Canvas = () => {
       requestAnimationFrame(animateMarimo)
     }
   }
-
   useEffect(() => {
     if (!isDragging) {
       const animationFrameId = requestAnimationFrame(animateMarimo)
@@ -199,19 +97,31 @@ const Canvas = () => {
     }
   }, [isDragging, bounce, velocity])
 
-  const isColliding = (
-    marimoPosition: { x: number; y: number },
-    trashPosition: { x: number; y: number; width: number; height: number },
-  ) => {
-    if (!marimo) return
-    return !(
-      marimoPosition.x + marimoSizePx < trashPosition.x ||
-      marimoPosition.x > trashPosition.x + trashPosition.width ||
-      marimoPosition.y + marimoSizePx < trashPosition.y ||
-      marimoPosition.y > trashPosition.y + trashPosition.height
-    )
-  }
+  // trashItems의 개수에 따라 zustand.marimo의 status 및 이미지 변경
+  useEffect(() => {
+    updateMarimoStatusAndImgSrc()
+  }, [trashItems?.length])
 
+  // status가 변경 될 때만 fetch
+  useEffect(() => {
+    if (!marimo) return
+    fetchMarimoStatus()
+  }, [marimo?.status])
+
+  // 마리모 이미지 로드
+  const loadMarimoImage = () => {
+    if (!marimoImgSrc) return
+
+    const marimoImage = imageRef.current
+    marimoImage.src = marimoImgSrc
+    marimoImage.onload = () => setMarimoImageLoaded(true)
+    marimoImage.onerror = () => console.error("Failed to load image")
+  }
+  useEffect(() => {
+    loadMarimoImage()
+  }, [marimoImgSrc])
+
+  // 캔버스 그리기
   const drawOnCanvas = () => {
     if (canvasRef.current) {
       const canvas = canvasRef.current
@@ -250,7 +160,18 @@ const Canvas = () => {
       }
     }
   }
-
+  const isColliding = (
+    marimoPosition: { x: number; y: number },
+    trashPosition: { x: number; y: number; width: number; height: number },
+  ) => {
+    if (!marimo) return
+    return !(
+      marimoPosition.x + marimoSizePx < trashPosition.x ||
+      marimoPosition.x > trashPosition.x + trashPosition.width ||
+      marimoPosition.y + marimoSizePx < trashPosition.y ||
+      marimoPosition.y > trashPosition.y + trashPosition.height
+    )
+  }
   useEffect(() => {
     if (!canvasWidth || !canvasHeight || !marimoPosition) return
 
@@ -266,7 +187,90 @@ const Canvas = () => {
     } else {
       setIsEscape(false)
     }
-  }, [canvasWidth, canvasHeight, marimoPosition])
+  }, [
+    marimoPosition,
+    marimoImageLoaded,
+    loadedTrashImages,
+    canvasWidth,
+    canvasHeight,
+    marimoSizePx,
+    bounce,
+  ])
+
+  // window가 새로고침 혹은 닫히기 전 현재 마리모 상태를 저장
+  useEffect(() => {
+    const handleBeforeUnload = async () => {
+      await updateMarimo()
+    }
+
+    window.addEventListener("beforeunload", handleBeforeUnload)
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload)
+    }
+  }, [])
+
+  // 마리모 fetch
+  useEffect(() => {
+    const fetchMarimo = async () => {
+      try {
+        const response = await fetch(`/api/marimo/`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch data")
+        }
+
+        const data = await response.json()
+
+        const marimoImageResponse = await fetch(
+          `/api/marimo/images/${data.id}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          },
+        )
+
+        if (!marimoImageResponse.ok) {
+          throw new Error("Failed to marimoImageResponse fetch data")
+        }
+
+        const images = await marimoImageResponse.json()
+
+        if (images) {
+          const { angry, dead, leftTwerk, rightTwerk } = images
+          setImages(angry, dead, leftTwerk, rightTwerk)
+        }
+
+        setMarimo(data)
+
+        setTrashItems(data.objects)
+
+        updateMarimoStatusAndImgSrc()
+        fetchMarimoStatus()
+      } catch (error) {
+        console.error("API Error:", error)
+      }
+    }
+
+    fetchMarimo()
+  }, [])
+
+  // 마리모 position 변경
+  useEffect(() => {
+    if (marimo && marimo.rect) {
+      const rectObject = JSON.parse(marimo.rect)
+      const percentagedX = (canvasWidth * rectObject.x) / 100
+      const percentagedY = (canvasHeight * rectObject.y) / 100
+      setMarimoPosition({ x: percentagedX, y: percentagedY })
+    }
+  }, [marimo])
 
   const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = canvasRef.current?.getBoundingClientRect()
@@ -318,42 +322,10 @@ const Canvas = () => {
     }
   }
 
-  const handleTouchStart = (event: React.TouchEvent<HTMLCanvasElement>) => {
-    const touch = event.touches[0]
-    const rect = canvasRef.current?.getBoundingClientRect()
-    if (!rect || !marimo) return
-    const x = touch.clientX - rect.left
-    const y = touch.clientY - rect.top
-
-    if (
-      marimoPosition &&
-      x > marimoPosition.x &&
-      x < marimoPosition.x + marimoSizePx &&
-      y > marimoPosition.y &&
-      y < marimoPosition.y + marimoSizePx
-    ) {
-      setIsDragging(true)
-      setStartPosition({ x: x - marimoPosition.x, y: y - marimoPosition.y })
-    }
-  }
-
-  const handleTouchMove = (event: React.TouchEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current
-    if (!canvas || !marimo || !isDragging) return
-    const touch = event.touches[0]
-    const rect = canvasRef.current?.getBoundingClientRect()
-    if (!rect) return
-    const x = touch.clientX - rect.left
-    const y = touch.clientY - rect.top
-    const newX = x - startPosition.x
-    const newY = y - startPosition.y
-    setMarimoPosition({ x: newX, y: newY })
-  }
-
   const updateMarimo = async () => {
     if (!marimoPosition) return
 
-    fetchActive()
+    await fetchActive()
 
     const updatedRect = JSON.stringify({
       x: (marimoPosition.x * 100) / canvasWidth,
@@ -377,7 +349,42 @@ const Canvas = () => {
     }
 
     const updatedData = await response.json()
+    console.log(updatedData)
+
     setMarimo(updatedData)
+  }
+
+  const handleTouchStart = (event: React.TouchEvent<HTMLCanvasElement>) => {
+    const touch = event.touches[0]
+    const rect = canvasRef.current?.getBoundingClientRect()
+    if (!rect || !marimo) return
+    const x = touch.clientX - rect.left
+    const y = touch.clientY - rect.top
+
+    if (
+      marimoPosition &&
+      x > marimoPosition.x &&
+      x < marimoPosition.x + marimoSizePx &&
+      y > marimoPosition.y &&
+      y < marimoPosition.y + marimoSizePx
+    ) {
+      setIsDragging(true)
+      setStartPosition({ x: x - marimoPosition.x, y: y - marimoPosition.y })
+    }
+  }
+
+  const handleTouchMove = (event: React.TouchEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    if (!isDragging) return
+    const touch = event.touches[0]
+    const rect = canvasRef.current?.getBoundingClientRect()
+    if (!rect) return
+    const x = touch.clientX - rect.left
+    const y = touch.clientY - rect.top
+    const newX = x - startPosition.x
+    const newY = y - startPosition.y
+    setMarimoPosition({ x: newX, y: newY })
   }
 
   // DragEnd
@@ -421,7 +428,6 @@ const Canvas = () => {
           </button>
         </div>
       )}
-
       <canvas
         ref={canvasRef}
         className={styles.canvas}
