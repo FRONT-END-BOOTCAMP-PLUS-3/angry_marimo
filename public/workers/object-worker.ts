@@ -3,6 +3,8 @@ import { randomLocation } from "@marimo/public/utils/random-location"
 
 import { HEADER_HEIGHT } from "@marimo/constants/trash-header"
 
+let interval: string | number | NodeJS.Timeout | undefined
+
 self.addEventListener(
   "message",
   (
@@ -14,7 +16,6 @@ self.addEventListener(
   ) => {
     try {
       const { message, windowHeight, second } = event.data
-      let interval: string | number | NodeJS.Timeout | undefined
 
       if (message === "start" && windowHeight && second) {
         const headerHeight = HEADER_HEIGHT
