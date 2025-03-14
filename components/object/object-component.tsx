@@ -40,7 +40,7 @@ export const useObjectComponent = () => {
         })
       }
     }
-  }, [isMarimoLoading])
+  }, [trashItems.length, isMarimoLoading])
 
   useEffect(() => {
     workerLoading()
