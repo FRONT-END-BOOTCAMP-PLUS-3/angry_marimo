@@ -11,7 +11,7 @@ export class PgObjectRepository implements ObjectRepository {
       const findById = await this.prisma.object.findUnique({
         where: { id },
       })
-      return findById || null
+      return findById
     } catch (error) {
       throw new Error(`PgObjectRepository.findId.error =========> \n ${error}`)
     } finally {
@@ -19,12 +19,12 @@ export class PgObjectRepository implements ObjectRepository {
     }
   }
 
-  async findAllByMarimoId(marimoId: number): Promise<ObjectItem[] | null> {
+  async findAllByMarimoId(marimoId: number): Promise<ObjectItem[]> {
     try {
       const findByMarimoId = await this.prisma.object.findMany({
         where: { marimoId, isActive: true },
       })
-      return findByMarimoId.length > 0 ? findByMarimoId : null
+      return findByMarimoId
     } catch (error) {
       throw new Error(
         `PgObjectRepository.findAllByMarimoId.error =========> \n ${error}`,
@@ -92,20 +92,27 @@ export class PgObjectRepository implements ObjectRepository {
     }
   }
 
-  async update(id: number): Promise<ObjectItem> {
+  async update(id: number, isActive = false): Promise<ObjectItem | null> {
     try {
       const updateObject = await this.prisma.object.update({
         where: {
           id,
         },
         data: {
-          isActive: false,
+          isActive,
         },
       })
 
+      if (!updateObject) {
+        return this.prisma.object.findUnique({
+          where: { id },
+        })
+      }
       return updateObject
     } catch (error) {
-      throw new Error(`PgObjectRepository.update.error =========> \n ${error}`)
+      return this.prisma.object.findUnique({
+        where: { id },
+      })
     } finally {
       await this.prisma.$disconnect()
     }

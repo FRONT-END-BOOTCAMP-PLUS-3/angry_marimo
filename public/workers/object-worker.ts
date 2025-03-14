@@ -3,47 +3,52 @@ import { randomLocation } from "@marimo/public/utils/random-location"
 
 import { HEADER_HEIGHT } from "@marimo/constants/trash-header"
 
-import { Marimo } from "@prisma/client"
+let interval: string | number | NodeJS.Timeout | undefined
 
 self.addEventListener(
   "message",
   (
     event: MessageEvent<{
-      itemCount: number
-      marimo: Marimo
-      windowHeight: number
+      message: string
+      windowHeight?: number
+      second?: number
     }>,
   ) => {
-    const { windowHeight } = event.data
-    const headerHeight = HEADER_HEIGHT
+    try {
+      const { message, windowHeight, second } = event.data
 
-    const second = 1440000
-    let interval: string | number | NodeJS.Timeout | undefined
+      if (message === "start" && windowHeight && second) {
+        const headerHeight = HEADER_HEIGHT
 
-    clearInterval(interval)
+        const startInterval = () => {
+          clearInterval(interval)
+          interval = setInterval(async () => {
+            const point = randomLocation(1)[0]
+            const level = Math.floor(Math.random() * 3) + 1
 
-    const startInterval = () => {
-      clearInterval(interval)
-      interval = setInterval(async () => {
+            const newTrashItem = {
+              level,
+              url: getTrashImage(level),
+              rect: {
+                x: point.x * 70,
+                y: point.y * 70 + (headerHeight / windowHeight) * 100,
+              },
+              isActive: true,
+              type: "trash",
+            }
 
-        const point = randomLocation(1)[0]
-        const level = Math.floor(Math.random() * 3) + 1
-
-        const newTrashItem = {
-          level,
-          url: getTrashImage(level),
-          rect: {
-            x: point.x * 70,
-            y: point.y * 70 + (headerHeight / windowHeight) * 100,
-          },
-          isActive: true,
-          type: "trash",
+            postMessage(newTrashItem)
+          }, second)
         }
 
-        postMessage(newTrashItem)
-      }, second)
-    }
+        startInterval()
+      }
 
-    startInterval()
+      if (message === "stop") {
+        clearInterval(interval)
+      }
+    } catch (error) {
+      console.error("❌ postMessage error in worker:", error)
+    }
   },
 )

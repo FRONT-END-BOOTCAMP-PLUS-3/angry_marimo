@@ -1,3 +1,4 @@
+import { Object as IObject } from "@prisma/client"
 import { ObjectRepository } from "@marimo/domain/repositories"
 import { InputJsonValue } from "@prisma/client/runtime/client"
 import { IObjectDto } from "@marimo/application/usecases/object/dto/object-dto"
@@ -60,5 +61,25 @@ export class TrashToObjectUseCase {
     }))
 
     return this.objectRepository.createAll(formattedItems)
+  }
+
+  async updateMany(idList: number[]): Promise<IObject[]> {
+    try {
+      const updatedObjects: IObject[] = []
+
+      Promise.all(
+        idList.map(async (id: number) => {
+          const updatedObject = await this.objectRepository.update(id, false)
+
+          if (!updatedObject) return
+
+          updatedObjects.push(updatedObject)
+        }),
+      )
+
+      return updatedObjects.filter((item) => item.isActive)
+    } catch (error) {
+      throw new Error(`TrashToObjectUseCase.execute error: ${error}`)
+    }
   }
 }

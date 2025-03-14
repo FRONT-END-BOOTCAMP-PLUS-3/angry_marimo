@@ -11,7 +11,7 @@ import { useWindowEvents } from "@marimo/public/utils/use-window-event"
 import { useStore } from "@marimo/stores/use-store"
 
 export const useObjectComponent = () => {
-  const { marimo, isMarimoLoading } = useStore()
+  const { marimo, isMarimoLoading, trashItems } = useStore()
   const { worker, isWorkerRunning, workerLoading, terminateWorker } =
     useWorker()
 
@@ -22,10 +22,25 @@ export const useObjectComponent = () => {
     if (!window || !isWorkerRunning || !worker.current || !marimo) return
 
     const windowHeight = window.innerHeight || 1
+
+    const second = trashItems.length < 15 ? 77000 : 144000
+
     worker.current.postMessage({
+      message: "start",
       windowHeight,
+      second,
     })
-  }, [isMarimoLoading])
+
+    return () => {
+      if (worker.current) {
+        worker.current.postMessage({
+          message: "stop",
+          windowHeight,
+          second,
+        })
+      }
+    }
+  }, [trashItems.length, isMarimoLoading])
 
   useEffect(() => {
     workerLoading()

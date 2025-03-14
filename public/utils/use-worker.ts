@@ -37,8 +37,6 @@ export const useWorker = () => {
       { type: "module" },
     )
 
-    if (!marimo || !marimo.id) return
-
     worker.current.onmessage = async (event) => {
       const { data: objectItem } = event
       if ((trashItems?.length || 0) < 30) addTrashItems(objectItem)
