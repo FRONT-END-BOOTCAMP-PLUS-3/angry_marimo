@@ -4,7 +4,7 @@ import { Object as IObject } from "@prisma/client"
 import { JsonValue } from "@prisma/client/runtime/client"
 import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto"
 
-interface ILoadedTrashImage extends ITrashDto {
+export interface ILoadedTrashImage extends ITrashDto {
   image: HTMLImageElement
 }
 

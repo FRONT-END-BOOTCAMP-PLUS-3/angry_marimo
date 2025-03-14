@@ -2,6 +2,7 @@ import type { StateCreator } from "zustand"
 
 import { State } from "@marimo/stores/use-store"
 import { Object as IObject } from "@prisma/client"
+import { ILoadedTrashImage } from "@marimo/stores/trash-store"
 
 export type TMarimo = {
   id: number
@@ -207,23 +208,19 @@ export const createMarimoSlice: StateCreator<
     const marimo = await response.json()
 
     const trashItems = marimo.objects as IObject[]
+    const loadedTrashImages = [] as ILoadedTrashImage[]
 
     trashItems.forEach((item) => {
       const img = new Image()
       img.src = item.url
 
-      img.onload = () =>
-        set((state) => ({
-          loadedTrashImages: [
-            ...(state.loadedTrashImages ?? []),
-            { ...item, image: img },
-          ],
-        }))
+      img.onload = () => loadedTrashImages.push({ ...item, image: img })
     })
 
     set({
       marimo,
       trashItems,
+      loadedTrashImages,
       marimoImgSrc: "/images/marimo.svg",
       marimoSrc: "/images/marimo.svg",
       deadMarimoSrc: "/images/dead-marimo.svg",
