@@ -52,7 +52,6 @@ const Canvas = () => {
     fetchActive,
   } = useStore()
 
-  // canvas resize
   const handleCanvasResize = () => {
     setCanvasWidth(window.innerWidth)
     setCanvasHeight(window.innerHeight)
@@ -65,17 +64,15 @@ const Canvas = () => {
     }
   }, [])
 
-  // marimo size
   useEffect(() => {
     if (!marimo || !marimo.size) return
     const newSize = remToPx(marimo.size, canvasWidth)
     setMarimoSizePx(newSize)
   }, [marimo?.size, canvasWidth])
 
-  // marimo bounce animation
   const animateMarimo = () => {
     if (marimo?.status === "dead") {
-      setBounce(0) // 죽은 상태일 때 bounce 제거
+      setBounce(0) 
       return
     }
 
@@ -97,18 +94,15 @@ const Canvas = () => {
     }
   }, [isDragging, bounce, velocity])
 
-  // trashItems의 개수에 따라 zustand.marimo의 status 및 이미지 변경
   useEffect(() => {
     updateMarimoStatusAndImgSrc()
   }, [trashItems?.length])
 
-  // status가 변경 될 때만 fetch
   useEffect(() => {
     if (!marimo) return
     fetchMarimoStatus()
   }, [marimo?.status])
 
-  // 마리모 이미지 로드
   const loadMarimoImage = () => {
     if (!marimoImgSrc) return
 
@@ -121,7 +115,6 @@ const Canvas = () => {
     loadMarimoImage()
   }, [marimoImgSrc])
 
-  // 캔버스 그리기
   const drawOnCanvas = () => {
     if (canvasRef.current) {
       const canvas = canvasRef.current
@@ -197,7 +190,6 @@ const Canvas = () => {
     bounce,
   ])
 
-  // window가 새로고침 혹은 닫히기 전 현재 마리모 상태를 저장
   useEffect(() => {
     const handleBeforeUnload = async () => {
       await updateMarimo()
@@ -210,7 +202,6 @@ const Canvas = () => {
     }
   }, [])
 
-  // 마리모 fetch
   useEffect(() => {
     const fetchMarimo = async () => {
       try {
@@ -262,7 +253,6 @@ const Canvas = () => {
     fetchMarimo()
   }, [])
 
-  // 마리모 position 변경
   useEffect(() => {
     if (marimo && marimo.rect) {
       const rectObject = JSON.parse(marimo.rect)
@@ -387,7 +377,6 @@ const Canvas = () => {
     setMarimoPosition({ x: newX, y: newY })
   }
 
-  // DragEnd
   const handleDragEnd = () => {
     setIsDragging(false)
     updateMarimo()
