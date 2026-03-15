@@ -1,0 +1,34 @@
+@keyframes bounceMove {
+  0% {
+    transform: translateX(25vw) translateY(-20px);
+  }
+  50% {
+    transform: translateX(50vw) translateY(0);
+  }
+  100% {
+    transform: translateX(75vw) translateY(-20px);
+  }
+}
+
+.bouncing_image {
+  width: 100px;
+  height: auto;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  animation: bounceMove 5s infinite ease-in-out;
+}
+
+.container {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container > div {
+    position: absolute;
+    top: 40%;
+}

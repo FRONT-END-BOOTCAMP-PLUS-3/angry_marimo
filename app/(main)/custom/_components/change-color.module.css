@@ -1,0 +1,31 @@
+.wrapper {
+    position: relative;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 2rem;
+}
+
+.marimo_name {
+  width: 100%;
+  max-width: 240px;
+
+  padding: 0.5rem;
+  font-size: 1.2rem;
+
+  text-align: center;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.marimo_images {
+  position: fixed;
+
+  left: 100%;
+}

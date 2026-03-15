@@ -6,6 +6,34 @@ import { Object as ObjectItem, PrismaClient } from "@prisma/client"
 export class PgObjectRepository implements ObjectRepository {
   constructor(private prisma: PrismaClient) {}
 
+  async findById(id: number): Promise<ObjectItem | null> {
+    try {
+      const findById = await this.prisma.object.findUnique({
+        where: { id },
+      })
+      return findById
+    } catch (error) {
+      throw new Error(`PgObjectRepository.findId.error =========> \n ${error}`)
+    } finally {
+      await this.prisma.$disconnect()
+    }
+  }
+
+  async findAllByMarimoId(marimoId: number): Promise<ObjectItem[]> {
+    try {
+      const findByMarimoId = await this.prisma.object.findMany({
+        where: { marimoId, isActive: true },
+      })
+      return findByMarimoId
+    } catch (error) {
+      throw new Error(
+        `PgObjectRepository.findAllByMarimoId.error =========> \n ${error}`,
+      )
+    } finally {
+      await this.prisma.$disconnect()
+    }
+  }
+
   async create(
     marimoId: number,
     type: string,
@@ -13,7 +41,7 @@ export class PgObjectRepository implements ObjectRepository {
     isActive: boolean,
     url: string,
     level: number,
-  ): Promise<ObjectItem> {
+  ): Promise<Omit<ObjectItem, "id">> {
     try {
       const createdObject = await this.prisma.object.create({
         data: {
@@ -29,64 +57,62 @@ export class PgObjectRepository implements ObjectRepository {
     } catch (error) {
       console.error("❌ Prisma create error:", error)
       throw new Error("Database insertion failed")
+    } finally {
+      await this.prisma.$disconnect()
     }
   }
 
-  async update(
-    id: number,
-    isActive: boolean,
-    updatedAt: Date,
-  ): Promise<ObjectItem | null> {
+  async createAll(
+    objects: {
+      marimoId: number
+      type: string
+      rect: InputJsonValue
+      isActive: boolean
+      url: string
+      level: number
+    }[],
+  ): Promise<ObjectItem[]> {
+    try {
+      await this.prisma.object.createMany({
+        data: objects,
+      })
+
+      const newObjects = await this.prisma.object.findMany({
+        where: {
+          marimoId: objects[0].marimoId,
+        },
+      })
+
+      return newObjects
+    } catch (error) {
+      console.error("❌ Prisma 생성 error===> createMany:", error)
+      throw new Error("Database insertion failed")
+    } finally {
+      await this.prisma.$disconnect()
+    }
+  }
+
+  async update(id: number, isActive = false): Promise<ObjectItem | null> {
     try {
       const updateObject = await this.prisma.object.update({
-        where: { id },
-        data: { isActive, updatedAt },
+        where: {
+          id,
+        },
+        data: {
+          isActive,
+        },
       })
-      return updateObject || null
-    } catch (error) {
-      throw new Error(`PgObjectRepository.update.error =========> \n ${error}`)
-    } finally {
-      await this.prisma.$disconnect()
-    }
-  }
 
-  async findById(id: number): Promise<ObjectItem | null> {
-    try {
-      const findById = await this.prisma.object.findUnique({
-        where: { id },
-      })
-      return findById || null
+      if (!updateObject) {
+        return this.prisma.object.findUnique({
+          where: { id },
+        })
+      }
+      return updateObject
     } catch (error) {
-      throw new Error(`PgObjectRepository.findId.error =========> \n ${error}`)
-    } finally {
-      await this.prisma.$disconnect()
-    }
-  }
-
-  async findAllByMarimoId(marimoId: number): Promise<ObjectItem[] | null> {
-    try {
-      const findByMarimoId = await this.prisma.object.findMany({
-        where: { marimoId },
-      })
-      return findByMarimoId || null
-    } catch (error) {
-      throw new Error(
-        `PgObjectRepository.findAllByMarimoId.error =========> \n ${error}`,
-      )
-    } finally {
-      await this.prisma.$disconnect()
-    }
-  }
-
-  async deleteObject(id: number): Promise<void> {
-    try {
-      await this.prisma.object.delete({
+      return this.prisma.object.findUnique({
         where: { id },
       })
-    } catch (error) {
-      throw new Error(
-        `PgObjectRepository.deleteById.error =========> \n ${error}`,
-      )
     } finally {
       await this.prisma.$disconnect()
     }

@@ -61,13 +61,29 @@ export const PayForm = () => {
   const onClickHandler = async () => {
     if (user === null) return
 
+    const response = await fetch(`/api/marimo/${user.id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (!response.ok) {
+      alert("서버에 문제가 있어요, 잠시 후 다시 시도해주세요!")
+      return
+    }
+
+    const { user: marimo } = await response.json()
+
+    if (!marimo) return
+
     try {
       if (widgets === null) return
 
       await widgets.requestPayment({
         orderId: `order_id-${uuidGenerator()}`,
         orderName: "앵그리 마리모 후원하기",
-        successUrl: window.location.origin + "/pay/toss/success",
+        successUrl: window.location.origin + `/pay/toss/success/${marimo.id}`,
         failUrl: window.location.origin + "/pay/toss/fail",
         customerEmail: user.email,
         customerName: user.name,

@@ -9,6 +9,7 @@ const prismaMock = {
     findUnique: vi.fn(),
     findMany: vi.fn(),
   },
+  $disconnect: vi.fn(),
 }
 
 const orderRepository = new PgOrderRepository(

@@ -1,10 +1,17 @@
-import { PrismaClient, Marimo } from "@prisma/client"
-import { MarimoRepository } from "@marimo/domain/repositories"
+import { getTrashImage } from "@marimo/public/utils/level-image"
+import { randomLocation } from "@marimo/public/utils/random-location"
+
+import { InputJsonValue } from "@prisma/client/runtime/client"
+import { PrismaClient, Marimo, Object as IObject } from "@prisma/client"
+import { MarimoRepository, ObjectRepository } from "@marimo/domain/repositories"
 
 export class MarimoUsecase {
   private prisma: PrismaClient
 
-  constructor(private marimoRepository: MarimoRepository) {
+  constructor(
+    private marimoRepository: MarimoRepository,
+    private objectRepository: ObjectRepository,
+  ) {
     this.prisma = new PrismaClient()
   }
 
@@ -25,28 +32,64 @@ export class MarimoUsecase {
     }
   }
 
-  private async createDefaultMarimo(userId: number): Promise<Marimo> {
+  async createDefaultMarimo(
+    userId: number,
+  ): Promise<Marimo & { objects: IObject[] }> {
     const defaultMarimo = {
+      name: "marimo",
       userId: userId,
-      size: 100, // Default size
-      rect: JSON.stringify({ x: 50, y: 50 }), // Default position
-      color: "dark_green", // Default color
-      status: "angry", // Default status
+      size: 5,
+      rect: JSON.stringify({ x: 50, y: 50 }),
+      color: "#89a45f",
+      status: "angry",
     }
 
-    return this.marimoRepository.createDefaultMarimo(defaultMarimo)
+    const newMarimo =
+      await this.marimoRepository.createDefaultMarimo(defaultMarimo)
 
-    // return this.prisma.marimo.create({
-    //   data: defaultMarimo,
-    // })
+    if (!newMarimo) throw new Error("마리모 생성 실패")
+
+    const points = randomLocation(5)
+
+    const newTrashItems = points.map((point) => {
+      const level = Math.floor(Math.random() * 3) + 1
+
+      return {
+        marimoId: newMarimo.id,
+        level,
+        url: getTrashImage(level),
+        rect: {
+          x: point.x * 70,
+          y: point.y * 70,
+        },
+        isActive: true,
+        type: "trash",
+      }
+    }) as {
+      marimoId: number
+      type: string
+      rect: InputJsonValue
+      isActive: boolean
+      url: string
+      level: number
+    }[]
+
+    const trashItems = await this.objectRepository.createAll(newTrashItems)
+
+    return {
+      ...newMarimo,
+      objects: trashItems,
+    }
   }
 
   async updateMarimo(marimoData: Marimo) {
-    const { id, userId, name, size, rect, color, status } = marimoData
+    const { id, userId, name, size, rect, color, src, status } = marimoData
+
     return this.marimoRepository.updateMarimo(id, {
       id,
       userId,
       name,
+      src,
       size,
       rect,
       color,

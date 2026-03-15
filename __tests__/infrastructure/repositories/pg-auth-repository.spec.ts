@@ -10,6 +10,7 @@ vi.mock("@prisma/client", () => {
     user: {
       create: vi.fn(),
     },
+    $disconnect: vi.fn(),
   }
   return { PrismaClient: vi.fn(() => mockPrisma) }
 })

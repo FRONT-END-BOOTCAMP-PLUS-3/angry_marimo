@@ -1,3 +1,5 @@
+import { CouponRepository } from "@marimo/domain/repositories/coupon-repository"
+
 import { sumValues } from "@marimo/utils/sum-values"
 
 import { TOrderStatus } from "@marimo/types"
@@ -14,7 +16,18 @@ describe("OrderUsecase 테스트", () => {
     findAllOrders: vi.fn(),
   }
 
-  const orderUsecase = new OrderUsecase(mockOrderRepository)
+  const mockCouponRepository: CouponRepository = {
+    create: vi.fn(),
+    update: vi.fn(),
+    findById: vi.fn(),
+    findAllByUserId: vi.fn(),
+    countByUserId: vi.fn(),
+  }
+
+  const orderUsecase = new OrderUsecase(
+    mockOrderRepository,
+    mockCouponRepository,
+  )
 
   const findAllOrders = mockOrderRepository.findAllOrders as Mock
   const create = mockOrderRepository.create as Mock

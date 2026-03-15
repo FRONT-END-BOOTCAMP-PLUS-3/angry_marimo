@@ -8,31 +8,36 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  password  String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  history   History[]
-  marimos   Marimo[]
-  orders    Order[]
+  id              Int         @id @default(autoincrement())
+  email           String      @unique
+  password        String
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  description     String      @default("")
+  guestGuestBooks GuestBook[] @relation("GuestRelation")
+  ownedGuestBooks GuestBook[] @relation("OwnerRelation")
+  history         History[]
+  marimos         Marimo[]
+  orders          Order[]
 
   @@map("users")
 }
 
 model Marimo {
-  id        Int       @id @default(autoincrement())
+  id        Int           @id @default(autoincrement())
   userId    Int
   size      Int
   rect      Json
   color     String
   status    String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  name      String    @default("marimo")
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  name      String        @default("marimo")
+  src       String        @default("/images/marimo.svg")
   history   History[]
-  user      User      @relation(fields: [userId], references: [id])
-  object    Object[]
+  images    MarimoImage[] @relation("MarimoImagesRelation")
+  user      User          @relation(fields: [userId], references: [id])
+  objects   Object[]      @relation("MarimoToObjectRelation")
   orders    Order[]
 
   @@map("marimos")
@@ -48,7 +53,7 @@ model Object {
   updatedAt DateTime @updatedAt
   level     Int
   url       String
-  marimo    Marimo   @relation(fields: [marimoId], references: [id])
+  marimo    Marimo   @relation("MarimoToObjectRelation", fields: [marimoId], references: [id])
 
   @@map("objects")
 }
@@ -83,11 +88,40 @@ model Order {
   @@map("orders")
 }
 
-model coupons {
+model Coupon {
   id        Int      @id @default(autoincrement())
   userId    Int
   code      String
   isUsed    Boolean
   createdAt DateTime @default(now())
-  updatedAt DateTime
+  updatedAt DateTime @updatedAt
+
+  @@map("coupons")
+}
+
+model GuestBook {
+  id        Int      @id @default(autoincrement())
+  ownerId   Int
+  guestId   Int
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  guest     User     @relation("GuestRelation", fields: [guestId], references: [id])
+  owner     User     @relation("OwnerRelation", fields: [ownerId], references: [id])
+
+  @@map("guestbooks")
+}
+
+model MarimoImage {
+  id         Int      @id @default(autoincrement())
+  marimoId   Int
+  angry      String
+  leftTwerk  String
+  rightTwerk String
+  dead       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  marimo     Marimo   @relation("MarimoImagesRelation", fields: [marimoId], references: [id])
+
+  @@map("marimo-images")
 }

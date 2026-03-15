@@ -6,7 +6,7 @@ export function middleware(req: NextRequest) {
   const token = req.cookies.get("token")?.value
   const { pathname } = req.nextUrl
 
-  if (pathname === "/pay/toss/success" || pathname === "/pay/toss/fail") {
+  if (pathname.startsWith("/pay/toss")) {
     return NextResponse.next()
   }
 
@@ -23,15 +23,6 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - /api (API requests)
-     * - Image files (svg, png, jpg, jpeg, gif, webp)
-     * - /pay (URLs starting with /pay)
-     */
-    "/((?!_next/static|_next/image|favicon.ico|api|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$|^/pay).*)",
+    "/((?!_next/static|_next/image|api|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$|^/pay).*)",
   ],
 }

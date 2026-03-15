@@ -8,6 +8,7 @@ vi.mock("@prisma/client", () => {
     user: {
       findUnique: vi.fn(),
     },
+    $disconnect: vi.fn(),
   }
   return { PrismaClient: vi.fn(() => mockPrisma) }
 })
@@ -21,7 +22,7 @@ test("findByEmail 메서드가 정상적으로 작동하는지 테스트", async
 
   findUnique.mockResolvedValueOnce(mockUser)
 
-  const pgUserRepo = new PgUserRepository()
+  const pgUserRepo = new PgUserRepository(mockPrisma)
 
   const result = await pgUserRepo.findByEmail(mockEmail)
 
@@ -38,7 +39,7 @@ test("findByEmail 메서드가 사용자 없을 때 null을 반환하는지 테�
   const mockPrisma = new PrismaClient()
   findUnique.mockResolvedValueOnce(null)
 
-  const pgUserRepo = new PgUserRepository()
+  const pgUserRepo = new PgUserRepository(mockPrisma)
   const result = await pgUserRepo.findByEmail(mockEmail)
 
   expect(result).toBeNull()
@@ -54,7 +55,7 @@ test("findById 메서드가 정상적으로 작동하는지 테스트", async ()
   const mockPrisma = new PrismaClient()
   findUnique.mockResolvedValueOnce(mockUser)
 
-  const pgUserRepo = new PgUserRepository()
+  const pgUserRepo = new PgUserRepository(mockPrisma)
 
   const result = await pgUserRepo.findById(mockId)
 
@@ -70,7 +71,7 @@ test("findById 메서드가 사용자 없을 때 null을 반환하는지 테스�
   const mockPrisma = new PrismaClient()
   findUnique.mockResolvedValueOnce(null)
 
-  const pgUserRepo = new PgUserRepository()
+  const pgUserRepo = new PgUserRepository(mockPrisma)
   const result = await pgUserRepo.findById(mockId)
 
   expect(result).toBeNull()

@@ -11,7 +11,7 @@ import { useStore } from "@marimo/stores/use-store"
 export const Dropdown = () => {
   const route = useRouter()
 
-  const { user } = useStore()
+  const { user, resetImages } = useStore()
 
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -32,6 +32,7 @@ export const Dropdown = () => {
     document.cookie = `token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`
 
     setIsOpen(false)
+    resetImages()
 
     route.push("/login")
   }
@@ -64,7 +65,17 @@ export const Dropdown = () => {
       </button>
       {isOpen && (
         <div className={dropdown}>
-          <button className={button}>새 마리모 만들기</button>
+          <button
+            className={button}
+            onClick={(event) => {
+              event.stopPropagation()
+
+              setIsOpen(false)
+              route.push("/custom")
+            }}
+          >
+            마리모 꾸미기
+          </button>
           <hr className={hr} />
           <button
             className={button}
@@ -76,6 +87,20 @@ export const Dropdown = () => {
             }}
           >
             마리모팀 후원하기
+          </button>
+          <hr className={hr} />
+          <button
+            className={button}
+            onClick={(event) => {
+              event.stopPropagation()
+
+              if (!user) return
+
+              setIsOpen(false)
+              route.push(`/guest-book/${user.id}`)
+            }}
+          >
+            나의 방명록
           </button>
           <hr className={hr} />
           <button className={button} onClick={logoutHandler}>

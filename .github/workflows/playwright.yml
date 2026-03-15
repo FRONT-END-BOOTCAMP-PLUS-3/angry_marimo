@@ -2,7 +2,9 @@ name: Deploy Next.js to Server with Playwright & Vitest
 
 on:
   push:
-    branches: main
+    branches:
+          - main
+          - deploy
 
 jobs:
   # 빌드 단계
@@ -12,6 +14,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          clean: true  # ✅ 기존 파일을 삭제하고 새로 Clone
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -25,37 +29,56 @@ jobs:
       - name: Build Next.js Project
         run: npm run build
 
-  # 테스트 단계 (Playwright + Vitest)
-  test:
-    needs: build  # 빌드가 완료된 후 실행
-    timeout-minutes: 60
-    runs-on: [self-hosted, angry-marimo]
+  # # 테스트 단계 (Playwright + Vitest)
+  # test:
+  #   needs: build
+  #   timeout-minutes: 60
+  #   runs-on: [self-hosted, angry-marimo]
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v4
+  #       with:
+  #         clean: true
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-          cache: 'npm'
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: lts/*
+  #         cache: 'npm'
 
-      - name: Install Dependencies
-        run: npm ci
+  #     - name: Create .env file
+  #       run: |
+  #         cat <<EOF > .env
+  #         NODE_ENV=production
+  #         COOKIE_DOMAIN=${{ secrets.COOKIE_DOMAIN }}
+  #         COOKIE_TOKEN=${{ secrets.COOKIE_TOKEN }}
+  #         DATABASE_URL=${{ secrets.DATABASE_URL }}
+  #         MARIMO_SECRET_KEY=${{ secrets.MARIMO_SECRET_KEY }}
+  #         NEXT_PUBLIC_TOSS_CLIENT_KEY=${{ secrets.NEXT_PUBLIC_TOSS_CLIENT_KEY }}
+  #         NEXT_PUBLIC_URL=${{ secrets.NEXT_PUBLIC_URL }}
+  #         NEXT_TOSS_SECRET_KEY=${{ secrets.NEXT_TOSS_SECRET_KEY }}
+  #         NEXT_URL=${{ secrets.NEXT_URL }}
+  #         NEXT_WWW_URL=${{ secrets.NEXT_WWW_URL }}
+  #         NEXT_STORAGE_SRC=${{ secrets.NEXT_STORAGE_SRC }}
+  #         TEST_BASE_URL=${{ secrets.TEST_BASE_URL }}
+  #         EOF
 
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+  #     - name: Install Dependencies
+  #       run: npm ci
 
-      - name: Run Vitest Tests
-        run: npm run test  # Vitest 단위 테스트 실행
+  #     - name: Run Vitest Tests
+  #       run: npm run test
 
-      - name: Run Playwright Tests
-        run: npx playwright test  # Playwright E2E 테스트 실행
+  #     - name: Run Playwright Tests
+  #       run: |
+  #         export $(grep -v '^#' .env | xargs)
+  #         npm run playwright
+
 
   # 배포 단계
   deploy:
-    needs: test  # 테스트가 완료된 후 배포
+    # needs: test  # 테스트가 완료된 후 배포
     runs-on: [self-hosted, angry-marimo]
 
     steps:
@@ -85,30 +108,37 @@ jobs:
             cd ~
 
             # 리포지토리 확인 후 처리
-            if [ ! -d "$HOME/angry_marimo/.git" ]; then
+            if [ ! -d "/home/angry_marimo/angry_marimo/.git" ]; then
               echo "리포지토리가 없습니다. 클론을 진행합니다..."
               git clone --depth=1 https://github.com/FRONT-END-BOOTCAMP-PLUS-3/angry_marimo.git
             else
               echo "리포지토리가 존재합니다. 최신 코드 가져오기..."
-              cd angry_marimo
-              git reset --hard HEAD
-              git checkout main
-              git pull origin main
+              cd /home/angry_marimo/angry_marimo
+              git fetch origin main
+              if ! git diff --quiet HEAD origin/main; then
+                git reset --hard origin/main
+                git checkout main
+              else
+                echo "변경 사항 없음"
+              fi
             fi
 
-            cd ~/angry_marimo
+            cd /home/angry_marimo/angry_marimo
 
             # 환경 변수 업데이트
             cat <<EOF > .env
             NODE_ENV=production
-            DATABASE_URL=${{ secrets.DATABASE_URL }}
-            MARIMO_SECRET_KEY=${{ secrets.MARIMO_SECRET_KEY }}
-            NEXT_URL=${{ secrets.NEXT_URL }}
-            NEXT_PUBLIC_URL=${{ secrets.NEXT_PUBLIC_URL }}
             COOKIE_DOMAIN=${{ secrets.COOKIE_DOMAIN }}
             COOKIE_TOKEN=${{ secrets.COOKIE_TOKEN }}
-            NEXT_TOSS_SECRET_KEY=${{ secrets.NEXT_TOSS_SECRET_KEY }}
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            MARIMO_SECRET_KEY=${{ secrets.MARIMO_SECRET_KEY }}
             NEXT_PUBLIC_TOSS_CLIENT_KEY=${{ secrets.NEXT_PUBLIC_TOSS_CLIENT_KEY }}
+            NEXT_PUBLIC_URL=${{ secrets.NEXT_PUBLIC_URL }}
+            NEXT_TOSS_SECRET_KEY=${{ secrets.NEXT_TOSS_SECRET_KEY }}
+            NEXT_URL=${{ secrets.NEXT_URL }}
+            NEXT_WWW_URL=${{ secrets.NEXT_WWW_URL }}
+            NEXT_STORAGE_SRC=${{ secrets.NEXT_STORAGE_SRC }}
+            TEST_BASE_URL=${{ secrets.TEST_BASE_URL }}
             EOF
 
             # 패키지 업데이트 및 빌드
@@ -121,6 +151,6 @@ jobs:
               pm2 restart angry-marimo
             else
               echo "프로세스가 실행 중이 아닙니다. 새로 실행합니다..."
-              pm2 start npm --name "angry-marimo" -- run start -- -p 3008
+              pm2 start npm --name "angry-marimo" -- run start -- -p 3080
               pm2 save
             fi

@@ -1,6 +1,8 @@
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 
+import { PrismaClient } from "@prisma/client"
+import { PgUserRepository } from "@marimo/infrastructure/repositories"
 import { UserUsecase } from "@marimo/application/usecases/auth/user-usecase"
 
 export async function GET() {
@@ -10,7 +12,7 @@ export async function GET() {
   if (!token)
     return NextResponse.json({ message: "login failed" }, { status: 401 })
 
-  const usecase = new UserUsecase()
+  const usecase = new UserUsecase(new PgUserRepository(new PrismaClient()))
 
   const user = await usecase.getUser(token)
 

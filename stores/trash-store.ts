@@ -1,17 +1,31 @@
-import { State } from "./use-store"
 import { StateCreator } from "zustand"
+import { State } from "@marimo/stores/use-store"
+import { Object as IObject } from "@prisma/client"
+import { JsonValue } from "@prisma/client/runtime/client"
 import { ITrashDto } from "@marimo/application/usecases/object/dto/trash-dto"
 
-export interface TTrashSlice {
-  trashItems: ITrashDto[]
-  idCounter: number
+export interface ILoadedTrashImage extends ITrashDto {
+  image: HTMLImageElement
+}
 
-  addTrashItems: (items: Omit<ITrashDto, "id">[]) => void
-  removeTrashItem: (id: number) => void
-  clearAllTrash: () => void
-  updateTrashItem: (id: number, updates: Partial<Omit<ITrashDto, "id">>) => void
-  getTrashById: (id: number) => ITrashDto | undefined
-  getTrashByLevel: (level: number) => ITrashDto[]
+export type TTrash = {
+  id: number
+  level: number
+  url: string
+  rect: JsonValue
+  type: string
+  isActive: boolean
+}
+
+export interface TTrashSlice {
+  trashItems: TTrash[]
+  loadedTrashImages: ILoadedTrashImage[]
+  closedItemIds: number[]
+
+  setTrashItems: (trashItems: TTrash[]) => void
+  addTrashItems: (item: TTrash) => void
+  closeActive: (id: number) => void
+  fetchActive: () => Promise<void>
 }
 
 export const useTrashStore: StateCreator<
@@ -21,51 +35,116 @@ export const useTrashStore: StateCreator<
   TTrashSlice
 > = (set, get) => ({
   trashItems: [],
-  idCounter: 0,
+  loadedTrashImages: [],
+  closedItemIds: [],
 
-  addTrashItems: (items) => {
-    set((state) => {
-      const currentIdCounter = state.idCounter ?? 0 // undefined 방지
-      const newItems = items.map((item, index) => ({
-        ...item,
-        id: currentIdCounter + index, // 고유 ID 생성
-      }))
+  setTrashItems: (trashItems: TTrash[]) => {
+    set({ trashItems })
 
-      return {
-        trashItems: [...(state.trashItems || []), ...newItems], // undefined 방지
-        idCounter: currentIdCounter + items.length, // ID 카운터 업데이트
-      }
+    trashItems.forEach((item) => {
+      const img = new Image()
+      img.src = item.url
+
+      img.onload = () =>
+        set((state) => ({
+          loadedTrashImages: [
+            ...(state.loadedTrashImages ?? []),
+            { ...item, image: img },
+          ],
+        }))
     })
   },
 
-  removeTrashItem: (id) => {
+  addTrashItems: async (newTrashItem) => {
+    if (!get().marimo) return
+
+    try {
+      const response = await fetch(`/api/objects`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          marimoId: get().marimo?.id,
+          trashData: newTrashItem,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`🚨 API 요청 실패: ${response.status} - ${errorText}`)
+      }
+
+      const data = await response.json()
+      const objectItem = data.objectItem
+
+      const img = new Image()
+      img.src = objectItem.url
+
+      img.onload = () =>
+        set((state) => ({
+          trashItems: [...(state.trashItems ?? []), objectItem],
+          loadedTrashImages: [
+            ...(state.loadedTrashImages ?? []),
+            { ...objectItem, image: img },
+          ],
+        }))
+    } catch (error) {
+      console.error("❌ API 전송 중 오류 발생:", error)
+    }
+  },
+
+  closeActive: (id: number) => {
+    if (!id) return
+
     set((state) => ({
-      trashItems: (state.trashItems || []).filter((item) => item.id !== id),
+      closedItemIds: [...(state.closedItemIds ?? []), id],
+      trashItems: [
+        ...(state.trashItems ?? []).filter((item) => item.id !== id),
+      ],
+      loadedTrashImages: [
+        ...(state.loadedTrashImages ?? []).filter((item) => item.id !== id),
+      ],
     }))
   },
 
-  clearAllTrash: () => {
-    set({ trashItems: [], idCounter: 0 })
-  },
+  fetchActive: async () => {
+    const idList = get().closedItemIds
 
-  updateTrashItem: (id, updates) => {
-    set((state) => ({
-      trashItems: (state.trashItems || []).map((item) =>
-        item.id === id ? { ...item, ...updates } : item,
-      ),
-    }))
-  },
+    const response = await fetch(`/api/objects`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        idList,
+      }),
+    })
 
-  getTrashById: (id) => {
-    return (get().trashItems || []).find((item) => item.id === id)
-  },
+    if (!response.ok) {
+      console.error("zustand trash-store fetchActive error")
+    }
 
-  getTrashByLevel: (level) => {
-    return (get().trashItems || []).filter((item) => item.level === level)
+    const failedObjects = (await response.json()) as IObject[]
+
+    set((state) => {
+      return {
+        closedItemIds: [],
+        trashItems: [...(state.trashItems ?? []), ...failedObjects],
+      }
+    })
+
+    failedObjects.forEach((item) => {
+      const img = new Image()
+      img.src = item.url
+
+      img.onload = () =>
+        set((state) => ({
+          loadedTrashImages: [
+            ...(state.loadedTrashImages ?? []),
+            { ...item, image: img },
+          ],
+        }))
+    })
   },
 })
-
-export const selectAllTrash = (state: TTrashSlice) => state.trashItems
-export const selectTrashCount = (state: TTrashSlice) => state.trashItems.length
-export const selectTrashByLevel = (level: number) => (state: TTrashSlice) =>
-  state.trashItems.filter((item) => item.level === level)

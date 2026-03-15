@@ -10,12 +10,14 @@ export class PgMarimoRepository implements MarimoRepository {
       const AliveMarimo = await prisma.marimo.findFirst({
         where: {
           userId: userId,
-          status: {
-            not: "dead",
-          },
         },
         include: {
-          object: true, // 관련된 object 정보도 함께 가져옵니다.
+          objects: {
+            where: { isActive: true },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
         },
       })
       return AliveMarimo
@@ -43,6 +45,7 @@ export class PgMarimoRepository implements MarimoRepository {
     }
   }
   async createDefaultMarimo(defaultMarimo: {
+    name: string
     userId: number
     size: number
     rect: string

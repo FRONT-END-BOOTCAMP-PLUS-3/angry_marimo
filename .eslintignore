@@ -2,7 +2,6 @@ node_modules
 __test__
 .vscode
 .github
-public
 docs
 playwright-report
 test-results

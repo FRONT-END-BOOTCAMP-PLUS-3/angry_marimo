@@ -17,13 +17,7 @@ export const VerticalLogo = () => {
           </p>
         </div>
         <div className={image__div}>
-          {/* FIXME : 이미지 변경해야 합니다. */}
-          <Image
-            id="logo"
-            src="./marimo/secondary_marimo.svg"
-            fill
-            alt="marimo"
-          />
+          <Image id="logo" src="./images/marimo.svg" fill alt="marimo" />
         </div>
       </Link>
     </div>
