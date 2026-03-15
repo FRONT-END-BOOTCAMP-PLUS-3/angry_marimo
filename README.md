@@ -1,6 +1,5 @@
-# [Angry Marimo](https://angry-marimo.com): 디지털 외로움 해결 프로젝트
+# Angry Marimo: 디지털 외로움 해결 프로젝트
 
-마리모 키우러 가기 👉([DEMO](https://angry-marimo.com))
 프로젝트의 상세 내용과 저희의 고민들은 WIKI에 정리 하였습니다. 👉([WIKI 바로가기](https://github.com/FRONT-END-BOOTCAMP-PLUS-3/angry_marimo/wiki))
 
 ## 📌 프로젝트 개요
